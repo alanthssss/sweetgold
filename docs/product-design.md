@@ -57,3 +57,16 @@ Across 100 matched seeds, this raises Assignment's mean energy efficiency from
 0.103 to 0.114 while retaining 156.61 mean honey, 95.25% bee survival and a 0%
 invalid-action rate. It slightly beats Greedy's 155.91 mean honey, but does not
 yet match Greedy's 0.122 energy efficiency.
+
+## M4 experiment
+
+Behavior cloning uses an ego-centric fixed vector containing the complete
+flower field and relative states of the other bees. Class-weighted training
+protects rare harvest and deposit actions. One DAgger iteration adds teacher
+labels for states visited by the learned controller, reducing compounding
+errors without contaminating validation or test seeds.
+
+On 30 completely unseen test seeds, the learned controller produces 136.10
+mean honey versus Assignment's 140.30 (97.0%), with 95.0% bee survival and a
+0.77% invalid-action rate. Offline action accuracy is 83.5%; the result confirms
+that online matched-seed performance is the more meaningful selection metric.

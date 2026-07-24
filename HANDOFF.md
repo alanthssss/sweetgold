@@ -51,3 +51,26 @@ Compared with M2 Assignment, energy efficiency improves by about 10% while
 mean honey decreases by about 2.9%. The strict aspirational thresholds of 160
 honey and 0.115 efficiency were not simultaneously attainable with a static
 fleet size; this dynamic schedule is the best tested balance.
+
+## M4 behavior cloning
+
+The optional PyTorch pipeline now supports:
+
+- episode-level train/validation/test seed isolation;
+- Assignment trajectory collection;
+- class-weighted behavior-cloning training;
+- DAgger collection on learner-visited training states;
+- action masking and matched-seed BC benchmarking.
+
+The accepted checkpoint uses 100 teacher episodes plus one 50-episode DAgger
+iteration. On 30 unseen test seeds:
+
+- Assignment: 140.30 mean honey, 92.5% bee survival.
+- Behavior cloning: 136.10 mean honey (97.0% of teacher), 95.0% bee survival,
+  0.77% invalid actions.
+- Greedy: 139.07 mean honey, 62.5% bee survival, 2.97% invalid actions.
+
+Generated datasets, checkpoints, virtual environments and BC reports are
+ignored by Git. A second DAgger iteration was tested and rejected because
+online performance regressed; checkpoint selection must use separate online
+validation seeds rather than assuming more aggregation always helps.

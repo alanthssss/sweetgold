@@ -1,10 +1,19 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from beehive.controllers import AssignmentController, GreedyController, ScoutController
 from beehive.env import BeeEnv, EnvConfig
 from beehive.evaluator import evaluate
+from beehive.ml import (
+    FEATURE_SIZE,
+    collect_dataset,
+    encode_bee,
+    seed_split,
+    valid_action_mask,
+)
 
 
 class EnvTests(unittest.TestCase):
@@ -87,6 +96,35 @@ class EvaluationTests(unittest.TestCase):
         self.assertIn("colony_survival_rate", result)
         self.assertIn("bee_survival_rate", result)
         self.assertIn("mean_invalid_action_rate", result)
+
+
+class MlDatasetTests(unittest.TestCase):
+    def test_seed_splits_are_episode_level_and_disjoint(self):
+        self.assertEqual(seed_split(10), "train")
+        self.assertEqual(seed_split(17), "validation")
+        self.assertEqual(seed_split(19), "test")
+
+    def test_bee_encoding_has_stable_size(self):
+        observation = BeeEnv(seed=4).observe()
+        self.assertEqual(len(encode_bee(observation, 0)), FEATURE_SIZE)
+
+    def test_action_mask_rejects_impossible_deposit(self):
+        observation = BeeEnv(seed=4).observe()
+        mask = valid_action_mask(observation, 0)
+        self.assertFalse(mask[5])
+        self.assertTrue(mask[6])
+
+    def test_collection_writes_all_splits_without_torch(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "examples.jsonl"
+            counts = collect_dataset(
+                path,
+                episodes=10,
+                seed=10,
+                config=EnvConfig(season_ticks=2, bees=2, flowers=2),
+            )
+            self.assertTrue(path.is_file())
+            self.assertTrue(all(counts[split] > 0 for split in counts))
 
 
 if __name__ == "__main__":

@@ -23,10 +23,66 @@ def main() -> None:
     bench.add_argument("--controllers", nargs="+", choices=CONTROLLERS, default=list(CONTROLLERS))
     bench.add_argument("--report", default="report")
     bench.add_argument("--ticks", type=int, default=240)
+    dataset = sub.add_parser("collect", help="collect Assignment behavior-cloning data")
+    dataset.add_argument("--episodes", type=int, default=100)
+    dataset.add_argument("--seed", type=int, default=20270000)
+    dataset.add_argument("--output", default="data/assignment.jsonl")
+    train = sub.add_parser("train-bc", help="train an optional PyTorch behavior clone")
+    train.add_argument("--data", default="data/assignment.jsonl")
+    train.add_argument("--model", default="models/behavior-cloning.pt")
+    train.add_argument("--epochs", type=int, default=15)
+    dagger = sub.add_parser("collect-dagger", help="label learner-visited states")
+    dagger.add_argument("--data", default="data/assignment.jsonl")
+    dagger.add_argument("--model", default="models/behavior-cloning.pt")
+    dagger.add_argument("--episodes", type=int, default=50)
+    dagger.add_argument("--seed", type=int, default=20271000)
+    bc_bench = sub.add_parser("benchmark-bc", help="benchmark a trained behavior clone")
+    bc_bench.add_argument("--model", default="models/behavior-cloning.pt")
+    bc_bench.add_argument("--episodes", type=int, default=30)
+    bc_bench.add_argument("--seed", type=int, default=20280009)
+    bc_bench.add_argument("--report", default="report-bc")
+    bc_bench.add_argument("--ticks", type=int, default=240)
     args = parser.parse_args()
 
     if args.command == "play":
         serve(args.port)
+        return
+    if args.command == "collect":
+        from beehive.ml import collect_dataset
+
+        print(json.dumps(collect_dataset(args.output, args.episodes, args.seed), indent=2))
+        return
+    if args.command == "train-bc":
+        from beehive.ml import train_model
+
+        print(json.dumps(train_model(args.data, args.model, epochs=args.epochs), indent=2))
+        return
+    if args.command == "collect-dagger":
+        from beehive.ml import collect_dagger
+
+        written = collect_dagger(args.data, args.model, args.episodes, args.seed)
+        print(json.dumps({"dagger_examples": written}, indent=2))
+        return
+    if args.command == "benchmark-bc":
+        from beehive.ml import BehaviorCloningController
+
+        config = EnvConfig(season_ticks=args.ticks)
+        seeds = [
+            candidate
+            for candidate in range(args.seed, args.seed + args.episodes * 10)
+            if candidate % 10 == 9
+        ][: args.episodes]
+        results = [
+            evaluate(controller, config, seeds)
+            for controller in (
+                CONTROLLERS["assignment"](),
+                CONTROLLERS["greedy"](),
+                BehaviorCloningController(args.model),
+            )
+        ]
+        path = write_report(results, args.report)
+        print(json.dumps([{k: v for k, v in row.items() if k != "raw"} for row in results], indent=2))
+        print(f"\nReport: {path.resolve()}")
         return
 
     config = EnvConfig(season_ticks=args.ticks)
