@@ -121,6 +121,67 @@
           "invalid_action_rate": 0.0
         }
       ]
+    },
+    {
+      "run": "runs/m12-interleaved-v1",
+      "candidate": "interleaved-coordinated-ctde",
+      "baseline": "assignment",
+      "status": "failed",
+      "source_commit": "06fff15fb86881eddfa1077517eb844e6d0d77d6",
+      "source_dirty": true,
+      "audited_at": "2026-07-24T16:28:35.381372+00:00",
+      "summary": {
+        "status": "failed",
+        "checks": {
+          "minimum_median_honey_ratio": true,
+          "minimum_worst_honey_ratio": false,
+          "minimum_bee_survival": false,
+          "maximum_invalid_action_rate": true
+        },
+        "median_honey_ratio": 0.992334432202955,
+        "worst_honey_ratio": 0.7365374937091091,
+        "worst_honey_scenario": "scarce-nectar",
+        "minimum_bee_survival": 0.2775,
+        "maximum_invalid_action_rate": 0.0
+      },
+      "scenarios": [
+        {
+          "name": "in-distribution",
+          "honey_ratio": 0.9831773165106499,
+          "bee_survival_rate": 0.98,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "large-map",
+          "honey_ratio": 1.1205673758865249,
+          "bee_survival_rate": 0.8625,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "scarce-nectar",
+          "honey_ratio": 0.7365374937091091,
+          "bee_survival_rate": 0.9925,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "harsh-weather",
+          "honey_ratio": 0.9233931240657698,
+          "bee_survival_rate": 0.2775,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "large-colony",
+          "honey_ratio": 1.0199983123787022,
+          "bee_survival_rate": 0.9966666666666667,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "short-season",
+          "honey_ratio": 1.0014915478952602,
+          "bee_survival_rate": 0.9925,
+          "invalid_action_rate": 0.0
+        }
+      ]
     }
   ]
 }
