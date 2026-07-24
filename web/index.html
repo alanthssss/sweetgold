@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BeeSim · 蜂群生态实验</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <span class="eyebrow" data-en="SWEETGOLD LAB / PRODUCT 01" data-zh="SWEETGOLD 实验室 / 产品 01">SWEETGOLD LAB / PRODUCT 01</span>
+      <h1>BeeSim</h1>
+      <p data-en="Observe how simple local rules produce foraging, exploration and cooperation." data-zh="观察简单的局部规则，如何形成采集、探索与协作。">观察简单的局部规则，如何形成采集、探索与协作。</p>
+    </div>
+    <div class="controls">
+      <label><span data-en="Controller" data-zh="策略">策略</span>
+        <select id="controller">
+          <option value="scout" data-en="Scout · cooperative" data-zh="Scout · 协作">Scout · 协作</option>
+          <option value="greedy" data-en="Greedy · nearest source" data-zh="Greedy · 就近采集">Greedy · 就近采集</option>
+          <option value="random" data-en="Random · baseline" data-zh="Random · 随机基线">Random · 随机基线</option>
+        </select>
+      </label>
+      <label><span data-en="Seed" data-zh="种子">种子</span><input id="seed" type="number" value="42"></label>
+      <button id="reset" data-en="New season" data-zh="新季节">新季节</button>
+      <button id="toggle" class="primary" data-en="Start" data-zh="开始">开始</button>
+      <button id="step" data-en="Single step" data-zh="单步">单步</button>
+      <button id="language" type="button">English</button>
+    </div>
+  </header>
+  <main>
+    <section class="world-card">
+      <div id="world" aria-label="Bee ecosystem grid"></div>
+      <div class="legend">
+        <span><i class="hive"></i><b data-en="Hive" data-zh="蜂巢">蜂巢</b></span><span><i class="flower"></i><b data-en="Flower nectar" data-zh="花朵花蜜">花朵花蜜</b></span>
+        <span><i class="bee"></i><b data-en="Bee" data-zh="蜜蜂">蜜蜂</b></span><span><i class="signal"></i><b data-en="Signal" data-zh="信号">信号</b></span>
+      </div>
+    </section>
+    <aside>
+      <section class="season">
+        <span id="weather">CLEAR</span>
+        <strong><b id="tick">0</b> / <b id="maxTick">240</b></strong>
+        <div class="progress"><i id="progress"></i></div>
+      </section>
+      <section class="metrics">
+        <article><small data-en="Honey yield" data-zh="蜂蜜产量">蜂蜜产量</small><strong id="honey">0</strong></article>
+        <article><small data-en="Living bees" data-zh="存活蜜蜂">存活蜜蜂</small><strong id="alive">0</strong></article>
+        <article><small data-en="Exploration coverage" data-zh="探索覆盖">探索覆盖</small><strong id="coverage">0%</strong></article>
+        <article><small data-en="Energy efficiency" data-zh="能量效率">能量效率</small><strong id="efficiency">0</strong></article>
+      </section>
+      <section class="narrative">
+        <h2 data-en="Colony events" data-zh="群体事件">群体事件</h2>
+        <ol id="events"></ol>
+      </section>
+    </aside>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
