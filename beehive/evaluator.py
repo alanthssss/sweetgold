@@ -23,10 +23,14 @@ def run_episode(controller: Controller, config: EnvConfig, seed: int) -> dict:
         decisions += len(actions)
         env.step(actions)
     metrics = env.metrics()
+    total_actions = config.bees * env.tick
     return {
         "seed": seed,
         **metrics,
-        "survived": int(metrics["alive"] > 0),
+        "colony_survived": int(metrics["alive"] > 0),
+        "bee_survival_rate": metrics["alive"] / config.bees,
+        "honey_per_bee": metrics["honey"] / config.bees,
+        "invalid_action_rate": metrics["invalid_actions"] / max(1, total_actions),
         "decision_us": decision_ns / max(1, decisions) / 1_000,
     }
 
@@ -42,11 +46,15 @@ def evaluate(controller: Controller, config: EnvConfig, seeds: list[int]) -> dic
         "episodes": len(episodes),
         "mean_honey": mean,
         "ci95_honey": ci95,
-        "survival_rate": statistics.fmean(e["survived"] for e in episodes),
+        "colony_survival_rate": statistics.fmean(e["colony_survived"] for e in episodes),
+        "bee_survival_rate": statistics.fmean(e["bee_survival_rate"] for e in episodes),
+        "mean_alive_bees": statistics.fmean(e["alive"] for e in episodes),
+        "mean_honey_per_bee": statistics.fmean(e["honey_per_bee"] for e in episodes),
         "mean_efficiency": statistics.fmean(e["efficiency"] for e in episodes),
         "mean_coverage": statistics.fmean(e["coverage"] for e in episodes),
         "mean_deaths": statistics.fmean(e["deaths"] for e in episodes),
         "mean_invalid_actions": statistics.fmean(e["invalid_actions"] for e in episodes),
+        "mean_invalid_action_rate": statistics.fmean(e["invalid_action_rate"] for e in episodes),
         "mean_decision_us": statistics.fmean(e["decision_us"] for e in episodes),
         "raw": episodes,
     }

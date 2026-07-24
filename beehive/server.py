@@ -41,6 +41,10 @@ class GameSession:
 
     def state(self) -> dict:
         state = self.env.observe()
+        targets = getattr(self.controller, "targets", {})
+        for bee in state["bees"]:
+            target = targets.get(bee["id"])
+            bee["target"] = list(target) if target else None
         state["controller"] = self.controller_name
         return state
 

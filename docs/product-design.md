@@ -36,9 +36,13 @@ should expose trade-offs:
 The first measured run confirms the framework can distinguish those behaviors,
 but 12 episodes are a smoke test rather than a publishable result.
 
-## Next experiment
+## M2 experiment
 
-Implement a centralized assignment controller that reserves one flower per bee
-and compares it against Greedy. This will test whether reduced contention
-improves honey yield and invalid-action rate. Only after this baseline is stable
-should behavior cloning and reinforcement learning be introduced.
+The centralized Assignment controller reserves one flower per bee and keeps
+valid reservations across ticks. The benchmark now separates colony survival
+from individual bee survival and reports invalid-action rates.
+
+The acceptance experiment compares Assignment against Greedy on 100 matched
+seeds. M2 succeeds if Assignment removes most invalid actions and improves bee
+survival without materially reducing honey yield. Only after this baseline is
+stable should behavior cloning and reinforcement learning be introduced.

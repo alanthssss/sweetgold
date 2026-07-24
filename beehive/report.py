@@ -11,12 +11,33 @@ def write_report(results: list[dict], output_dir: str | Path) -> Path:
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
     ordered = sorted(results, key=lambda x: x["mean_honey"], reverse=True)
+    by_name = {result["controller"]: result for result in results}
+    paired_summary = ""
+    if "assignment" in by_name and "greedy" in by_name:
+        greedy_by_seed = {row["seed"]: row["honey"] for row in by_name["greedy"]["raw"]}
+        differences = [
+            row["honey"] - greedy_by_seed[row["seed"]]
+            for row in by_name["assignment"]["raw"]
+            if row["seed"] in greedy_by_seed
+        ]
+        if differences:
+            mean_difference = sum(differences) / len(differences)
+            paired_summary = (
+                f'<p class="comparison" '
+                f'data-en="Assignment minus Greedy: {mean_difference:+.1f} honey per matched seed. '
+                f'Assignment invalid-action rate: {by_name["assignment"]["mean_invalid_action_rate"]:.1%}." '
+                f'data-zh="Assignment 相对 Greedy：每个匹配种子的蜂蜜差值为 {mean_difference:+.1f}。'
+                f'Assignment 无效动作率：{by_name["assignment"]["mean_invalid_action_rate"]:.1%}。">'
+                f"Assignment minus Greedy: {mean_difference:+.1f} honey per matched seed. "
+                f'Assignment invalid-action rate: {by_name["assignment"]["mean_invalid_action_rate"]:.1%}.</p>'
+            )
     rows = "\n".join(
         "<tr>"
         f"<td>{i}</td><td>{html.escape(r['controller'])}</td>"
         f"<td>{r['mean_honey']:.1f} ± {r['ci95_honey']:.1f}</td>"
-        f"<td>{r['survival_rate']:.0%}</td><td>{r['mean_efficiency']:.3f}</td>"
-        f"<td>{r['mean_coverage']:.1%}</td><td>{r['mean_deaths']:.2f}</td>"
+        f"<td>{r['bee_survival_rate']:.0%}</td><td>{r['mean_efficiency']:.3f}</td>"
+        f"<td>{r['mean_coverage']:.1%}</td><td>{r['mean_invalid_action_rate']:.1%}</td>"
+        f"<td>{r['mean_deaths']:.2f}</td>"
         f"<td>{r['mean_decision_us']:.2f} μs</td></tr>"
         for i, r in enumerate(ordered, 1)
     )
@@ -29,6 +50,7 @@ def write_report(results: list[dict], output_dir: str | Path) -> Path:
 *{{box-sizing:border-box}}body{{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,sans-serif}}
 main{{position:relative;max-width:1100px;margin:auto;padding:48px 24px}}h1{{font:700 48px Georgia,serif;margin:0}}
 .lede{{color:var(--muted);max-width:700px}}.card{{background:#fff;border:1px solid #ded8c8;border-radius:18px;padding:24px;margin-top:28px;box-shadow:0 12px 35px #534a3512}}
+.comparison{{font-weight:700;color:var(--leaf);max-width:760px}}
 table{{width:100%;border-collapse:collapse}}th,td{{padding:13px 10px;text-align:right;border-bottom:1px solid #eee9dc}}
 th:nth-child(2),td:nth-child(2){{text-align:left}}th{{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}}
 .winner{{display:inline-block;background:var(--gold);border-radius:99px;padding:6px 12px;font-weight:700}}
@@ -38,7 +60,8 @@ th:nth-child(2),td:nth-child(2){{text-align:left}}th{{color:var(--muted);font-si
 <main><button class="language" id="language" type="button">中文</button>
 <span class="winner" data-en="Matched-seed benchmark" data-zh="匹配随机种子评估">Matched-seed benchmark</span><h1>BeeBench</h1>
 <p class="lede" data-en="Controller comparison across {ordered[0]['episodes'] if ordered else 0} identical ecosystem seeds. Honey yield is reported as mean ± 95% confidence interval." data-zh="在 {ordered[0]['episodes'] if ordered else 0} 个完全相同的生态环境种子上比较控制策略。蜂蜜产量以均值 ± 95% 置信区间表示。">Controller comparison across {ordered[0]['episodes'] if ordered else 0} identical ecosystem seeds. Honey yield is reported as mean ± 95% confidence interval.</p>
-<section class="card"><table><thead><tr><th>#</th><th data-en="Controller" data-zh="控制策略">Controller</th><th data-en="Honey Yield" data-zh="蜂蜜产量">Honey Yield</th><th data-en="Survival" data-zh="存活率">Survival</th><th data-en="Efficiency" data-zh="能量效率">Efficiency</th><th data-en="Coverage" data-zh="探索覆盖">Coverage</th><th data-en="Deaths" data-zh="死亡数">Deaths</th><th data-en="Decision" data-zh="决策延迟">Decision</th></tr></thead>
+{paired_summary}
+<section class="card"><table><thead><tr><th>#</th><th data-en="Controller" data-zh="控制策略">Controller</th><th data-en="Honey Yield" data-zh="蜂蜜产量">Honey Yield</th><th data-en="Bee survival" data-zh="蜜蜂存活率">Bee survival</th><th data-en="Efficiency" data-zh="能量效率">Efficiency</th><th data-en="Coverage" data-zh="探索覆盖">Coverage</th><th data-en="Invalid rate" data-zh="无效动作率">Invalid rate</th><th data-en="Deaths" data-zh="死亡数">Deaths</th><th data-en="Decision" data-zh="决策延迟">Decision</th></tr></thead>
 <tbody>{rows}</tbody></table></section>
 <script type="application/json" id="benchmark-data">{html.escape(payload)}</script>
 <script>
