@@ -3,58 +3,94 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>BeeSim · 蜂群生态实验</title>
+  <title>SweetGold · 策略竞技场</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
-    <div>
-      <span class="eyebrow" data-en="SWEETGOLD LAB / PRODUCT 01" data-zh="SWEETGOLD 实验室 / 产品 01">SWEETGOLD LAB / PRODUCT 01</span>
-      <h1>BeeSim</h1>
-      <p data-en="Observe how simple local rules produce foraging, exploration and cooperation." data-zh="观察简单的局部规则，如何形成采集、探索与协作。">观察简单的局部规则，如何形成采集、探索与协作。</p>
+    <div class="brand">
+      <span class="eyebrow">SWEETGOLD / STRATEGY ARENA</span>
+      <h1 data-en="See intelligence compete." data-zh="让智能策略同场较量。">让智能策略同场较量。</h1>
+      <p data-en="Same world. Same seed. Different decisions." data-zh="同一个世界，同一个随机种子，不同的决策。">同一个世界，同一个随机种子，不同的决策。</p>
     </div>
-    <div class="controls">
-      <label><span data-en="Controller" data-zh="策略">策略</span>
-        <select id="controller">
-          <option value="assignment" data-en="Assignment · coordinated" data-zh="Assignment · 集中分配">Assignment · 集中分配</option>
-          <option value="scout" data-en="Scout · cooperative" data-zh="Scout · 协作">Scout · 协作</option>
-          <option value="greedy" data-en="Greedy · nearest source" data-zh="Greedy · 就近采集">Greedy · 就近采集</option>
-          <option value="random" data-en="Random · baseline" data-zh="Random · 随机基线">Random · 随机基线</option>
-        </select>
-      </label>
-      <label><span data-en="Seed" data-zh="种子">种子</span><input id="seed" type="number" value="42"></label>
-      <button id="reset" data-en="New season" data-zh="新季节">新季节</button>
-      <button id="toggle" class="primary" data-en="Start" data-zh="开始">开始</button>
-      <button id="step" data-en="Single step" data-zh="单步">单步</button>
-      <button id="language" type="button">English</button>
-    </div>
+    <button id="language" class="ghost" type="button">English</button>
   </header>
+
   <main>
-    <section class="world-card">
-      <div id="world" aria-label="Bee ecosystem grid"></div>
-      <div class="legend">
-        <span><i class="hive"></i><b data-en="Hive" data-zh="蜂巢">蜂巢</b></span><span><i class="flower"></i><b data-en="Flower nectar" data-zh="花朵花蜜">花朵花蜜</b></span>
-        <span><i class="bee"></i><b data-en="Bee" data-zh="蜜蜂">蜜蜂</b></span><span><i class="signal"></i><b data-en="Signal" data-zh="信号">信号</b></span>
-        <span><i class="target"></i><b data-en="Assigned target" data-zh="分配目标">分配目标</b></span>
+    <section class="control-deck">
+      <label>
+        <span data-en="LEFT STRATEGY" data-zh="左侧策略">左侧策略</span>
+        <select id="leftStrategy"></select>
+      </label>
+      <div class="versus">VS</div>
+      <label>
+        <span data-en="RIGHT STRATEGY" data-zh="右侧策略">右侧策略</span>
+        <select id="rightStrategy"></select>
+      </label>
+      <label class="seed">
+        <span data-en="MATCHED SEED" data-zh="匹配种子">匹配种子</span>
+        <input id="seed" type="number" value="42">
+      </label>
+      <button id="reset" data-en="New match" data-zh="新对局">新对局</button>
+      <button id="toggle" class="primary" data-en="Run" data-zh="运行">运行</button>
+      <button id="step" data-en="Step" data-zh="单步">单步</button>
+    </section>
+
+    <section id="notice" class="notice" hidden></section>
+
+    <section class="scoreboard">
+      <div>
+        <span id="leftName">—</span>
+        <strong id="leftHoney">0</strong>
+        <small data-en="HONEY" data-zh="蜂蜜">蜂蜜</small>
+      </div>
+      <div class="delta">
+        <span data-en="LIVE DELTA" data-zh="实时差值">实时差值</span>
+        <strong id="honeyDelta">0</strong>
+        <small id="leader" data-en="Even" data-zh="持平">持平</small>
+      </div>
+      <div>
+        <span id="rightName">—</span>
+        <strong id="rightHoney">0</strong>
+        <small data-en="HONEY" data-zh="蜂蜜">蜂蜜</small>
       </div>
     </section>
-    <aside>
-      <section class="season">
-        <span id="weather">CLEAR</span>
-        <strong><b id="tick">0</b> / <b id="maxTick">240</b></strong>
-        <div class="progress"><i id="progress"></i></div>
-      </section>
-      <section class="metrics">
-        <article><small data-en="Honey yield" data-zh="蜂蜜产量">蜂蜜产量</small><strong id="honey">0</strong></article>
-        <article><small data-en="Living bees" data-zh="存活蜜蜂">存活蜜蜂</small><strong id="alive">0</strong></article>
-        <article><small data-en="Exploration coverage" data-zh="探索覆盖">探索覆盖</small><strong id="coverage">0%</strong></article>
-        <article><small data-en="Energy efficiency" data-zh="能量效率">能量效率</small><strong id="efficiency">0</strong></article>
-      </section>
-      <section class="narrative">
-        <h2 data-en="Colony events" data-zh="群体事件">群体事件</h2>
-        <ol id="events"></ol>
-      </section>
-    </aside>
+
+    <section class="arenas">
+      <article class="lane lane-left">
+        <div class="lane-heading">
+          <div><span class="lane-tag">A</span><b id="leftTitle">—</b></div>
+          <span id="leftWeather">☀</span>
+        </div>
+        <div id="leftWorld" class="world" aria-label="Left strategy ecosystem"></div>
+        <div id="leftMetrics" class="metrics"></div>
+      </article>
+      <article class="lane lane-right">
+        <div class="lane-heading">
+          <div><span class="lane-tag">B</span><b id="rightTitle">—</b></div>
+          <span id="rightWeather">☀</span>
+        </div>
+        <div id="rightWorld" class="world" aria-label="Right strategy ecosystem"></div>
+        <div id="rightMetrics" class="metrics"></div>
+      </article>
+    </section>
+
+    <section class="replay">
+      <div class="replay-head">
+        <div>
+          <span class="eyebrow" data-en="MATCH REPLAY" data-zh="对局回放">对局回放</span>
+          <strong><span data-en="Tick" data-zh="步数">步数</span> <b id="tick">0</b> / <b id="maxTick">240</b></strong>
+        </div>
+        <span id="replayState" data-en="Live" data-zh="实时">实时</span>
+      </div>
+      <input id="timeline" type="range" min="0" max="0" value="0">
+      <div class="legend">
+        <span>🍯 <b data-en="Hive" data-zh="蜂巢">蜂巢</b></span>
+        <span>🌼 <b data-en="Flower" data-zh="花朵">花朵</b></span>
+        <span>🐝 <b data-en="Bee" data-zh="蜜蜂">蜜蜂</b></span>
+        <span class="target-key"><i></i><b data-en="Assigned target" data-zh="分配目标">分配目标</b></span>
+      </div>
+    </section>
   </main>
   <script src="/app.js"></script>
 </body>

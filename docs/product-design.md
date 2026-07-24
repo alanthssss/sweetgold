@@ -132,3 +132,16 @@ The coordination layer changes honey by only +0.11 ± 2.20 relative to the same
 uncoordinated actor. Its benefit is therefore safety rather than a claimed
 yield improvement. The candidate passes the predeclared yield, survival,
 invalid-action and unresolved-contention gates.
+
+## M9 product loop
+
+The strategy arena exposes SweetGold's research results as a user-facing
+comparison workflow. The user selects two strategies and one seed; both lanes
+receive identical flower layouts and the same stochastic seed. The scoreboard
+shows the live yield delta while each lane reports survival, efficiency,
+invalid actions and, when applicable, prevented conflicts.
+
+The server reads the accepted model registry, verifies each checkpoint digest
+before loading it and keeps rule strategies available when optional PyTorch
+artifacts are absent. Replay frames are retained on the server so scrubbing the
+timeline never mutates or recomputes the live match.

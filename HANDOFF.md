@@ -150,3 +150,16 @@ On 100 untouched final seeds:
 The coordinated candidate passes every predeclared gate and is registered.
 M9 should load registered strategies into BeeSim for side-by-side execution,
 metric comparison and replay. Do not reuse M8 final seeds for M9 tuning.
+
+## M9 strategy arena
+
+BeeSim is now a matched-seed comparison product rather than a single-policy
+viewer. The server discovers rule policies and registered learned models,
+verifies model SHA-256 hashes, and reports unavailable generated artifacts
+without breaking rule-based use.
+
+The UI runs two strategies from identical worlds, presents live honey deltas
+and operational metrics, and stores every frame server-side for timeline
+replay. Learned policies remain optional PyTorch features. M10 should evaluate
+generalization and robustness across environment distributions; it should use
+new seed ranges and keep the M8 final set untouched.
