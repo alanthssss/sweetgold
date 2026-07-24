@@ -129,3 +129,24 @@ exceeded the predeclared 1% threshold. Do not retroactively relax that gate or
 reuse the final seeds for tuning. The next experiment should address local
 resource contention using training/validation seeds and reserve a fresh final
 test range.
+
+## M8 decentralized contention coordination
+
+M8 adds same-flower harvest-intent broadcasts and rotating-priority local
+reservations. Denied bees take their next-best valid action; no global target
+assignment is introduced. The M8 pipeline tracks raw contention, reservation
+success, prevented conflicts and unresolved contention, and uses fresh,
+disjoint seed ranges.
+
+On 100 untouched final seeds:
+
+- Local behavior cloning: 141.38 mean honey, 93.88% survival, 0.497% invalid.
+- Uncoordinated CTDE: 147.46 mean honey, 94.25% survival, 0.742% invalid.
+- Coordinated CTDE: 147.57 mean honey, 94.0% survival, 0% invalid.
+- Coordinated versus local BC: +6.19 honey, 95% CI [+3.41, +8.97].
+- Coordination prevented 13.51 conflicts per episode with zero unresolved
+  conflicts; versus the same actor it changed honey by +0.11 ± 2.20.
+
+The coordinated candidate passes every predeclared gate and is registered.
+M9 should load registered strategies into BeeSim for side-by-side execution,
+metric comparison and replay. Do not reuse M8 final seeds for M9 tuning.

@@ -1,0 +1,40 @@
+{
+  "experiment": "m8-ci-smoke",
+  "env": {
+    "season_ticks": 8,
+    "bees": 3,
+    "flowers": 4
+  },
+  "data": {
+    "episodes": 10,
+    "seed": 21300000
+  },
+  "local_bc": {
+    "epochs": 1,
+    "batch_size": 64,
+    "seed": 0
+  },
+  "dagger": {
+    "episodes": 1,
+    "seed": 21310000
+  },
+  "ctde": {
+    "episodes": 2,
+    "seed": 21320000,
+    "validation_episodes": 2,
+    "validation_interval": 2,
+    "rollout_workers": 2,
+    "update_epochs": 1,
+    "batch_size": 64
+  },
+  "test": {
+    "episodes": 2,
+    "seed": 21400009
+  },
+  "promotion": {
+    "minimum_honey_ratio": 0.0,
+    "minimum_bee_survival": 0.0,
+    "maximum_invalid_action_rate": 1.0,
+    "maximum_unresolved_contention_rate": 1.0
+  }
+}

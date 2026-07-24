@@ -21,6 +21,29 @@
         },
         "paired_ci95_lower_bound": 3.6888747105739084
       }
+    },
+    {
+      "model": "coordinated-ctde",
+      "run": "runs/m8-coordination-v1",
+      "artifact": "runs/m8-coordination-v1/checkpoints/ctde-ppo.pt",
+      "sha256": "86fd605a1f013638ea89e95e1a71b65c0da243c003b7b22cf90e27dfe4397a68",
+      "source_commit": "e21030db1cb9ae6d330a7f8f6b3f04f977e608bd",
+      "source_dirty": true,
+      "registered_at": "2026-07-24T14:41:36.845083+00:00",
+      "mean_honey": 147.57,
+      "promotion": {
+        "status": "accepted",
+        "candidate": "coordinated-ctde",
+        "baseline": "local-behavior-cloning",
+        "checks": {
+          "paired_ci_above_zero": true,
+          "minimum_honey_ratio": true,
+          "minimum_bee_survival": true,
+          "maximum_invalid_action_rate": true,
+          "maximum_unresolved_contention_rate": true
+        },
+        "paired_ci95_lower_bound": 3.405473711941493
+      }
     }
   ]
 }

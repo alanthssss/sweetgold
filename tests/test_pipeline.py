@@ -12,6 +12,7 @@ from beehive.pipeline import (
     validate_config,
 )
 from beehive.m7_pipeline import validate_m7_config
+from beehive.m8_pipeline import validate_m8_config
 
 
 def valid_config() -> dict:
@@ -100,6 +101,21 @@ class PipelineConfigTests(unittest.TestCase):
         config["experiment"] = "../escape"
         with self.assertRaisesRegex(ValueError, "experiment may only"):
             validate_m7_config(config)
+
+    def test_m8_config_requires_unresolved_contention_gate(self):
+        config = {
+            "experiment": "m8-test",
+            "data": {"episodes": 10, "seed": 1000},
+            "local_bc": {"epochs": 1},
+            "dagger": {"episodes": 1, "seed": 2000},
+            "ctde": {"episodes": 2, "seed": 3000, "validation_episodes": 2},
+            "test": {"episodes": 2, "seed": 5009},
+            "promotion": {"maximum_unresolved_contention_rate": 0.0},
+        }
+        validate_m8_config(config)
+        del config["promotion"]["maximum_unresolved_contention_rate"]
+        with self.assertRaisesRegex(ValueError, "maximum_unresolved"):
+            validate_m8_config(config)
 
 
 if __name__ == "__main__":
