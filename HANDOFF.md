@@ -163,3 +163,25 @@ and operational metrics, and stores every frame server-side for timeline
 replay. Learned policies remain optional PyTorch features. M10 should evaluate
 generalization and robustness across environment distributions; it should use
 new seed ranges and keep the M8 final set untouched.
+
+## M10 generalization and robustness
+
+`pipeline-m10` audits a registered strategy against a matched baseline across
+configuration-defined distributions. Scenario names, environment configs,
+disjoint test seed sets, runtime metadata, complete metrics, paired confidence
+intervals and an HTML report are recorded in the run bundle. CI exercises the
+pipeline with dependency-free rule controllers.
+
+The six-scenario, 50-seed-per-scenario coordinated-CTDE audit failed:
+
+- Median honey ratio versus Assignment: 99.56% (90% gate passed).
+- Worst honey ratio: 74.68% under scarce nectar (75% gate failed).
+- Large-map bee survival: 50.25%.
+- Harsh-weather bee survival: 7.75% (75% gate failed).
+- Maximum invalid-action rate: 0% (1% gate passed).
+- Large-colony and short-season performance remained near Assignment.
+
+Do not tune on or reuse the M10 scenario seeds. M11 should introduce a
+training/validation curriculum over map distance, nectar scarcity, rain and
+energy budgets, then reserve entirely new final ranges for the robustness
+decision.

@@ -67,6 +67,10 @@ def main() -> None:
     m8.add_argument("--config", required=True)
     m8.add_argument("--output-root", default="runs")
     m8.add_argument("--force", action="store_true")
+    m10 = sub.add_parser("pipeline-m10", help="run generalization and robustness audit")
+    m10.add_argument("--config", required=True)
+    m10.add_argument("--output-root", default="runs")
+    m10.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -176,6 +180,12 @@ def main() -> None:
         from beehive.m8_pipeline import run_m8_pipeline
 
         result = run_m8_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
+        return
+    if args.command == "pipeline-m10":
+        from beehive.m10_pipeline import run_m10_pipeline
+
+        result = run_m10_pipeline(args.config, args.output_root, force=args.force)
         print(json.dumps(result, indent=2))
         return
 

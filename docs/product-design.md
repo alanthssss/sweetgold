@@ -145,3 +145,21 @@ The server reads the accepted model registry, verifies each checkpoint digest
 before loading it and keeps rule strategies available when optional PyTorch
 artifacts are absent. Replay frames are retained on the server so scrubbing the
 timeline never mutates or recomputes the live match.
+
+## M10 generalization boundary
+
+M10 audits the accepted coordinated CTDE checkpoint without updating its
+weights. Six predeclared distributions vary map size, nectar scarcity, rain
+and energy, colony size, and season length. Each scenario uses 50 fresh test
+seeds and a matched Assignment baseline.
+
+The audit fails two of four gates. Median candidate yield remains 99.56% of
+Assignment and every scenario retains a 0% invalid-action rate. However,
+scarce-nectar yield is 59.70 versus Assignment's 79.94, a 74.68% ratio just
+below the 75% floor. Large-map survival falls to 50.25%, and high rain with a
+24-unit energy budget reduces survival to 7.75%.
+
+The result separates coordination safety from policy robustness: local
+reservations generalize, but energy-aware long-horizon behavior does not. M11
+should use curriculum training across distance, scarcity and weather while
+keeping M10's scenario seed sets as untouched final evaluation data.

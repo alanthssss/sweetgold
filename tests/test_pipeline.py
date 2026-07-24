@@ -13,6 +13,7 @@ from beehive.pipeline import (
 )
 from beehive.m7_pipeline import validate_m7_config
 from beehive.m8_pipeline import validate_m8_config
+from beehive.m10_pipeline import validate_m10_config
 
 
 def valid_config() -> dict:
@@ -116,6 +117,30 @@ class PipelineConfigTests(unittest.TestCase):
         del config["promotion"]["maximum_unresolved_contention_rate"]
         with self.assertRaisesRegex(ValueError, "maximum_unresolved"):
             validate_m8_config(config)
+
+    def test_m10_config_expands_disjoint_scenario_seeds(self):
+        config = {
+            "experiment": "m10-test",
+            "candidate": "greedy",
+            "baseline": "assignment",
+            "episodes": 3,
+            "seed": 1009,
+            "scenarios": [
+                {"name": "default", "env": {}},
+                {"name": "rain", "env": {"rain_chance": 0.3}},
+            ],
+            "audit": {
+                "minimum_median_honey_ratio": 0.8,
+                "minimum_worst_honey_ratio": 0.7,
+                "minimum_bee_survival": 0.7,
+                "maximum_invalid_action_rate": 0.01,
+            },
+        }
+        sets = validate_m10_config(config)
+        self.assertFalse(set(sets["default"]) & set(sets["rain"]))
+        config["scenarios"][1]["name"] = "default"
+        with self.assertRaisesRegex(ValueError, "duplicate scenario"):
+            validate_m10_config(config)
 
 
 if __name__ == "__main__":
