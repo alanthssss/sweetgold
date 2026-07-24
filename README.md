@@ -137,3 +137,25 @@ For the initialization control:
 
 The trainer saves only checkpoints that improve deterministic online validation
 honey. Final reports include paired BC-versus-PPO confidence intervals.
+
+## End-to-end experiment pipeline
+
+M6 connects data generation, training, validation, final testing, reporting and
+model promotion:
+
+```bash
+.venv-ml/bin/python main.py pipeline \
+  --config experiments/m6-bc-ppo.json
+```
+
+The command rejects seed leakage before doing work and writes an immutable run
+bundle under `runs/<experiment>/` containing the configuration, metadata,
+dataset manifest, checkpoints, metrics, training history and HTML report.
+
+An accepted model is appended to `registry/models.json`. Promotion requires a
+positive paired 95% confidence-interval lower bound plus the survival,
+invalid-action and yield thresholds declared in the experiment config.
+
+GitHub Actions runs the zero-dependency test suite and a small end-to-end ML
+pipeline smoke test. Full experiments remain explicit because they are more
+expensive and are used for final model promotion.

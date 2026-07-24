@@ -1,0 +1,39 @@
+{
+  "experiment": "m6-bc-ppo-v1",
+  "env": {
+    "season_ticks": 240
+  },
+  "data": {
+    "episodes": 100,
+    "seed": 20270000
+  },
+  "bc": {
+    "epochs": 15,
+    "batch_size": 512,
+    "learning_rate": 0.001,
+    "seed": 0
+  },
+  "dagger": {
+    "episodes": 50,
+    "seed": 20271000
+  },
+  "ppo": {
+    "episodes": 100,
+    "seed": 20290000,
+    "validation_episodes": 10,
+    "validation_interval": 10,
+    "learning_rate": 0.0001,
+    "update_epochs": 4,
+    "batch_size": 512
+  },
+  "test": {
+    "episodes": 100,
+    "seed": 20310009
+  },
+  "promotion": {
+    "minimum_honey_ratio": 1.0,
+    "minimum_bee_survival": 0.9,
+    "maximum_invalid_action_rate": 0.01
+  },
+  "registry_path": "registry/models.json"
+}

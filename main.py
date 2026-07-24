@@ -55,6 +55,10 @@ def main() -> None:
     ppo_bench.add_argument("--episodes", type=int, default=100)
     ppo_bench.add_argument("--seed", type=int, default=20300009)
     ppo_bench.add_argument("--report", default="report-ppo")
+    pipeline = sub.add_parser("pipeline", help="run a configured end-to-end ML experiment")
+    pipeline.add_argument("--config", required=True)
+    pipeline.add_argument("--output-root", default="runs")
+    pipeline.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -147,6 +151,12 @@ def main() -> None:
             )
         )
         print(f"\nReport: {path.resolve()}")
+        return
+    if args.command == "pipeline":
+        from beehive.pipeline import run_pipeline
+
+        result = run_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
         return
 
     config = EnvConfig(season_ticks=args.ticks)

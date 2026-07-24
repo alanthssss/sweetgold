@@ -90,3 +90,19 @@ BC+PPO improves over BC by +8.19 honey per matched seed; the paired 95%
 confidence interval is [+3.69, +12.69], with 65 wins, 3 ties and 32 losses.
 The selected checkpoint is episode 50 with validation honey 146.10. Generated
 PPO checkpoints, training histories and reports remain ignored by Git.
+
+## M6 experiment pipeline
+
+`python main.py pipeline --config experiments/m6-bc-ppo.json` now orchestrates
+Assignment data collection, behavior cloning, DAgger, PPO, checkpoint
+selection, final matched-seed evaluation, HTML reporting and model promotion.
+
+Pipeline guarantees:
+
+- actual episode seed sets are expanded and checked for leakage before work;
+- every run records config, Git commit, runtime and complete seed manifest;
+- final test seeds are never used for training or checkpoint selection;
+- promotion requires a paired 95% CI above zero plus configured thresholds;
+- accepted candidates are appended to `registry/models.json`;
+- generated datasets, checkpoints and run bundles remain outside Git;
+- CI runs both dependency-free tests and an end-to-end PyTorch smoke pipeline.
