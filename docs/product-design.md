@@ -97,3 +97,17 @@ checkpoints, training history, matched-seed metrics, promotion checks and HTML
 report. A candidate enters the model registry only when its paired confidence
 interval is above zero and all declared safety and quality thresholds pass.
 Core and ML smoke workflows run automatically in CI.
+
+## M7 decentralized execution
+
+M7 introduces centralized training with decentralized execution. Actors see
+only entities within Manhattan radius four, while the critic may use the full
+state during PPO updates. Deployment therefore has no dependency on the global
+critic. Rollouts use four deterministic per-seed workers.
+
+On 100 untouched final seeds, CTDE produces 159.71 mean honey versus local
+behavior cloning's 153.11 and Assignment's 157.41. The paired CTDE improvement
+is +6.60 with a 95% confidence interval of [+3.28, +9.92]. Survival is 91.0%.
+The candidate is rejected rather than registered because its 1.056% invalid
+action rate narrowly exceeds the predeclared 1% threshold. This identifies
+decentralized contention as the next concrete research problem.

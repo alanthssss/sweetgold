@@ -188,7 +188,7 @@ def _update_registry(
         "source_commit": metadata["git_commit"],
         "source_dirty": metadata["git_dirty"],
         "registered_at": datetime.now(timezone.utc).isoformat(),
-        "mean_honey": metrics["bc-ppo"]["mean_honey"],
+        "mean_honey": metrics[promotion["candidate"]]["mean_honey"],
         "promotion": promotion,
     }
     models = registry.setdefault("models", [])
