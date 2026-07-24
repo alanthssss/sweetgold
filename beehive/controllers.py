@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import random
 from typing import Protocol
 
@@ -120,7 +121,7 @@ class ScoutController(GreedyController):
 
 
 class AssignmentController:
-    """Centrally assign distinct flowers to bees using distance and nectar value."""
+    """Centrally assign distinct flowers with energy-aware fleet sizing."""
 
     name = "assignment"
 
@@ -140,6 +141,17 @@ class AssignmentController:
         self.targets = {}
 
         available = {(f["row"], f["col"]): f for f in flowers}
+        # A stable reserve avoids early-season oversupply, then joins foraging
+        # after renewable flowers have accumulated enough late-season value.
+        season_progress = observation["tick"] / observation["config"]["season_ticks"]
+        fleet_fraction = 0.75 if season_progress < 0.5 else 1.0
+        fleet_size = min(
+            len(bees),
+            len(flowers),
+            max(1, math.ceil(len(bees) * fleet_fraction)),
+        )
+        active_ids = {bee["id"] for bee in sorted(bees, key=lambda b: b["id"])[:fleet_size]}
+        active_ids.update(bee["id"] for bee in bees if bee["cargo"] > 0)
         for bee in sorted(bees, key=lambda b: (b["cargo"], b["energy"]), reverse=True):
             bee_id = bee["id"]
             pos = (bee["row"], bee["col"])
@@ -155,6 +167,10 @@ class AssignmentController:
             if must_return:
                 self.targets[bee_id] = hive
                 actions[bee_id] = _move_towards(pos, hive)
+                continue
+            if bee_id not in active_ids and bee["cargo"] == 0:
+                self.targets[bee_id] = hive
+                actions[bee_id] = "rest" if pos == hive else _move_towards(pos, hive)
                 continue
 
             here = available.get(pos)

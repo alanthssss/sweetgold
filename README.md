@@ -62,6 +62,10 @@ Included baselines:
 - `scout`
 - `assignment` — centralized, persistent one-flower-per-bee reservations
 
+Assignment uses a stable early-season reserve and expands to the full fleet in
+the second half of the season, improving energy efficiency without introducing
+resource contention.
+
 ## Architecture
 
 ```text

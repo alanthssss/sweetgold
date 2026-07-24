@@ -66,6 +66,18 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(len(actions), 3)
         self.assertEqual(len(flower_targets), len(set(flower_targets)))
 
+    def test_assignment_scales_fleet_with_season_progress(self):
+        env = BeeEnv(EnvConfig(bees=8, flowers=14), seed=9)
+        controller = AssignmentController()
+        controller.reset(9)
+        early_actions = controller.act(env.observe())
+        self.assertEqual(sum(action == "rest" for action in early_actions.values()), 2)
+
+        observation = env.observe()
+        observation["tick"] = observation["config"]["season_ticks"] // 2
+        late_actions = controller.act(observation)
+        self.assertEqual(sum(action == "rest" for action in late_actions.values()), 0)
+
     def test_evaluation_exposes_unambiguous_rates(self):
         result = evaluate(
             GreedyController(),
