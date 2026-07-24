@@ -36,3 +36,18 @@ python3 main.py play --port 8080
 Use the 100-seed result to decide whether to refine Assignment's energy
 efficiency or begin behavior cloning from it. Do not begin reinforcement
 learning until the deterministic baseline and evaluation protocol are stable.
+
+## M3 energy-aware fleet sizing
+
+M3 keeps two bees in reserve for the first half of the season and activates the
+full surviving colony in the second half. On the same 100 seeds:
+
+- Assignment: 156.61 mean honey, 0.114 efficiency, 95.25% bee survival,
+  0% invalid actions.
+- Greedy: 155.91 mean honey, 0.122 efficiency, 67.25% bee survival,
+  3.36% invalid actions.
+
+Compared with M2 Assignment, energy efficiency improves by about 10% while
+mean honey decreases by about 2.9%. The strict aspirational thresholds of 160
+honey and 0.115 efficiency were not simultaneously attainable with a static
+fleet size; this dynamic schedule is the best tested balance.
