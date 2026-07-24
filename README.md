@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Version 1.0.0 — reproducible multi-agent AI experimentation platform**
+**Version 1.0.1 — reproducible multi-agent AI experimentation platform**
 
 SweetGold connects a deterministic simulation, strategy baselines, imitation
 and reinforcement learning, model promotion, robustness audits and an
@@ -41,7 +41,7 @@ Rule strategies work in a fresh clone. Learned checkpoints are generated
 locally and intentionally excluded from Git; the arena disables unavailable
 models and verifies the hashes of checkpoints that are present.
 
-See [v1.0.0 release notes](docs/releases/v1.0.0.md),
+See [v1.0.1 release notes](docs/releases/v1.0.1.md),
 [changelog](CHANGELOG.md), and the
 [release checklist](docs/release-checklist.md).
 
