@@ -3,6 +3,12 @@
 All notable SweetGold changes are documented here. The project uses semantic
 versioning from v1.0.0 onward.
 
+## [Unreleased]
+
+### Added
+
+- Apache License 2.0 terms and an explicit project copyright notice.
+
 ## [1.0.0] - 2026-07-24
 
 ### Added
