@@ -1,43 +1,132 @@
-"""HTTP game server for BeeSim."""
+"""HTTP server for the BeeSim strategy arena."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import mimetypes
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from .controllers import CONTROLLERS
 from .env import BeeEnv, EnvConfig
 
 
-class GameSession:
-    def __init__(self) -> None:
-        self.lock = threading.Lock()
-        self.env = BeeEnv()
-        self.controller_name = "scout"
-        self.controller = CONTROLLERS[self.controller_name]()
-        self.controller.reset(100_000)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+STRATEGY_DESCRIPTIONS = {
+    "random": "Uncoordinated random-action control.",
+    "greedy": "Each bee pursues its nearest visible flower.",
+    "scout": "Rule-based scouts broadcast flower signals.",
+    "assignment": "Central controller reserves distinct flower targets.",
+    "bc-ppo": "Behavior-cloned actor fine-tuned with PPO.",
+    "coordinated-ctde": "Local CTDE actor with harvest-intent reservations.",
+}
 
-    def reset(self, seed: int = 0, controller: str = "scout", config: dict | None = None) -> dict:
-        with self.lock:
-            self.controller_name = controller if controller in CONTROLLERS else "scout"
-            self.controller = CONTROLLERS[self.controller_name]()
-            self.controller.reset(seed + 100_000)
-            self.env = BeeEnv(EnvConfig(**(config or {})), seed=seed)
-            return self.state()
 
-    def step(self, actions: dict | None = None) -> dict:
-        with self.lock:
-            if self.env.done:
-                return self.state()
-            if actions is None:
-                actions = self.controller.act(self.env.observe())
-            else:
-                actions = {int(key): value for key, value in actions.items()}
-            self.env.step(actions)
-            return self.state()
+class StrategyCatalog:
+    """Discover rule strategies and load accepted registry checkpoints."""
+
+    def __init__(
+        self,
+        registry_path: str | Path = PROJECT_ROOT / "registry" / "models.json",
+    ) -> None:
+        self.registry_path = Path(registry_path)
+
+    def entries(self) -> list[dict]:
+        entries = [
+            {
+                "id": name,
+                "label": name.replace("-", " ").title(),
+                "kind": "rule",
+                "available": True,
+                "description": STRATEGY_DESCRIPTIONS[name],
+            }
+            for name in ("assignment", "scout", "greedy", "random")
+        ]
+        latest = {}
+        for record in self._registry().get("models", []):
+            model = record.get("model")
+            if model in ("bc-ppo", "coordinated-ctde"):
+                latest[model] = record
+        for model, record in latest.items():
+            artifact = self._artifact(record)
+            available = artifact.is_file() and self._sha_matches(
+                artifact, record.get("sha256")
+            )
+            entries.append(
+                {
+                    "id": model,
+                    "label": model.replace("-", " ").upper(),
+                    "kind": "learned",
+                    "available": available,
+                    "description": STRATEGY_DESCRIPTIONS[model],
+                    "mean_honey": record.get("mean_honey"),
+                    "run": record.get("run"),
+                    "integrity": "verified" if available else "unavailable",
+                }
+            )
+        return entries
+
+    def create(self, strategy_id: str):
+        if strategy_id in CONTROLLERS:
+            return CONTROLLERS[strategy_id]()
+        record = next(
+            (
+                row
+                for row in reversed(self._registry().get("models", []))
+                if row.get("model") == strategy_id
+            ),
+            None,
+        )
+        if not record:
+            raise ValueError(f"unknown strategy: {strategy_id}")
+        artifact = self._artifact(record)
+        if not artifact.is_file():
+            raise ValueError(
+                f"checkpoint unavailable for {strategy_id}: {artifact}"
+            )
+        if not self._sha_matches(artifact, record.get("sha256")):
+            raise ValueError(f"checkpoint integrity check failed for {strategy_id}")
+        if strategy_id == "bc-ppo":
+            from .ppo import PPOController
+
+            return PPOController(artifact)
+        if strategy_id == "coordinated-ctde":
+            from .coordination import CoordinatedCTDEController
+
+            return CoordinatedCTDEController(artifact)
+        raise ValueError(f"unsupported registered strategy: {strategy_id}")
+
+    def _registry(self) -> dict:
+        if not self.registry_path.is_file():
+            return {"models": []}
+        return json.loads(self.registry_path.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def _artifact(record: dict) -> Path:
+        path = Path(record.get("artifact", ""))
+        return path if path.is_absolute() else PROJECT_ROOT / path
+
+    @staticmethod
+    def _sha_matches(path: Path, expected: str | None) -> bool:
+        return bool(
+            expected
+            and hashlib.sha256(path.read_bytes()).hexdigest() == expected
+        )
+
+
+class ArenaLane:
+    def __init__(self, strategy: str, controller, config: EnvConfig, seed: int):
+        self.strategy = strategy
+        self.controller = controller
+        self.controller.reset(seed + 100_000)
+        self.env = BeeEnv(config, seed=seed)
+
+    def step(self) -> None:
+        if not self.env.done:
+            self.env.step(self.controller.act(self.env.observe()))
 
     def state(self) -> dict:
         state = self.env.observe()
@@ -45,27 +134,119 @@ class GameSession:
         for bee in state["bees"]:
             target = targets.get(bee["id"])
             bee["target"] = list(target) if target else None
-        state["controller"] = self.controller_name
+        state["controller"] = self.strategy
+        state["controller_metrics"] = (
+            self.controller.episode_metrics()
+            if hasattr(self.controller, "episode_metrics")
+            else {}
+        )
         return state
 
 
+class ArenaSession:
+    """Two matched-seed simulations with server-side replay history."""
+
+    def __init__(self, catalog: StrategyCatalog | None = None) -> None:
+        self.lock = threading.RLock()
+        self.catalog = catalog or StrategyCatalog()
+        self.seed = 42
+        self.config = EnvConfig()
+        self.left: ArenaLane
+        self.right: ArenaLane
+        self.history: list[dict] = []
+        self._reset_unlocked(self.seed, "assignment", "greedy", {})
+
+    def strategies(self) -> list[dict]:
+        return self.catalog.entries()
+
+    def reset(
+        self,
+        seed: int = 42,
+        left: str = "assignment",
+        right: str = "greedy",
+        config: dict | None = None,
+    ) -> dict:
+        with self.lock:
+            return self._reset_unlocked(seed, left, right, config or {})
+
+    def _reset_unlocked(
+        self, seed: int, left: str, right: str, config: dict
+    ) -> dict:
+        self.seed = seed
+        self.config = EnvConfig(**config)
+        self.config.validate()
+        self.left = ArenaLane(left, self.catalog.create(left), self.config, seed)
+        self.right = ArenaLane(right, self.catalog.create(right), self.config, seed)
+        self.history = []
+        return self._record()
+
+    def step(self) -> dict:
+        with self.lock:
+            if not self.left.env.done or not self.right.env.done:
+                self.left.step()
+                self.right.step()
+                self._record()
+            return self.summary()
+
+    def frame(self, index: int) -> dict:
+        with self.lock:
+            if not self.history:
+                raise ValueError("replay is empty")
+            if index < 0:
+                index = len(self.history) + index
+            if not 0 <= index < len(self.history):
+                raise ValueError("replay frame out of range")
+            return {
+                **self.history[index],
+                "frame": index,
+                "frames": len(self.history),
+                "live": index == len(self.history) - 1,
+            }
+
+    def summary(self) -> dict:
+        return self.frame(-1)
+
+    def _record(self) -> dict:
+        frame = {
+            "seed": self.seed,
+            "left": self.left.state(),
+            "right": self.right.state(),
+        }
+        self.history.append(frame)
+        return self.summary()
+
+
 def serve(port: int = 8080) -> None:
-    web_root = Path(__file__).resolve().parent.parent / "web"
-    session = GameSession()
+    web_root = PROJECT_ROOT / "web"
+    session = ArenaSession()
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
-            if self.path == "/api/state":
-                self._json(200, session.state())
+            parsed = urlparse(self.path)
+            if parsed.path in ("/api/state", "/api/arena"):
+                self._json(200, session.summary())
                 return
-            relative = "index.html" if self.path == "/" else self.path.lstrip("/")
+            if parsed.path == "/api/strategies":
+                self._json(200, {"strategies": session.strategies()})
+                return
+            if parsed.path == "/api/frame":
+                try:
+                    index = int(parse_qs(parsed.query).get("index", ["-1"])[0])
+                    self._json(200, session.frame(index))
+                except (TypeError, ValueError) as exc:
+                    self._json(400, {"error": str(exc)})
+                return
+            relative = "index.html" if parsed.path == "/" else parsed.path.lstrip("/")
             path = (web_root / relative).resolve()
             if web_root.resolve() not in path.parents or not path.is_file():
                 self.send_error(404)
                 return
             body = path.read_bytes()
             self.send_response(200)
-            self.send_header("Content-Type", mimetypes.guess_type(path.name)[0] or "application/octet-stream")
+            self.send_header(
+                "Content-Type",
+                mimetypes.guess_type(path.name)[0] or "application/octet-stream",
+            )
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -76,12 +257,13 @@ def serve(port: int = 8080) -> None:
                 payload = json.loads(self.rfile.read(length) or b"{}")
                 if self.path == "/api/reset":
                     state = session.reset(
-                        seed=int(payload.get("seed", 0)),
-                        controller=str(payload.get("controller", "scout")),
+                        seed=int(payload.get("seed", 42)),
+                        left=str(payload.get("left", "assignment")),
+                        right=str(payload.get("right", "greedy")),
                         config=payload.get("config"),
                     )
                 elif self.path == "/api/step":
-                    state = session.step(payload.get("actions"))
+                    state = session.step()
                 else:
                     self._json(404, {"error": "not found"})
                     return
@@ -101,7 +283,7 @@ def serve(port: int = 8080) -> None:
             return
 
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"BeeSim running at http://127.0.0.1:{port}")
+    print(f"BeeSim Strategy Arena running at http://127.0.0.1:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

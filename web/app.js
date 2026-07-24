@@ -1,35 +1,25 @@
-const $ = (id) => document.getElementById(id);
-let state, timer, events = [], lastRecordedTick = -1;
+const $ = id => document.getElementById(id);
+let arena, timer, strategies = [];
 let language = localStorage.getItem("sweetgold-language")
   || (navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en");
 if (!["en", "zh"].includes(language)) language = "en";
 
-const copy = {
+const words = {
   en: {
-    clear: "☀ CLEAR", rain: "🌧 RAIN", start: "Start", pause: "Pause",
-    seasonEnd: "The season has ended. Start a new season to continue.",
-    tickEvent: (tick, honey, alive) => `Tick ${tick}: honey yield ${honey}, ${alive} bees alive`,
-    signalEvent: count => `Scout bees advertised ${count} nectar sources`
+    run: "Run", pause: "Pause", live: "Live", replay: "Replay",
+    even: "Even", leads: name => `${name} leads`,
+    unavailable: "Model checkpoint unavailable locally",
+    honey: "Honey", alive: "Alive", efficiency: "Efficiency", invalid: "Invalid",
+    prevented: "Prevented"
   },
   zh: {
-    clear: "☀ 晴朗", rain: "🌧 降雨", start: "开始", pause: "暂停",
-    seasonEnd: "季节结束，请开始一个新季节。",
-    tickEvent: (tick, honey, alive) => `第 ${tick} 步：蜂蜜产量 ${honey}，存活 ${alive} 只`,
-    signalEvent: count => `侦察蜂广播了 ${count} 个花蜜来源`
+    run: "运行", pause: "暂停", live: "实时", replay: "回放",
+    even: "持平", leads: name => `${name} 领先`,
+    unavailable: "模型 checkpoint 在本机不可用",
+    honey: "蜂蜜", alive: "存活", efficiency: "效率", invalid: "无效",
+    prevented: "避免冲突"
   }
 };
-
-function translateStatic() {
-  document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
-  document.querySelectorAll("[data-en]").forEach(el => {
-    el.textContent = el.dataset[language] ?? el.dataset.en ?? "";
-  });
-  $("language").textContent = language === "en" ? "中文" : "English";
-  document.title = language === "en"
-    ? "BeeSim · Bee ecosystem experiment"
-    : "BeeSim · 蜂群生态实验";
-  if ($("toggle")) $("toggle").textContent = timer ? copy[language].pause : copy[language].start;
-}
 
 async function api(path, body) {
   const response = await fetch(path, {
@@ -37,90 +27,175 @@ async function api(path, body) {
     headers: {"Content-Type": "application/json"},
     body: body ? JSON.stringify(body) : undefined
   });
-  return response.json();
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+  return payload;
 }
 
-function finiteNumber(value, fallback = 0) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : fallback;
-}
-
-function normalizeMetrics(s) {
-  const metrics = s && typeof s.metrics === "object" && s.metrics !== null
-    ? s.metrics
-    : {};
-  return {
-    // Compatibility with servers started before the nectar → honey migration.
-    honey: finiteNumber(
-      metrics.honey ?? metrics.nectar ?? s?.stored_honey ?? s?.stored_nectar
-    ),
-    alive: finiteNumber(metrics.alive),
-    coverage: finiteNumber(metrics.coverage),
-    efficiency: finiteNumber(metrics.efficiency),
-  };
-}
-
-function render(s) {
-  state = s;
-  const metrics = normalizeMetrics(s);
-  const world = $("world");
-  world.style.gridTemplateColumns = `repeat(${s.config.width},1fr)`;
-  world.innerHTML = "";
-  const flowers = new Map(s.flowers.map(f => [`${f.row},${f.col}`, f]));
-  const bees = new Map();
-  s.bees.forEach(b => {
-    const key = `${b.row},${b.col}`;
-    bees.set(key, [...(bees.get(key) || []), b]);
+function translate() {
+  document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+  document.querySelectorAll("[data-en]").forEach(node => {
+    node.textContent = node.dataset[language] || node.dataset.en;
   });
-  const signals = new Set(s.signals.map(x => `${x.row},${x.col}`));
-  const targets = new Set(
-    s.bees.filter(b => b.alive && Array.isArray(b.target)).map(b => `${b.target[0]},${b.target[1]}`)
-  );
-  for (let r=0;r<s.config.height;r++) for (let c=0;c<s.config.width;c++) {
-    const cell = document.createElement("div");
-    const key = `${r},${c}`, flower = flowers.get(key), localBees = bees.get(key) || [];
-    cell.className = "cell"
-      + (r===s.hive[0] && c===s.hive[1] ? " hive-cell" : "")
-      + (targets.has(key) ? " assigned-target" : "");
-    if (r===s.hive[0] && c===s.hive[1]) cell.innerHTML += `<span class="entity">🍯</span>`;
-    if (flower) cell.innerHTML += `<span class="entity flower-entity ${signals.has(key)?"pulse":""}">🌼<b class="nectar-count">${flower.nectar}</b></span>`;
-    if (localBees.length) cell.innerHTML += `<span class="entity ${localBees.every(b=>!b.alive)?"dead":""}">🐝${localBees.length>1?`<b class="nectar-count">×${localBees.length}</b>`:""}</span>`;
-    world.appendChild(cell);
-  }
-  $("tick").textContent=s.tick; $("maxTick").textContent=s.config.season_ticks;
-  $("progress").style.width=`${100*s.tick/s.config.season_ticks}%`;
-  $("weather").textContent=s.weather==="rain" ? copy[language].rain : copy[language].clear;
-  $("honey").textContent=metrics.honey;
-  $("alive").textContent=`${metrics.alive}/${finiteNumber(s.config?.bees)}`;
-  $("coverage").textContent=`${(100*metrics.coverage).toFixed(0)}%`;
-  $("efficiency").textContent=metrics.efficiency.toFixed(2);
-  if (s.tick !== lastRecordedTick) {
-    if (s.tick && s.tick%20===0) events.unshift({key:"tick",args:[s.tick,metrics.honey,metrics.alive]});
-    if (s.signals.length && s.tick%10===0) events.unshift({key:"signal",args:[s.signals.length]});
-    if (s.done) events.unshift({key:"end",args:[]});
-    lastRecordedTick = s.tick;
-  }
-  $("events").innerHTML=events.slice(0,7).map(e => {
-    const label = e.key === "tick"
-      ? copy[language].tickEvent(...e.args)
-      : e.key === "signal"
-        ? copy[language].signalEvent(...e.args)
-        : copy[language].seasonEnd;
-    return `<li>${label}</li>`;
-  }).join("");
-  if(s.done) stop();
+  $("language").textContent = language === "en" ? "中文" : "English";
+  $("toggle").textContent = timer ? words[language].pause : words[language].run;
+  document.title = language === "en"
+    ? "SweetGold · Strategy Arena" : "SweetGold · 策略竞技场";
+  if (arena) render(arena);
 }
 
-async function step(){ render(await api("/api/step", {})); }
-function stop(){clearInterval(timer);timer=null;$("toggle").textContent=copy[language].start;}
-function toggle(){if(timer){stop()}else{timer=setInterval(step,120);$("toggle").textContent=copy[language].pause}}
-$("toggle").onclick=toggle; $("step").onclick=step;
-$("reset").onclick=async()=>{stop();events=[];lastRecordedTick=-1;render(await api("/api/reset",{seed:+$("seed").value,controller:$("controller").value}))};
-$("language").onclick=()=>{
-  language=language==="en"?"zh":"en";
-  localStorage.setItem("sweetgold-language",language);
-  translateStatic();
-  if(state) render(state);
+function metricNumber(value, digits = 0) {
+  const number = Number(value || 0);
+  return Number.isFinite(number) ? number.toFixed(digits) : "0";
+}
+
+function renderWorld(id, state) {
+  const world = $(id);
+  world.style.gridTemplateColumns = `repeat(${state.config.width},1fr)`;
+  const flowers = new Map(state.flowers.map(f => [`${f.row},${f.col}`, f]));
+  const bees = new Map();
+  state.bees.filter(bee => bee.alive).forEach(bee => {
+    const key = `${bee.row},${bee.col}`;
+    bees.set(key, [...(bees.get(key) || []), bee]);
+  });
+  const targets = new Set(state.bees
+    .filter(bee => bee.alive && Array.isArray(bee.target))
+    .map(bee => `${bee.target[0]},${bee.target[1]}`));
+  const cells = [];
+  for (let row = 0; row < state.config.height; row++) {
+    for (let col = 0; col < state.config.width; col++) {
+      const key = `${row},${col}`;
+      const flower = flowers.get(key);
+      const local = bees.get(key) || [];
+      const hive = row === state.hive[0] && col === state.hive[1];
+      cells.push(`<div class="cell${hive ? " hive-cell" : ""}${targets.has(key) ? " assigned" : ""}">
+        ${hive ? '<span class="entity">🍯</span>' : ""}
+        ${flower ? `<span class="entity flower">🌼<b>${flower.nectar}</b></span>` : ""}
+        ${local.length ? `<span class="entity bee">🐝${local.length > 1 ? `<b>×${local.length}</b>` : ""}</span>` : ""}
+      </div>`);
+    }
+  }
+  world.innerHTML = cells.join("");
+}
+
+function metricsHtml(state) {
+  const m = state.metrics;
+  const c = state.controller_metrics || {};
+  const cards = [
+    [words[language].alive, `${m.alive}/${state.config.bees}`],
+    [words[language].efficiency, metricNumber(m.efficiency, 2)],
+    [words[language].invalid, metricNumber(m.invalid_actions)],
+  ];
+  if (c.prevented_conflicts !== undefined) {
+    cards.push([words[language].prevented, metricNumber(c.prevented_conflicts)]);
+  }
+  return cards.map(([label, value]) =>
+    `<span><small>${label}</small><b>${value}</b></span>`).join("");
+}
+
+function strategyLabel(id) {
+  return strategies.find(item => item.id === id)?.label || id;
+}
+
+function render(frame) {
+  arena = frame;
+  const left = frame.left, right = frame.right;
+  renderWorld("leftWorld", left);
+  renderWorld("rightWorld", right);
+  $("leftMetrics").innerHTML = metricsHtml(left);
+  $("rightMetrics").innerHTML = metricsHtml(right);
+  const leftLabel = strategyLabel(left.controller);
+  const rightLabel = strategyLabel(right.controller);
+  ["leftName", "leftTitle"].forEach(id => $(id).textContent = leftLabel);
+  ["rightName", "rightTitle"].forEach(id => $(id).textContent = rightLabel);
+  $("leftHoney").textContent = left.metrics.honey;
+  $("rightHoney").textContent = right.metrics.honey;
+  const delta = left.metrics.honey - right.metrics.honey;
+  $("honeyDelta").textContent = `${delta > 0 ? "+" : ""}${delta}`;
+  $("honeyDelta").className = delta > 0 ? "positive" : delta < 0 ? "negative" : "";
+  $("leader").textContent = delta === 0
+    ? words[language].even
+    : words[language].leads(delta > 0 ? leftLabel : rightLabel);
+  $("leftWeather").textContent = left.weather === "rain" ? "🌧" : "☀";
+  $("rightWeather").textContent = right.weather === "rain" ? "🌧" : "☀";
+  $("tick").textContent = left.tick;
+  $("maxTick").textContent = left.config.season_ticks;
+  $("timeline").max = Math.max(0, frame.frames - 1);
+  $("timeline").value = frame.frame;
+  $("replayState").textContent = frame.live ? words[language].live : words[language].replay;
+  $("replayState").className = frame.live ? "live" : "";
+  if (left.done && right.done) stop();
+}
+
+async function loadStrategies() {
+  strategies = (await api("/api/strategies")).strategies;
+  const options = strategies.map(strategy => {
+    const suffix = strategy.available ? "" : ` · ${words[language].unavailable}`;
+    return `<option value="${strategy.id}" ${strategy.available ? "" : "disabled"}>${strategy.label}${suffix}</option>`;
+  }).join("");
+  $("leftStrategy").innerHTML = options;
+  $("rightStrategy").innerHTML = options;
+  $("leftStrategy").value = strategies.some(s => s.id === "coordinated-ctde" && s.available)
+    ? "coordinated-ctde" : "assignment";
+  $("rightStrategy").value = "assignment";
+  const missing = strategies.filter(s => s.kind === "learned" && !s.available);
+  $("notice").hidden = missing.length === 0;
+  $("notice").textContent = missing.length
+    ? `${words[language].unavailable}: ${missing.map(s => s.label).join(", ")}`
+    : "";
+}
+
+async function reset() {
+  stop();
+  try {
+    render(await api("/api/reset", {
+      seed: Number($("seed").value),
+      left: $("leftStrategy").value,
+      right: $("rightStrategy").value
+    }));
+  } catch (error) {
+    $("notice").hidden = false;
+    $("notice").textContent = error.message;
+  }
+}
+
+async function step() {
+  if (arena && !arena.live) {
+    render(await api(`/api/frame?index=${arena.frames - 1}`));
+    return;
+  }
+  render(await api("/api/step", {}));
+}
+
+function stop() {
+  clearInterval(timer);
+  timer = null;
+  $("toggle").textContent = words[language].run;
+}
+
+function toggle() {
+  if (timer) return stop();
+  timer = setInterval(() => step().catch(stop), 110);
+  $("toggle").textContent = words[language].pause;
+}
+
+$("reset").onclick = reset;
+$("step").onclick = () => step();
+$("toggle").onclick = toggle;
+$("timeline").oninput = async event => {
+  stop();
+  render(await api(`/api/frame?index=${event.target.value}`));
 };
-translateStatic();
-api("/api/state").then(render);
+$("language").onclick = async () => {
+  language = language === "en" ? "zh" : "en";
+  localStorage.setItem("sweetgold-language", language);
+  translate();
+};
+
+translate();
+loadStrategies()
+  .then(reset)
+  .catch(error => {
+    $("notice").hidden = false;
+    $("notice").textContent = error.message;
+  });

@@ -199,3 +199,19 @@ confidence interval of [+3.41, +8.97]. It prevents 13.51 oversubscribed
 harvests per episode on average and reduces the uncoordinated CTDE invalid
 action rate from 0.742% to 0%, with no unresolved resource conflicts. The
 candidate passes every predeclared promotion gate and is registered.
+
+## Strategy Arena
+
+M9 turns BeeSim into a matched-seed strategy comparison product:
+
+```bash
+.venv-ml/bin/python main.py play --port 8080
+```
+
+The arena discovers rule strategies and accepted learned policies from
+`registry/models.json`, verifies checkpoint hashes before loading them, and
+clearly disables models whose generated artifacts are not present locally.
+Two strategies run from identical initial worlds and the same stochastic seed.
+Live honey deltas, survival, efficiency, invalid actions and coordination
+metrics are displayed side by side. Every server-side frame can be revisited
+with the replay timeline without changing the live simulation.
