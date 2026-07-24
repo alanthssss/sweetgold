@@ -1,0 +1,65 @@
+{
+  "audits": [
+    {
+      "run": "runs/m10-robustness-v1",
+      "candidate": "coordinated-ctde",
+      "baseline": "assignment",
+      "status": "failed",
+      "source_commit": "35dd68cd9f9570b794bd5f4f20aa0ae1d7a18a7b",
+      "source_dirty": true,
+      "audited_at": "2026-07-24T15:28:25.997431+00:00",
+      "summary": {
+        "status": "failed",
+        "checks": {
+          "minimum_median_honey_ratio": true,
+          "minimum_worst_honey_ratio": false,
+          "minimum_bee_survival": false,
+          "maximum_invalid_action_rate": true
+        },
+        "median_honey_ratio": 0.995593342555763,
+        "worst_honey_ratio": 0.7468101075806856,
+        "worst_honey_scenario": "scarce-nectar",
+        "minimum_bee_survival": 0.0775,
+        "maximum_invalid_action_rate": 0.0
+      },
+      "scenarios": [
+        {
+          "name": "in-distribution",
+          "honey_ratio": 1.0194771241830065,
+          "bee_survival_rate": 0.9325,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "large-map",
+          "honey_ratio": 1.0332902855502943,
+          "bee_survival_rate": 0.5025,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "scarce-nectar",
+          "honey_ratio": 0.7468101075806856,
+          "bee_survival_rate": 0.94,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "harsh-weather",
+          "honey_ratio": 0.7690095272335071,
+          "bee_survival_rate": 0.0775,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "large-colony",
+          "honey_ratio": 0.9898760691220109,
+          "bee_survival_rate": 0.9633333333333333,
+          "invalid_action_rate": 0.0
+        },
+        {
+          "name": "short-season",
+          "honey_ratio": 1.001310615989515,
+          "bee_survival_rate": 0.96,
+          "invalid_action_rate": 0.0
+        }
+      ]
+    }
+  ]
+}

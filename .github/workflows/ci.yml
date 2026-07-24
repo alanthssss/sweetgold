@@ -32,3 +32,4 @@ jobs:
       - run: python main.py pipeline --config experiments/smoke.json
       - run: python main.py pipeline-m7 --config experiments/m7-smoke.json
       - run: python main.py pipeline-m8 --config experiments/m8-smoke.json
+      - run: python main.py pipeline-m10 --config experiments/m10-smoke.json

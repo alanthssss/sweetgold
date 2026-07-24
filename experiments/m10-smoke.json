@@ -1,0 +1,32 @@
+{
+  "experiment": "m10-ci-smoke",
+  "candidate": "greedy",
+  "baseline": "assignment",
+  "episodes": 2,
+  "seed": 22100009,
+  "scenarios": [
+    {
+      "name": "small-default",
+      "env": {
+        "season_ticks": 8,
+        "bees": 3,
+        "flowers": 4
+      }
+    },
+    {
+      "name": "small-rain",
+      "env": {
+        "season_ticks": 8,
+        "bees": 3,
+        "flowers": 4,
+        "rain_chance": 0.3
+      }
+    }
+  ],
+  "audit": {
+    "minimum_median_honey_ratio": 0.0,
+    "minimum_worst_honey_ratio": 0.0,
+    "minimum_bee_survival": 0.0,
+    "maximum_invalid_action_rate": 1.0
+  }
+}

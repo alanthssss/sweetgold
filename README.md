@@ -215,3 +215,23 @@ Two strategies run from identical initial worlds and the same stochastic seed.
 Live honey deltas, survival, efficiency, invalid actions and coordination
 metrics are displayed side by side. Every server-side frame can be revisited
 with the replay timeline without changing the live simulation.
+
+## Generalization and robustness audit
+
+M10 evaluates an accepted model without retraining it across declared
+environment shifts:
+
+```bash
+.venv-ml/bin/python main.py pipeline-m10 \
+  --config experiments/m10-robustness.json
+```
+
+The pipeline allocates a disjoint test-seed range to every scenario, compares
+the candidate with Assignment on matched episodes, writes a JSON/HTML audit,
+and checks median and worst-case yield, survival and invalid-action thresholds.
+
+The first coordinated-CTDE audit fails as intended rather than weakening its
+gates. Its median yield is 99.56% of Assignment and it retains 0% invalid
+actions, but scarce nectar falls to 74.68% of baseline yield. Survival falls
+to 50.25% on the large map and 7.75% under high rain with reduced energy.
+These failures define M11's curriculum targets.
