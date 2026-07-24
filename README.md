@@ -235,3 +235,26 @@ gates. Its median yield is 99.56% of Assignment and it retains 0% invalid
 actions, but scarce nectar falls to 74.68% of baseline yield. Survival falls
 to 50.25% on the large map and 7.75% under high rain with reduced energy.
 These failures define M11's curriculum targets.
+
+## Curriculum robustness training
+
+M11 fine-tunes the accepted coordinated actor through independently seeded
+default, distance, weather/energy, scarcity and recovery stages:
+
+```bash
+.venv-ml/bin/python main.py pipeline-m11 \
+  --config experiments/m11-curriculum.json
+```
+
+Each stage is scored on a fixed, disjoint multi-scenario validation suite.
+Checkpoint selection favors the number of predeclared gates passed before
+survival and normalized yield; final test scenarios remain untouched until the
+selection is complete. Stage trainers can weight validation survival without
+changing the default M7/M8 checkpoint semantics.
+
+The first sequential curriculum does not pass promotion. Validation weather
+training raises worst-case survival from 4.17% to 17.71%, but loses the
+scarce-resource yield gate, so the balanced default-refresh checkpoint is
+selected. On new final seeds it retains a 99.51% median yield ratio and 0%
+invalid actions, but harsh-weather survival is 6.5% and worst-case yield is
+69.85%. The candidate is audited but not registered.

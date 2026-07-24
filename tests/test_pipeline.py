@@ -14,6 +14,7 @@ from beehive.pipeline import (
 from beehive.m7_pipeline import validate_m7_config
 from beehive.m8_pipeline import validate_m8_config
 from beehive.m10_pipeline import validate_m10_config
+from beehive.m11_pipeline import validate_m11_config
 
 
 def valid_config() -> dict:
@@ -141,6 +142,41 @@ class PipelineConfigTests(unittest.TestCase):
         config["scenarios"][1]["name"] = "default"
         with self.assertRaisesRegex(ValueError, "duplicate scenario"):
             validate_m10_config(config)
+
+    def test_m11_config_rejects_validation_and_final_seed_overlap(self):
+        config = {
+            "experiment": "m11-test",
+            "source_model": "coordinated-ctde",
+            "stages": [
+                {
+                    "name": "default",
+                    "episodes": 2,
+                    "seed": 1000,
+                    "env": {},
+                    "validation_episodes": 2,
+                }
+            ],
+            "validation": {
+                "episodes": 2,
+                "seed": 3009,
+                "scenarios": [{"name": "default", "env": {}}],
+            },
+            "test": {
+                "episodes": 2,
+                "seed": 5009,
+                "scenarios": [{"name": "default", "env": {}}],
+            },
+            "audit": {
+                "minimum_median_honey_ratio": 0.9,
+                "minimum_worst_honey_ratio": 0.75,
+                "minimum_bee_survival": 0.75,
+                "maximum_invalid_action_rate": 0.01,
+            },
+        }
+        validate_m11_config(config)
+        config["test"]["seed"] = 3009
+        with self.assertRaisesRegex(ValueError, "seed leakage"):
+            validate_m11_config(config)
 
 
 if __name__ == "__main__":

@@ -33,3 +33,10 @@ jobs:
       - run: python main.py pipeline-m7 --config experiments/m7-smoke.json
       - run: python main.py pipeline-m8 --config experiments/m8-smoke.json
       - run: python main.py pipeline-m10 --config experiments/m10-smoke.json
+      - run: >-
+          python -c "from pathlib import Path; from beehive.ml import
+          LOCAL_FEATURE_SIZE,_build_sized_model,_torch; t=_torch();
+          p=Path('models/m11-smoke-source.pt'); p.parent.mkdir(exist_ok=True);
+          t.save({'state_dict':_build_sized_model(t,LOCAL_FEATURE_SIZE).state_dict(),
+          'feature_size':LOCAL_FEATURE_SIZE},p)"
+      - run: python main.py pipeline-m11 --config experiments/m11-smoke.json
