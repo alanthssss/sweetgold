@@ -97,3 +97,22 @@ Recommended progression:
 
 Do not claim an RL improvement until it beats `behavior-cloning-only` on
 unseen, fixed seeds with confidence intervals.
+
+## Optional behavior cloning
+
+The simulation and rule-based benchmarks remain dependency-free. The M4
+learning pipeline uses optional PyTorch dependencies:
+
+```bash
+python3 -m venv .venv-ml
+.venv-ml/bin/pip install -r requirements-ml.txt
+.venv-ml/bin/python main.py collect --episodes 100
+.venv-ml/bin/python main.py train-bc --epochs 15
+.venv-ml/bin/python main.py collect-dagger --episodes 50
+.venv-ml/bin/python main.py train-bc --epochs 15
+.venv-ml/bin/python main.py benchmark-bc --episodes 30
+```
+
+Whole episode seeds are assigned to train, validation or test before examples
+are written. DAgger only appends training-seed states, so validation and test
+episodes remain unseen.
