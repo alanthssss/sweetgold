@@ -5,6 +5,8 @@ versioning from v1.0.0 onward.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-25
+
 ### Added
 
 - Apache License 2.0 terms and an explicit project copyright notice.
@@ -45,4 +47,6 @@ versioning from v1.0.0 onward.
 - Repository licensing remains an owner decision; this release does not add or
   imply a software license.
 
+[Unreleased]: https://github.com/alanthssss/sweetgold/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/alanthssss/sweetgold/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/alanthssss/sweetgold/releases/tag/v1.0.0
