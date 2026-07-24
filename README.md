@@ -116,3 +116,24 @@ python3 -m venv .venv-ml
 Whole episode seeds are assigned to train, validation or test before examples
 are written. DAgger only appends training-seed states, so validation and test
 episodes remain unseen.
+
+## Optional PPO fine-tuning
+
+PPO starts from the accepted behavior-cloning checkpoint and uses separate
+training, validation and test seeds:
+
+```bash
+.venv-ml/bin/python main.py train-ppo --episodes 100
+.venv-ml/bin/python main.py benchmark-ppo --episodes 100
+```
+
+For the initialization control:
+
+```bash
+.venv-ml/bin/python main.py train-ppo --random-init \
+  --model models/random-ppo.pt --episodes 100
+.venv-ml/bin/python main.py benchmark-ppo --random-model models/random-ppo.pt
+```
+
+The trainer saves only checkpoints that improve deterministic online validation
+honey. Final reports include paired BC-versus-PPO confidence intervals.

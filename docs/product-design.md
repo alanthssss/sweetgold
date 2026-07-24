@@ -70,3 +70,18 @@ On 30 completely unseen test seeds, the learned controller produces 136.10
 mean honey versus Assignment's 140.30 (97.0%), with 95.0% bee survival and a
 0.77% invalid-action rate. Offline action accuracy is 83.5%; the result confirms
 that online matched-seed performance is the more meaningful selection metric.
+
+## M5 experiment
+
+PPO initializes its actor from the accepted behavior-cloning checkpoint and
+trains a separate critic on full-season rollouts. Honey remains the dominant
+reward, with small penalties for invalid actions, deaths and energy use.
+Checkpoint selection uses ten validation seeds that are disjoint from training
+and final test seeds.
+
+Across 100 unseen test seeds, BC+PPO produces 153.98 mean honey versus BC's
+145.79. The paired improvement is +8.19 with a 95% confidence interval of
+[+3.69, +12.69]. Bee survival rises from 90.88% to 99.0%, energy efficiency
+rises from 0.110 to 0.118, and invalid actions remain below 1%. Randomly
+initialized PPO produces zero honey after the same 100-episode budget,
+demonstrating the practical value of behavior-cloning initialization.

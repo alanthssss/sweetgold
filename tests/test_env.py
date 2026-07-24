@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 from beehive.controllers import AssignmentController, GreedyController, ScoutController
 from beehive.env import BeeEnv, EnvConfig
-from beehive.evaluator import evaluate
+from beehive.evaluator import evaluate, paired_honey_comparison
 from beehive.ml import (
     FEATURE_SIZE,
     collect_dataset,
@@ -14,6 +14,7 @@ from beehive.ml import (
     seed_split,
     valid_action_mask,
 )
+from beehive.ppo import shaped_reward
 
 
 class EnvTests(unittest.TestCase):
@@ -97,6 +98,19 @@ class EvaluationTests(unittest.TestCase):
         self.assertIn("bee_survival_rate", result)
         self.assertIn("mean_invalid_action_rate", result)
 
+    def test_paired_comparison_uses_shared_seeds(self):
+        left = {
+            "controller": "left",
+            "raw": [{"seed": 1, "honey": 12}, {"seed": 2, "honey": 8}],
+        }
+        right = {
+            "controller": "right",
+            "raw": [{"seed": 1, "honey": 10}, {"seed": 2, "honey": 9}],
+        }
+        comparison = paired_honey_comparison(left, right)
+        self.assertEqual(comparison["mean_honey_delta"], 0.5)
+        self.assertEqual((comparison["wins"], comparison["losses"]), (1, 1))
+
 
 class MlDatasetTests(unittest.TestCase):
     def test_seed_splits_are_episode_level_and_disjoint(self):
@@ -125,6 +139,10 @@ class MlDatasetTests(unittest.TestCase):
             )
             self.assertTrue(path.is_file())
             self.assertTrue(all(counts[split] > 0 for split in counts))
+
+    def test_ppo_reward_keeps_honey_dominant(self):
+        self.assertGreater(shaped_reward(1, 0, 0, 1), 0.9)
+        self.assertLess(shaped_reward(0, 1, 1, 1), 0)
 
 
 if __name__ == "__main__":
