@@ -14,7 +14,7 @@ interactive comparison product.
 - **ML pipelines** cover BC, DAgger, PPO, CTDE, model registration and audits.
 
 SweetGold promotes models only when their predeclared quality and safety gates
-pass. Failed M10 and M11 robustness experiments are preserved as first-class
+pass. Failed M10–M12 robustness experiments are preserved as first-class
 results rather than hidden or retroactively retuned.
 
 ## Quick start
@@ -284,3 +284,24 @@ scarce-resource yield gate, so the balanced default-refresh checkpoint is
 selected. On new final seeds it retains a 99.51% median yield ratio and 0%
 invalid actions, but harsh-weather survival is 6.5% and worst-case yield is
 69.85%. The candidate is audited but not registered.
+
+## Interleaved robustness training
+
+M12 replaces sequential curriculum stages with balanced round-robin rollouts
+from default, large-map, scarce-nectar and harsh-weather environments:
+
+```bash
+.venv-ml/bin/python main.py pipeline-m12 \
+  --config experiments/m12-interleaved.json
+```
+
+Each training cycle gives every scenario the same episode budget. A cycle may
+replace the current checkpoint only through a disjoint four-scenario
+validation suite; the final scenario seeds are evaluated once after selection.
+
+Interleaving substantially improves the failed M11 candidate without passing
+promotion. On fresh final seeds, harsh-weather survival rises from 6.5% to
+27.75%, large-map survival reaches 86.25%, median yield is 99.23% of
+Assignment and invalid actions remain at 0%. Scarce-nectar yield is still only
+73.65% of Assignment, below the predeclared 75% floor, so the model is audited
+but not registered.

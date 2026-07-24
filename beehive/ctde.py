@@ -140,6 +140,8 @@ def train_ctde(
     validation_survival_weight: float = 0.0,
     maximum_validation_invalid_rate: float = 0.01,
     config: EnvConfig | None = None,
+    scenario_configs: list[tuple[str, EnvConfig]] | None = None,
+    save_final: bool = False,
 ) -> dict:
     torch = _torch()
     torch.set_num_threads(1)
@@ -188,27 +190,36 @@ def train_ctde(
         if seed_split(candidate) == "train":
             training_seeds.append(candidate)
         candidate += 1
+    rollout_scenarios = scenario_configs or [("default", config)]
+    scenario_counts = {name: 0 for name, _scenario_config in rollout_scenarios}
 
     history = []
     completed = 0
     for start_seed in range(0, len(training_seeds), rollout_workers):
         batch_seeds = training_seeds[start_seed : start_seed + rollout_workers]
+        batch_jobs = [
+            (
+                episode_seed,
+                rollout_scenarios[(start_seed + offset) % len(rollout_scenarios)],
+            )
+            for offset, episode_seed in enumerate(batch_seeds)
+        ]
         actor.eval()
         critic.eval()
         with ThreadPoolExecutor(max_workers=rollout_workers) as executor:
             rollouts = list(
                 executor.map(
-                    lambda episode_seed: _rollout(
+                    lambda job: _rollout(
                         actor,
                         critic,
-                        config,
-                        episode_seed,
+                        job[1][1],
+                        job[0],
                         torch,
                         invalid_penalty,
                         death_penalty,
                         energy_penalty,
                     ),
-                    batch_seeds,
+                    batch_jobs,
                 )
             )
         transitions = [
@@ -271,12 +282,17 @@ def train_ctde(
                 )
                 optimizer.step()
 
-        for episode_seed, (_rollout_data, metrics) in zip(batch_seeds, rollouts):
+        for (
+            episode_seed,
+            (scenario_name, _scenario_config),
+        ), (_rollout_data, metrics) in zip(batch_jobs, rollouts):
             completed += 1
+            scenario_counts[scenario_name] += 1
             history.append(
                 {
                     "episode": completed,
                     "seed": episode_seed,
+                    "scenario": scenario_name,
                     "honey": metrics["honey"],
                     "alive": metrics["alive"],
                 }
@@ -316,6 +332,17 @@ def train_ctde(
                         "best_episode": best_episode,
                     },
                 )
+    if save_final:
+        best_episode = completed
+        _save_actor(
+            torch,
+            actor,
+            output,
+            {
+                "selection": "final-interleaved-actor",
+                "best_episode": best_episode,
+            },
+        )
     candidate_path.unlink(missing_ok=True)
     summary = {
         "episodes": episodes,
@@ -325,6 +352,8 @@ def train_ctde(
         "energy_penalty": energy_penalty,
         "validation_survival_weight": validation_survival_weight,
         "maximum_validation_invalid_rate": maximum_validation_invalid_rate,
+        "scenario_episode_counts": scenario_counts,
+        "checkpoint_selection": "final" if save_final else "validation",
         "best_episode": best_episode,
         "best_validation_honey": best_honey,
         "best_validation_score": best_validation_score,

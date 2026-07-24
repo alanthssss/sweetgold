@@ -23,6 +23,7 @@ STRATEGY_DESCRIPTIONS = {
     "bc-ppo": "Behavior-cloned actor fine-tuned with PPO.",
     "coordinated-ctde": "Local CTDE actor with harvest-intent reservations.",
     "curriculum-coordinated-ctde": "Robust CTDE actor trained across environment shifts.",
+    "interleaved-coordinated-ctde": "CTDE actor trained on balanced interleaved environments.",
 }
 
 
@@ -53,6 +54,7 @@ class StrategyCatalog:
                 "bc-ppo",
                 "coordinated-ctde",
                 "curriculum-coordinated-ctde",
+                "interleaved-coordinated-ctde",
             ):
                 latest[model] = record
         for model, record in latest.items():
@@ -101,6 +103,7 @@ class StrategyCatalog:
         if strategy_id in (
             "coordinated-ctde",
             "curriculum-coordinated-ctde",
+            "interleaved-coordinated-ctde",
         ):
             from .coordination import CoordinatedCTDEController
 

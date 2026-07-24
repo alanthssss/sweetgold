@@ -2,10 +2,12 @@
 
 ## Current milestone
 
-M2 tests whether centralized flower assignment reduces internal contention
-without materially reducing honey yield.
+M12 tests whether balanced interleaving can reduce the catastrophic forgetting
+observed in M11 without using M11's consumed validation or final seeds. It
+substantially improves large-map and harsh-weather survival, but the candidate
+is rejected because scarce-resource yield and minimum survival still fail.
 
-## Implemented
+## Initial M2 implementation
 
 - `AssignmentController` with persistent, distinct flower reservations.
 - Unambiguous colony and individual-bee survival metrics.
@@ -14,7 +16,7 @@ without materially reducing honey yield.
 - Assigned-target highlighting in BeeSim.
 - Controller and metric regression tests.
 
-## Verification
+## Initial M2 verification
 
 The 100-seed matched experiment (starting at seed 20260724) passed:
 
@@ -31,7 +33,7 @@ python3 main.py benchmark --episodes 100 --controllers greedy assignment --repor
 python3 main.py play --port 8080
 ```
 
-## Next decision
+## Initial M2 decision
 
 Use the 100-seed result to decide whether to refine Assignment's energy
 efficiency or begin behavior cloning from it. Do not begin reinforcement
@@ -209,3 +211,29 @@ The failed result is recorded in `registry/audits.json`. Do not reuse M11
 validation or final seeds. SweetGold can now ship as an honestly scoped
 multi-agent experiment platform v1.0; the current learned policy must not be
 described as generally robust.
+
+## M12 interleaved robustness
+
+M12 adds:
+
+- balanced round-robin sampling across default, large-map, scarce-nectar and
+  harsh-weather environments;
+- five independently seeded training cycles with equal per-scenario budgets;
+- multi-scenario validation gates after every cycle;
+- pairwise leakage checks across training, internal validation, model
+  selection and final evaluation seeds;
+- audit recording, optional promotion, Arena discovery and CI smoke coverage.
+
+The formal candidate failed and was not registered:
+
+- Every cycle used exactly 20 episodes from each of four training scenarios.
+- Final median honey ratio was 99.23%, and invalid actions remained 0%.
+- Large-map survival improved from M11's 60.25% to 86.25%.
+- Harsh-weather survival improved from 6.5% to 27.75%.
+- Scarce-nectar yield was 73.65% of Assignment, below the 75% floor.
+- Minimum survival remained below the 75% promotion gate.
+
+The failed result is recorded in `registry/audits.json`. Do not reuse M12
+validation or final seeds. M13 should test a structural change such as
+hierarchical energy-return control or recurrent memory instead of continuing
+to tune the same feed-forward actor on consumed evaluation data.

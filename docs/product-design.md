@@ -184,3 +184,24 @@ partially learns the current stage and forgets behavior needed elsewhere. The
 candidate is not promoted. The next research iteration should use
 interleaved scenario sampling, recurrent memory or hierarchical energy-return
 control rather than tuning M11 against its consumed final seeds.
+
+## M12 interleaved robustness result
+
+M12 trains five validation-gated cycles. Within every cycle, default,
+large-map, scarce-nectar and harsh-weather rollouts alternate in a fixed
+balanced schedule, with 20 episodes allocated to each scenario. Every cycle
+starts from the best checkpoint selected by the independent multi-scenario
+validation suite, preventing a weak update from becoming the next cycle's
+source.
+
+On six untouched final scenario ranges, the selected checkpoint retains a
+99.23% median honey ratio and 0% invalid actions. Large-map survival improves
+from M11's 60.25% to 86.25%, while harsh-weather survival improves from 6.5%
+to 27.75%. This confirms that balanced replay reduces catastrophic forgetting.
+
+The candidate still fails promotion. Scarce-nectar yield is 73.65% of
+Assignment, below the declared 75% floor, and harsh-weather survival remains
+well below the 75% requirement. M13 should change the policy architecture or
+control decomposition—for example explicit energy-return options or recurrent
+memory—using new validation and final seeds rather than tuning against M12's
+consumed final evaluation.

@@ -5,6 +5,19 @@ versioning from v1.0.0 onward.
 
 ## [Unreleased]
 
+### Added
+
+- M12 balanced interleaved CTDE training with validation-gated cycles,
+  pairwise seed-isolation checks and CI smoke coverage.
+
+### Scientific results
+
+- M12 improved harsh-weather survival from M11's 6.5% to 27.75% and large-map
+  survival from 60.25% to 86.25%, while retaining 0% invalid actions.
+- The candidate was rejected because scarce-nectar yield reached only 73.65%
+  of Assignment, below the predeclared 75% floor, and minimum survival
+  remained below the 75% gate.
+
 ## [1.0.1] - 2026-07-25
 
 ### Added

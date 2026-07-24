@@ -41,3 +41,4 @@ jobs:
           t.save({'state_dict':_build_sized_model(t,LOCAL_FEATURE_SIZE).state_dict(),
           'feature_size':LOCAL_FEATURE_SIZE},p)"
       - run: python main.py pipeline-m11 --config experiments/m11-smoke.json
+      - run: python main.py pipeline-m12 --config experiments/m12-smoke.json

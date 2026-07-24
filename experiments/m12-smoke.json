@@ -1,0 +1,68 @@
+{
+  "experiment": "m12-ci-smoke",
+  "source_model": "smoke-source",
+  "source_checkpoint": "models/m11-smoke-source.pt",
+  "training": {
+    "cycles": 1,
+    "episodes_per_cycle": 2,
+    "seed": 27500000,
+    "validation_episodes": 1,
+    "validation_interval": 2,
+    "rollout_workers": 2,
+    "update_epochs": 1,
+    "batch_size": 64
+  },
+  "training_scenarios": [
+    {
+      "name": "tiny-default",
+      "env": {
+        "season_ticks": 8,
+        "bees": 3,
+        "flowers": 4
+      }
+    },
+    {
+      "name": "tiny-rain",
+      "env": {
+        "season_ticks": 8,
+        "bees": 3,
+        "flowers": 4,
+        "rain_chance": 0.2
+      }
+    }
+  ],
+  "validation": {
+    "episodes": 2,
+    "seed": 27700009,
+    "scenarios": [
+      {
+        "name": "tiny",
+        "env": {
+          "season_ticks": 8,
+          "bees": 3,
+          "flowers": 4
+        }
+      }
+    ]
+  },
+  "test": {
+    "episodes": 2,
+    "seed": 27800009,
+    "scenarios": [
+      {
+        "name": "tiny",
+        "env": {
+          "season_ticks": 8,
+          "bees": 3,
+          "flowers": 4
+        }
+      }
+    ]
+  },
+  "audit": {
+    "minimum_median_honey_ratio": 0.0,
+    "minimum_worst_honey_ratio": 0.0,
+    "minimum_bee_survival": 0.0,
+    "maximum_invalid_action_rate": 1.0
+  }
+}
