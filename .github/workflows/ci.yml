@@ -30,3 +30,4 @@ jobs:
           cache-dependency-path: requirements-ml.txt
       - run: python -m pip install -r requirements-ml.txt
       - run: python main.py pipeline --config experiments/smoke.json
+      - run: python main.py pipeline-m7 --config experiments/m7-smoke.json

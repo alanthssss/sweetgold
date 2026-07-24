@@ -106,3 +106,26 @@ Pipeline guarantees:
 - accepted candidates are appended to `registry/models.json`;
 - generated datasets, checkpoints and run bundles remain outside Git;
 - CI runs both dependency-free tests and an end-to-end PyTorch smoke pipeline.
+
+## M7 local observation and CTDE
+
+M7 adds:
+
+- radius-four local actor observations;
+- a global critic used only during training;
+- deterministic four-worker rollout collection;
+- a one-command `pipeline-m7` experiment;
+- local dataset manifests, seed isolation and CI smoke coverage.
+
+On 100 final unseen seeds:
+
+- Assignment: 157.41 mean honey.
+- Local behavior cloning: 153.11 mean honey, 93.13% survival.
+- CTDE PPO: 159.71 mean honey, 91.0% survival.
+- Paired CTDE delta: +6.60, 95% CI [+3.28, +9.92].
+
+The candidate was correctly rejected because its 1.056% invalid-action rate
+exceeded the predeclared 1% threshold. Do not retroactively relax that gate or
+reuse the final seeds for tuning. The next experiment should address local
+resource contention using training/validation seeds and reserve a fresh final
+test range.

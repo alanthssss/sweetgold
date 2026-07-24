@@ -18,6 +18,11 @@ ACTION_INDEX = {action: index for index, action in enumerate(ACTIONS)}
 NEAREST_FLOWERS = 14
 OTHER_BEES = 7
 FEATURE_SIZE = 13 + NEAREST_FLOWERS * 3 + OTHER_BEES * 5
+LOCAL_RADIUS = 4
+LOCAL_FLOWERS = 6
+LOCAL_BEES = 4
+LOCAL_SIGNALS = 3
+LOCAL_FEATURE_SIZE = 13 + LOCAL_FLOWERS * 3 + LOCAL_BEES * 5 + LOCAL_SIGNALS * 4
 
 
 def seed_split(seed: int) -> str:
@@ -92,6 +97,101 @@ def encode_bee(observation: dict, bee_id: int) -> list[float]:
     return features
 
 
+def encode_local_bee(observation: dict, bee_id: int) -> list[float]:
+    """Encode only entities within a fixed Manhattan radius of one bee."""
+    config = observation["config"]
+    bee = next(bee for bee in observation["bees"] if bee["id"] == bee_id)
+    row, col = bee["row"], bee["col"]
+    hive_row, hive_col = observation["hive"]
+    height = max(1, config["height"] - 1)
+    width = max(1, config["width"] - 1)
+    features = [
+        row / height,
+        col / width,
+        bee["energy"] / config["max_energy"],
+        bee["cargo"] / config["max_cargo"],
+        bee["id"] / max(1, config["bees"] - 1),
+        (hive_row - row) / height,
+        (hive_col - col) / width,
+        observation["tick"] / config["season_ticks"],
+        float(observation["weather"] == "rain"),
+        observation["stored_honey"] / max(1, config["bees"] * config["max_cargo"]),
+        sum(other["alive"] for other in observation["bees"]) / config["bees"],
+        len(observation["signals"]) / 12,
+        float((row, col) == (hive_row, hive_col)),
+    ]
+
+    def distance(entity: dict) -> int:
+        return abs(entity["row"] - row) + abs(entity["col"] - col)
+
+    flowers = sorted(
+        (
+            flower
+            for flower in observation["flowers"]
+            if flower["nectar"] > 0 and distance(flower) <= LOCAL_RADIUS
+        ),
+        key=lambda flower: (distance(flower), -flower["nectar"]),
+    )
+    for index in range(LOCAL_FLOWERS):
+        if index < len(flowers):
+            flower = flowers[index]
+            features.extend(
+                [
+                    (flower["row"] - row) / LOCAL_RADIUS,
+                    (flower["col"] - col) / LOCAL_RADIUS,
+                    flower["nectar"] / config["flower_capacity"],
+                ]
+            )
+        else:
+            features.extend([0.0, 0.0, 0.0])
+
+    others = sorted(
+        (
+            other
+            for other in observation["bees"]
+            if other["id"] != bee_id and distance(other) <= LOCAL_RADIUS
+        ),
+        key=lambda other: (distance(other), other["id"]),
+    )
+    for index in range(LOCAL_BEES):
+        if index < len(others):
+            other = others[index]
+            features.extend(
+                [
+                    (other["row"] - row) / LOCAL_RADIUS,
+                    (other["col"] - col) / LOCAL_RADIUS,
+                    other["energy"] / config["max_energy"],
+                    other["cargo"] / config["max_cargo"],
+                    float(other["alive"]),
+                ]
+            )
+        else:
+            features.extend([0.0, 0.0, 0.0, 0.0, 0.0])
+
+    signals = sorted(
+        (
+            signal
+            for signal in observation["signals"]
+            if distance(signal) <= LOCAL_RADIUS
+        ),
+        key=lambda signal: (distance(signal), -signal["tick"]),
+    )
+    for index in range(LOCAL_SIGNALS):
+        if index < len(signals):
+            signal = signals[index]
+            features.extend(
+                [
+                    (signal["row"] - row) / LOCAL_RADIUS,
+                    (signal["col"] - col) / LOCAL_RADIUS,
+                    signal["value"] / config["flower_capacity"],
+                    (observation["tick"] - signal["tick"]) / 20,
+                ]
+            )
+        else:
+            features.extend([0.0, 0.0, 0.0, 0.0])
+    return features
+
+
 def valid_action_mask(observation: dict, bee_id: int) -> list[bool]:
     bee = next(bee for bee in observation["bees"] if bee["id"] == bee_id)
     row, col = bee["row"], bee["col"]
@@ -122,6 +222,7 @@ def collect_dataset(
     episodes: int,
     seed: int,
     config: EnvConfig | None = None,
+    encoder=encode_bee,
 ) -> dict[str, int]:
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -142,7 +243,7 @@ def collect_dataset(
                         "seed": episode_seed,
                         "split": split,
                         "bee_id": bee["id"],
-                        "features": encode_bee(observation, bee["id"]),
+                        "features": encoder(observation, bee["id"]),
                         "action": ACTION_INDEX[actions[bee["id"]]],
                     }
                     handle.write(json.dumps(row, separators=(",", ":")) + "\n")
@@ -157,9 +258,12 @@ def collect_dagger(
     episodes: int,
     seed: int,
     config: EnvConfig | None = None,
+    encoder=encode_bee,
+    controller_class=None,
 ) -> int:
     """Append teacher labels for states visited by the current learned policy."""
-    learner = BehaviorCloningController(model_path)
+    learner_class = controller_class or BehaviorCloningController
+    learner = learner_class(model_path)
     teacher = AssignmentController()
     output = Path(dataset_path)
     written = 0
@@ -182,7 +286,7 @@ def collect_dagger(
                         "seed": candidate,
                         "split": "train",
                         "bee_id": bee["id"],
-                        "features": encode_bee(observation, bee["id"]),
+                        "features": encoder(observation, bee["id"]),
                         "action": ACTION_INDEX[labels[bee["id"]]],
                     }
                     handle.write(json.dumps(row, separators=(",", ":")) + "\n")
@@ -204,8 +308,12 @@ def _torch():
 
 
 def _build_model(torch):
+    return _build_sized_model(torch, FEATURE_SIZE)
+
+
+def _build_sized_model(torch, feature_size: int):
     return torch.nn.Sequential(
-        torch.nn.Linear(FEATURE_SIZE, 96),
+        torch.nn.Linear(feature_size, 96),
         torch.nn.ReLU(),
         torch.nn.Linear(96, 96),
         torch.nn.ReLU(),
@@ -234,7 +342,8 @@ def train_model(
     }
     if not all(grouped.values()):
         raise ValueError("dataset must contain train, validation and test episodes")
-    model = _build_model(torch)
+    feature_size = len(grouped["train"][0]["features"])
+    model = _build_sized_model(torch, feature_size)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     action_counts = [0] * len(ACTIONS)
     for row in grouped["train"]:
@@ -298,7 +407,14 @@ def train_model(
     }
     output = Path(model_path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    torch.save({"state_dict": model.state_dict(), "metrics": metrics}, output)
+    torch.save(
+        {
+            "state_dict": model.state_dict(),
+            "feature_size": feature_size,
+            "metrics": metrics,
+        },
+        output,
+    )
     return metrics
 
 
@@ -307,8 +423,10 @@ class BehaviorCloningController:
 
     def __init__(self, model_path: str | Path) -> None:
         self.torch = _torch()
-        self.model = _build_model(self.torch)
         checkpoint = self.torch.load(model_path, map_location="cpu", weights_only=True)
+        self.model = _build_sized_model(
+            self.torch, checkpoint.get("feature_size", FEATURE_SIZE)
+        )
         self.model.load_state_dict(checkpoint["state_dict"])
         self.model.eval()
 
@@ -321,6 +439,31 @@ class BehaviorCloningController:
             return {}
         features = self.torch.tensor(
             [encode_bee(observation, bee["id"]) for bee in living],
+            dtype=self.torch.float32,
+        )
+        with self.torch.no_grad():
+            logits = self.model(features)
+        actions = {}
+        for index, bee in enumerate(living):
+            mask = valid_action_mask(observation, bee["id"])
+            scores = logits[index].tolist()
+            action_index = max(
+                (candidate for candidate, valid in enumerate(mask) if valid),
+                key=lambda candidate: scores[candidate],
+            )
+            actions[bee["id"]] = ACTIONS[action_index]
+        return actions
+
+
+class LocalBehaviorCloningController(BehaviorCloningController):
+    name = "local-behavior-cloning"
+
+    def act(self, observation: dict) -> dict[int, str]:
+        living = [bee for bee in observation["bees"] if bee["alive"]]
+        if not living:
+            return {}
+        features = self.torch.tensor(
+            [encode_local_bee(observation, bee["id"]) for bee in living],
             dtype=self.torch.float32,
         )
         with self.torch.no_grad():

@@ -11,6 +11,7 @@ from beehive.pipeline import (
     promotion_decision,
     validate_config,
 )
+from beehive.m7_pipeline import validate_m7_config
 
 
 def valid_config() -> dict:
@@ -79,6 +80,26 @@ class PipelineConfigTests(unittest.TestCase):
             candidate, baseline, uncertain, valid_config()["promotion"]
         )
         self.assertEqual(rejected["status"], "rejected")
+
+    def test_m7_config_rejects_seed_leakage(self):
+        config = {
+            "experiment": "m7-test",
+            "data": {"episodes": 10, "seed": 1000},
+            "local_bc": {"epochs": 1},
+            "dagger": {"episodes": 1, "seed": 2000},
+            "ctde": {"episodes": 2, "seed": 3000, "validation_episodes": 2},
+            "test": {"episodes": 2, "seed": 5009},
+            "promotion": {},
+        }
+        validate_m7_config(config)
+        config["test"]["seed"] = 1009
+        with self.assertRaisesRegex(ValueError, "seed leakage"):
+            validate_m7_config(config)
+
+        config["test"]["seed"] = 5009
+        config["experiment"] = "../escape"
+        with self.assertRaisesRegex(ValueError, "experiment may only"):
+            validate_m7_config(config)
 
 
 if __name__ == "__main__":

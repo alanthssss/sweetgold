@@ -159,3 +159,22 @@ invalid-action and yield thresholds declared in the experiment config.
 GitHub Actions runs the zero-dependency test suite and a small end-to-end ML
 pipeline smoke test. Full experiments remain explicit because they are more
 expensive and are used for final model promotion.
+
+## Local-observation CTDE
+
+M7 limits each deployed actor to flowers, bees and signals within Manhattan
+radius four. During training only, a centralized critic receives the global
+observation. Four environment rollouts run in parallel:
+
+```bash
+.venv-ml/bin/python main.py pipeline-m7 \
+  --config experiments/m7-ctde.json
+```
+
+The local encoder pads visible entities to a fixed size and ignores all
+out-of-radius state. The M7 pipeline applies the same seed isolation,
+checkpoint, paired-comparison and promotion rules as M6.
+
+The first formal M7 candidate significantly improves over local behavior
+cloning but is intentionally not registered: its 1.056% invalid-action rate is
+slightly above the predeclared 1% safety threshold.

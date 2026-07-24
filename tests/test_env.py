@@ -9,8 +9,10 @@ from beehive.env import BeeEnv, EnvConfig
 from beehive.evaluator import evaluate, paired_honey_comparison
 from beehive.ml import (
     FEATURE_SIZE,
+    LOCAL_FEATURE_SIZE,
     collect_dataset,
     encode_bee,
+    encode_local_bee,
     seed_split,
     valid_action_mask,
 )
@@ -127,6 +129,20 @@ class MlDatasetTests(unittest.TestCase):
         mask = valid_action_mask(observation, 0)
         self.assertFalse(mask[5])
         self.assertTrue(mask[6])
+
+    def test_local_encoding_ignores_distant_flower_changes(self):
+        observation = BeeEnv(seed=4).observe()
+        bee = observation["bees"][0]
+        distant = next(
+            flower
+            for flower in observation["flowers"]
+            if abs(flower["row"] - bee["row"]) + abs(flower["col"] - bee["col"]) > 4
+        )
+        before = encode_local_bee(observation, bee["id"])
+        distant["nectar"] = 0
+        after = encode_local_bee(observation, bee["id"])
+        self.assertEqual(before, after)
+        self.assertEqual(len(before), LOCAL_FEATURE_SIZE)
 
     def test_collection_writes_all_splits_without_torch(self):
         with TemporaryDirectory() as directory:

@@ -59,6 +59,10 @@ def main() -> None:
     pipeline.add_argument("--config", required=True)
     pipeline.add_argument("--output-root", default="runs")
     pipeline.add_argument("--force", action="store_true")
+    m7 = sub.add_parser("pipeline-m7", help="run local-observation CTDE experiment")
+    m7.add_argument("--config", required=True)
+    m7.add_argument("--output-root", default="runs")
+    m7.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -156,6 +160,12 @@ def main() -> None:
         from beehive.pipeline import run_pipeline
 
         result = run_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
+        return
+    if args.command == "pipeline-m7":
+        from beehive.m7_pipeline import run_m7_pipeline
+
+        result = run_m7_pipeline(args.config, args.output_root, force=args.force)
         print(json.dumps(result, indent=2))
         return
 
