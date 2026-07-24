@@ -163,3 +163,24 @@ The result separates coordination safety from policy robustness: local
 reservations generalize, but energy-aware long-horizon behavior does not. M11
 should use curriculum training across distance, scarcity and weather while
 keeping M10's scenario seed sets as untouched final evaluation data.
+
+## M11 curriculum result
+
+M11 performs five sequential fine-tuning stages with independent training and
+stage-validation seeds, then selects checkpoints on a separate four-scenario
+validation suite. A survival-weighted validation score is available to
+distance and weather stages while all prior trainers retain their original
+zero-weight behavior.
+
+The weather stage improves validation minimum survival from 4.17% to 17.71%,
+but its scarce-resource yield falls below the configured floor. The
+multi-gate selector therefore retains the default-refresh checkpoint. On six
+new final scenario ranges, median yield remains 99.51% of Assignment and
+invalid actions remain zero, while harsh-weather survival is only 6.5% and
+worst-case yield is 69.85%.
+
+This is evidence that sequential curriculum alone is insufficient: the actor
+partially learns the current stage and forgets behavior needed elsewhere. The
+candidate is not promoted. The next research iteration should use
+interleaved scenario sampling, recurrent memory or hierarchical energy-return
+control rather than tuning M11 against its consumed final seeds.

@@ -1,0 +1,56 @@
+{
+  "experiment": "m11-ci-smoke",
+  "source_model": "smoke-source",
+  "source_checkpoint": "models/m11-smoke-source.pt",
+  "stages": [
+    {
+      "name": "tiny",
+      "episodes": 2,
+      "seed": 24200000,
+      "env": {
+        "season_ticks": 8,
+        "bees": 3,
+        "flowers": 4
+      },
+      "validation_episodes": 2,
+      "validation_interval": 2,
+      "rollout_workers": 2,
+      "update_epochs": 1,
+      "batch_size": 64
+    }
+  ],
+  "validation": {
+    "episodes": 2,
+    "seed": 24300009,
+    "scenarios": [
+      {
+        "name": "tiny",
+        "env": {
+          "season_ticks": 8,
+          "bees": 3,
+          "flowers": 4
+        }
+      }
+    ]
+  },
+  "test": {
+    "episodes": 2,
+    "seed": 24400009,
+    "scenarios": [
+      {
+        "name": "tiny",
+        "env": {
+          "season_ticks": 8,
+          "bees": 3,
+          "flowers": 4
+        }
+      }
+    ]
+  },
+  "audit": {
+    "minimum_median_honey_ratio": 0.0,
+    "minimum_worst_honey_ratio": 0.0,
+    "minimum_bee_survival": 0.0,
+    "maximum_invalid_action_rate": 1.0
+  }
+}

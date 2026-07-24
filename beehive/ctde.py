@@ -30,7 +30,14 @@ class CTDEController(LocalBehaviorCloningController):
 
 
 def _rollout(
-    actor, critic, config, seed, torch, invalid_penalty
+    actor,
+    critic,
+    config,
+    seed,
+    torch,
+    invalid_penalty,
+    death_penalty,
+    energy_penalty,
 ) -> tuple[list[dict], dict]:
     env = BeeEnv(config, seed=seed)
     torch_generator = torch.Generator().manual_seed(seed + 300_000)
@@ -64,8 +71,8 @@ def _rollout(
             float(after["honey"] - before["honey"])
             - invalid_penalty
             * (after["invalid_actions"] - before["invalid_actions"])
-            - 1.0 * (after["deaths"] - before["deaths"])
-            - 0.001 * (after["energy_spent"] - before["energy_spent"])
+            - death_penalty * (after["deaths"] - before["deaths"])
+            - energy_penalty * (after["energy_spent"] - before["energy_spent"])
         )
         for index, bee in enumerate(living):
             per_bee.setdefault(bee["id"], []).append(
@@ -128,6 +135,9 @@ def train_ctde(
     batch_size: int = 512,
     validation_interval: int = 20,
     invalid_penalty: float = 0.1,
+    death_penalty: float = 1.0,
+    energy_penalty: float = 0.001,
+    validation_survival_weight: float = 0.0,
     maximum_validation_invalid_rate: float = 0.01,
     config: EnvConfig | None = None,
 ) -> dict:
@@ -161,6 +171,10 @@ def train_ctde(
         actor, candidate_path, config, validation_seeds, torch
     )
     best_honey = initial_validation["mean_honey"]
+    best_validation_score = (
+        best_honey
+        + validation_survival_weight * initial_validation["bee_survival_rate"]
+    )
     best_episode = 0
     _save_actor(
         torch,
@@ -191,6 +205,8 @@ def train_ctde(
                         episode_seed,
                         torch,
                         invalid_penalty,
+                        death_penalty,
+                        energy_penalty,
                     ),
                     batch_seeds,
                 )
@@ -271,16 +287,25 @@ def train_ctde(
                 actor, candidate_path, config, validation_seeds, torch
             )
             validation_honey = validation["mean_honey"]
+            validation_score = (
+                validation_honey
+                + validation_survival_weight * validation["bee_survival_rate"]
+            )
             history[-1]["validation_honey"] = validation_honey
             history[-1]["validation_invalid_action_rate"] = validation[
                 "mean_invalid_action_rate"
             ]
+            history[-1]["validation_bee_survival_rate"] = validation[
+                "bee_survival_rate"
+            ]
+            history[-1]["validation_score"] = validation_score
             if (
-                validation_honey > best_honey
+                validation_score > best_validation_score
                 and validation["mean_invalid_action_rate"]
                 <= maximum_validation_invalid_rate
             ):
                 best_honey = validation_honey
+                best_validation_score = validation_score
                 best_episode = completed
                 _save_actor(
                     torch,
@@ -296,9 +321,13 @@ def train_ctde(
         "episodes": episodes,
         "rollout_workers": rollout_workers,
         "invalid_penalty": invalid_penalty,
+        "death_penalty": death_penalty,
+        "energy_penalty": energy_penalty,
+        "validation_survival_weight": validation_survival_weight,
         "maximum_validation_invalid_rate": maximum_validation_invalid_rate,
         "best_episode": best_episode,
         "best_validation_honey": best_honey,
+        "best_validation_score": best_validation_score,
         "validation_seeds": validation_seeds,
         "history": history,
     }

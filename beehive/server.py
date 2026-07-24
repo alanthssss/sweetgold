@@ -22,6 +22,7 @@ STRATEGY_DESCRIPTIONS = {
     "assignment": "Central controller reserves distinct flower targets.",
     "bc-ppo": "Behavior-cloned actor fine-tuned with PPO.",
     "coordinated-ctde": "Local CTDE actor with harvest-intent reservations.",
+    "curriculum-coordinated-ctde": "Robust CTDE actor trained across environment shifts.",
 }
 
 
@@ -48,7 +49,11 @@ class StrategyCatalog:
         latest = {}
         for record in self._registry().get("models", []):
             model = record.get("model")
-            if model in ("bc-ppo", "coordinated-ctde"):
+            if model in (
+                "bc-ppo",
+                "coordinated-ctde",
+                "curriculum-coordinated-ctde",
+            ):
                 latest[model] = record
         for model, record in latest.items():
             artifact = self._artifact(record)
@@ -93,7 +98,10 @@ class StrategyCatalog:
             from .ppo import PPOController
 
             return PPOController(artifact)
-        if strategy_id == "coordinated-ctde":
+        if strategy_id in (
+            "coordinated-ctde",
+            "curriculum-coordinated-ctde",
+        ):
             from .coordination import CoordinatedCTDEController
 
             return CoordinatedCTDEController(artifact)

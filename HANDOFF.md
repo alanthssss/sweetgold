@@ -185,3 +185,27 @@ Do not tune on or reuse the M10 scenario seeds. M11 should introduce a
 training/validation curriculum over map distance, nectar scarcity, rain and
 energy budgets, then reserve entirely new final ranges for the robustness
 decision.
+
+## M11 curriculum robustness
+
+M11 adds sequential CTDE curriculum training, survival-aware stage checkpoint
+selection, multi-scenario validation, fully isolated final evaluation, CI
+smoke coverage and support for a future curriculum model in the Strategy
+Arena. Training, validation and final seed sets are checked pairwise before
+work begins.
+
+The five-stage formal candidate failed and was not registered:
+
+- Validation weather training raised minimum survival from 4.17% to 17.71%,
+  but failed the scarce-resource yield gate.
+- The selector retained default-refresh because it passed three of four gates.
+- Final median honey ratio: 99.51%.
+- Final worst honey ratio: 69.85% under harsh weather.
+- Large-map survival improved from M10's 50.25% to 60.25%.
+- Harsh-weather survival remained only 6.5%.
+- Invalid-action rate remained 0% in every scenario.
+
+The failed result is recorded in `registry/audits.json`. Do not reuse M11
+validation or final seeds. SweetGold can now ship as an honestly scoped
+multi-agent experiment platform v1.0; the current learned policy must not be
+described as generally robust.
