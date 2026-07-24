@@ -1,5 +1,7 @@
 # SweetGold
 
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 **Version 1.0.0 — reproducible multi-agent AI experimentation platform**
 
 SweetGold connects a deterministic simulation, strategy baselines, imitation
@@ -42,6 +44,12 @@ models and verifies the hashes of checkpoints that are present.
 See [v1.0.0 release notes](docs/releases/v1.0.0.md),
 [changelog](CHANGELOG.md), and the
 [release checklist](docs/release-checklist.md).
+
+## License
+
+SweetGold is licensed under the [Apache License 2.0](LICENSE).
+Copyright 2026 alanthssss. Model checkpoints and datasets distributed
+separately may have their own license terms.
 
 ## Products
 
