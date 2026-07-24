@@ -15,6 +15,7 @@ from beehive.m7_pipeline import validate_m7_config
 from beehive.m8_pipeline import validate_m8_config
 from beehive.m10_pipeline import validate_m10_config
 from beehive.m11_pipeline import validate_m11_config
+from beehive.m12_pipeline import validate_m12_config
 
 
 def valid_config() -> dict:
@@ -177,6 +178,52 @@ class PipelineConfigTests(unittest.TestCase):
         config["test"]["seed"] = 3009
         with self.assertRaisesRegex(ValueError, "seed leakage"):
             validate_m11_config(config)
+
+    def test_m12_config_balances_scenarios_and_rejects_seed_leakage(self):
+        config = {
+            "experiment": "m12-test",
+            "source_model": "coordinated-ctde",
+            "training": {
+                "cycles": 2,
+                "episodes_per_cycle": 4,
+                "seed": 1000,
+                "validation_episodes": 2,
+            },
+            "training_scenarios": [
+                {"name": "default", "env": {}},
+                {"name": "rain", "env": {"rain_chance": 0.2}},
+            ],
+            "validation": {
+                "episodes": 2,
+                "seed": 300009,
+                "scenarios": [{"name": "default", "env": {}}],
+            },
+            "test": {
+                "episodes": 2,
+                "seed": 500009,
+                "scenarios": [{"name": "default", "env": {}}],
+            },
+            "audit": {
+                "minimum_median_honey_ratio": 0.9,
+                "minimum_worst_honey_ratio": 0.75,
+                "minimum_bee_survival": 0.75,
+                "maximum_invalid_action_rate": 0.01,
+            },
+        }
+        seeds = validate_m12_config(config)
+        occupied = list(seeds["occupied"].values())
+        for index, left in enumerate(occupied):
+            for right in occupied[index + 1 :]:
+                self.assertFalse(set(left) & set(right))
+
+        config["test"]["seed"] = config["validation"]["seed"]
+        with self.assertRaisesRegex(ValueError, "seed leakage"):
+            validate_m12_config(config)
+
+        config["test"]["seed"] = 500009
+        config["training"]["episodes_per_cycle"] = 3
+        with self.assertRaisesRegex(ValueError, "must be divisible"):
+            validate_m12_config(config)
 
 
 if __name__ == "__main__":

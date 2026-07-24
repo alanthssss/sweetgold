@@ -1,0 +1,134 @@
+{
+  "experiment": "m12-interleaved-v1",
+  "source_model": "coordinated-ctde",
+  "training": {
+    "cycles": 5,
+    "episodes_per_cycle": 80,
+    "seed": 25000000,
+    "validation_episodes": 5,
+    "validation_interval": 80,
+    "rollout_workers": 4,
+    "learning_rate": 0.00005,
+    "update_epochs": 4,
+    "batch_size": 512,
+    "invalid_penalty": 0.2,
+    "death_penalty": 8.0,
+    "energy_penalty": 0.005
+  },
+  "training_scenarios": [
+    {
+      "name": "default",
+      "env": {}
+    },
+    {
+      "name": "large-map",
+      "env": {
+        "width": 18,
+        "height": 13,
+        "flowers": 20
+      }
+    },
+    {
+      "name": "scarce-nectar",
+      "env": {
+        "flowers": 7,
+        "flower_capacity": 8,
+        "flower_regen_chance": 0.04
+      }
+    },
+    {
+      "name": "harsh-weather",
+      "env": {
+        "rain_chance": 0.25,
+        "max_energy": 24
+      }
+    }
+  ],
+  "validation": {
+    "episodes": 12,
+    "seed": 26000009,
+    "scenarios": [
+      {
+        "name": "default",
+        "env": {}
+      },
+      {
+        "name": "large-map",
+        "env": {
+          "width": 18,
+          "height": 13,
+          "flowers": 20
+        }
+      },
+      {
+        "name": "scarce-nectar",
+        "env": {
+          "flowers": 7,
+          "flower_capacity": 8,
+          "flower_regen_chance": 0.04
+        }
+      },
+      {
+        "name": "harsh-weather",
+        "env": {
+          "rain_chance": 0.25,
+          "max_energy": 24
+        }
+      }
+    ]
+  },
+  "test": {
+    "episodes": 50,
+    "seed": 26700009,
+    "scenarios": [
+      {
+        "name": "in-distribution",
+        "env": {}
+      },
+      {
+        "name": "large-map",
+        "env": {
+          "width": 18,
+          "height": 13,
+          "flowers": 20
+        }
+      },
+      {
+        "name": "scarce-nectar",
+        "env": {
+          "flowers": 7,
+          "flower_capacity": 8,
+          "flower_regen_chance": 0.04
+        }
+      },
+      {
+        "name": "harsh-weather",
+        "env": {
+          "rain_chance": 0.25,
+          "max_energy": 24
+        }
+      },
+      {
+        "name": "large-colony",
+        "env": {
+          "bees": 12,
+          "flowers": 20
+        }
+      },
+      {
+        "name": "short-season",
+        "env": {
+          "season_ticks": 160
+        }
+      }
+    ]
+  },
+  "audit": {
+    "minimum_median_honey_ratio": 0.9,
+    "minimum_worst_honey_ratio": 0.75,
+    "minimum_bee_survival": 0.75,
+    "maximum_invalid_action_rate": 0.01
+  },
+  "registry_path": "registry/models.json",
+  "audit_registry_path": "registry/audits.json"
+}

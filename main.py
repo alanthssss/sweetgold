@@ -79,6 +79,10 @@ def main() -> None:
     m11.add_argument("--config", required=True)
     m11.add_argument("--output-root", default="runs")
     m11.add_argument("--force", action="store_true")
+    m12 = sub.add_parser("pipeline-m12", help="run interleaved robustness training")
+    m12.add_argument("--config", required=True)
+    m12.add_argument("--output-root", default="runs")
+    m12.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -200,6 +204,12 @@ def main() -> None:
         from beehive.m11_pipeline import run_m11_pipeline
 
         result = run_m11_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
+        return
+    if args.command == "pipeline-m12":
+        from beehive.m12_pipeline import run_m12_pipeline
+
+        result = run_m12_pipeline(args.config, args.output_root, force=args.force)
         print(json.dumps(result, indent=2))
         return
 
