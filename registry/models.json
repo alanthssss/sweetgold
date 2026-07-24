@@ -1,0 +1,26 @@
+{
+  "models": [
+    {
+      "model": "bc-ppo",
+      "run": "runs/m6-bc-ppo-v1",
+      "artifact": "runs/m6-bc-ppo-v1/checkpoints/bc-ppo.pt",
+      "sha256": "441e1770146962dd963df6f1b699c57b186a03c043e6d691a358f51911158f1d",
+      "source_commit": "33bb233228f00a7c2a680194582fb80b6ccf0455",
+      "source_dirty": true,
+      "registered_at": "2026-07-24T13:06:23.911415+00:00",
+      "mean_honey": 153.98,
+      "promotion": {
+        "status": "accepted",
+        "candidate": "bc-ppo",
+        "baseline": "behavior-cloning",
+        "checks": {
+          "paired_ci_above_zero": true,
+          "minimum_honey_ratio": true,
+          "minimum_bee_survival": true,
+          "maximum_invalid_action_rate": true
+        },
+        "paired_ci95_lower_bound": 3.6888747105739084
+      }
+    }
+  ]
+}

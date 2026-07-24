@@ -85,3 +85,15 @@ Across 100 unseen test seeds, BC+PPO produces 153.98 mean honey versus BC's
 rises from 0.110 to 0.118, and invalid actions remain below 1%. Randomly
 initialized PPO produces zero honey after the same 100-episode budget,
 demonstrating the practical value of behavior-cloning initialization.
+
+## M6 experiment operations
+
+M6 turns the individual ML commands into a configuration-driven pipeline.
+Before execution it expands the actual data, DAgger, PPO training, PPO
+validation and final test seed sets and rejects any overlap.
+
+Each run records its configuration, Git commit, runtime, seed manifest,
+checkpoints, training history, matched-seed metrics, promotion checks and HTML
+report. A candidate enters the model registry only when its paired confidence
+interval is above zero and all declared safety and quality thresholds pass.
+Core and ML smoke workflows run automatically in CI.
