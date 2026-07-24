@@ -7,7 +7,7 @@ import json
 
 from beehive.controllers import CONTROLLERS
 from beehive.env import EnvConfig
-from beehive.evaluator import evaluate
+from beehive.evaluator import evaluate, paired_honey_comparison
 from beehive.report import write_report
 from beehive.server import serve
 
@@ -42,6 +42,19 @@ def main() -> None:
     bc_bench.add_argument("--seed", type=int, default=20280009)
     bc_bench.add_argument("--report", default="report-bc")
     bc_bench.add_argument("--ticks", type=int, default=240)
+    ppo = sub.add_parser("train-ppo", help="fine-tune behavior cloning with PPO")
+    ppo.add_argument("--bc-model", default="models/behavior-cloning.pt")
+    ppo.add_argument("--model", default="models/bc-ppo.pt")
+    ppo.add_argument("--episodes", type=int, default=100)
+    ppo.add_argument("--seed", type=int, default=20290000)
+    ppo.add_argument("--random-init", action="store_true")
+    ppo_bench = sub.add_parser("benchmark-ppo", help="benchmark BC and PPO checkpoints")
+    ppo_bench.add_argument("--bc-model", default="models/behavior-cloning.pt")
+    ppo_bench.add_argument("--ppo-model", default="models/bc-ppo.pt")
+    ppo_bench.add_argument("--random-model")
+    ppo_bench.add_argument("--episodes", type=int, default=100)
+    ppo_bench.add_argument("--seed", type=int, default=20300009)
+    ppo_bench.add_argument("--report", default="report-ppo")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -81,7 +94,58 @@ def main() -> None:
             )
         ]
         path = write_report(results, args.report)
-        print(json.dumps([{k: v for k, v in row.items() if k != "raw"} for row in results], indent=2))
+        print(
+            json.dumps(
+                [{k: v for k, v in row.items() if k != "raw"} for row in results],
+                indent=2,
+            )
+        )
+        print(f"\nReport: {path.resolve()}")
+        return
+    if args.command == "train-ppo":
+        from beehive.ppo import train_ppo
+
+        summary = train_ppo(
+            None if args.random_init else args.bc_model,
+            args.model,
+            episodes=args.episodes,
+            seed=args.seed,
+        )
+        print(json.dumps(summary, indent=2))
+        return
+    if args.command == "benchmark-ppo":
+        from beehive.ml import BehaviorCloningController
+        from beehive.ppo import PPOController, RandomPPOController
+
+        config = EnvConfig()
+        seeds = [
+            candidate
+            for candidate in range(args.seed, args.seed + args.episodes * 10)
+            if candidate % 10 == 9
+        ][: args.episodes]
+        controllers = [
+            CONTROLLERS["assignment"](),
+            BehaviorCloningController(args.bc_model),
+            PPOController(args.ppo_model),
+        ]
+        if args.random_model:
+            controllers.append(RandomPPOController(args.random_model))
+        results = [evaluate(controller, config, seeds) for controller in controllers]
+        path = write_report(results, args.report)
+        summaries = [{k: v for k, v in row.items() if k != "raw"} for row in results]
+        comparisons = [
+            paired_honey_comparison(result, results[1])
+            for result in results[2:]
+        ]
+        print(
+            json.dumps(
+                {
+                    "results": summaries,
+                    "vs_behavior_cloning": comparisons,
+                },
+                indent=2,
+            )
+        )
         print(f"\nReport: {path.resolve()}")
         return
 

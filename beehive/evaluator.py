@@ -58,3 +58,28 @@ def evaluate(controller: Controller, config: EnvConfig, seeds: list[int]) -> dic
         "mean_decision_us": statistics.fmean(e["decision_us"] for e in episodes),
         "raw": episodes,
     }
+
+
+def paired_honey_comparison(left: dict, right: dict) -> dict:
+    """Compare two evaluated controllers on their shared episode seeds."""
+    right_by_seed = {row["seed"]: row["honey"] for row in right["raw"]}
+    differences = [
+        row["honey"] - right_by_seed[row["seed"]]
+        for row in left["raw"]
+        if row["seed"] in right_by_seed
+    ]
+    if not differences:
+        raise ValueError("evaluations do not share any seeds")
+    mean = statistics.fmean(differences)
+    std = statistics.stdev(differences) if len(differences) > 1 else 0.0
+    ci95 = 1.96 * std / math.sqrt(len(differences))
+    return {
+        "left": left["controller"],
+        "right": right["controller"],
+        "episodes": len(differences),
+        "mean_honey_delta": mean,
+        "ci95_honey_delta": ci95,
+        "wins": sum(value > 0 for value in differences),
+        "ties": sum(value == 0 for value in differences),
+        "losses": sum(value < 0 for value in differences),
+    }

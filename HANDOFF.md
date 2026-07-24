@@ -74,3 +74,19 @@ Generated datasets, checkpoints, virtual environments and BC reports are
 ignored by Git. A second DAgger iteration was tested and rejected because
 online performance regressed; checkpoint selection must use separate online
 validation seeds rather than assuming more aggregation always helps.
+
+## M5 BC-initialized PPO
+
+The optional PPO pipeline includes masked stochastic rollouts, GAE, clipped PPO
+updates, a learned critic, shaped team rewards and validation-only checkpoint
+selection. On 100 unseen test seeds:
+
+- Assignment: 155.78 mean honey, 96.25% bee survival.
+- Behavior cloning: 145.79 mean honey, 90.88% bee survival.
+- BC+PPO: 153.98 mean honey, 99.0% bee survival, 0.96% invalid actions.
+- Random-init PPO: 0 mean honey after the same 100-episode training budget.
+
+BC+PPO improves over BC by +8.19 honey per matched seed; the paired 95%
+confidence interval is [+3.69, +12.69], with 65 wins, 3 ties and 32 losses.
+The selected checkpoint is episode 50 with validation honey 146.10. Generated
+PPO checkpoints, training histories and reports remain ignored by Git.
