@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from beehive.controllers import AssignmentController, GreedyController, ScoutController
+from beehive import __version__
 from beehive.coordination import local_reservations
 from beehive.env import BeeEnv, EnvConfig
 from beehive.evaluator import evaluate, paired_honey_comparison
@@ -21,6 +22,11 @@ from beehive.ppo import shaped_reward
 
 
 class EnvTests(unittest.TestCase):
+    def test_release_version(self):
+        version_file = Path(__file__).resolve().parent.parent / "VERSION"
+        self.assertEqual(__version__, "1.0.0")
+        self.assertEqual(version_file.read_text(encoding="utf-8").strip(), __version__)
+
     def test_seeded_reset_is_deterministic(self):
         first = BeeEnv(seed=42).observe()
         second = BeeEnv(seed=42).observe()

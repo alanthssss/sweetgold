@@ -1,12 +1,19 @@
-# Sweetgold Lab
+# SweetGold
 
-Sweetgold Lab contains two products built on the same deterministic simulation:
+**Version 1.0.0 — reproducible multi-agent AI experimentation platform**
 
-1. **BeeSim** — an abstract grid-based bee ecosystem and a playable web game.
-2. **BeeBench** — a reproducible controller benchmark with JSON and HTML reports.
+SweetGold connects a deterministic simulation, strategy baselines, imitation
+and reinforcement learning, model promotion, robustness audits and an
+interactive comparison product.
 
-The first milestone deliberately uses transparent rule-based controllers. They
-establish baselines before learning agents are added.
+- **Strategy Arena** runs two policies from the same seed with live metrics and
+  replay.
+- **BeeBench** provides matched-seed evaluation and confidence intervals.
+- **ML pipelines** cover BC, DAgger, PPO, CTDE, model registration and audits.
+
+SweetGold promotes models only when their predeclared quality and safety gates
+pass. Failed M10 and M11 robustness experiments are preserved as first-class
+results rather than hidden or retroactively retuned.
 
 ## Quick start
 
@@ -16,6 +23,9 @@ Requires Python 3.10+ and no third-party packages.
 # Run tests
 python3 -m unittest discover -s tests -v
 
+# Print the release version
+python3 main.py --version
+
 # Run a benchmark and write report/index.html
 python3 main.py benchmark --episodes 30 --report report
 
@@ -24,6 +34,14 @@ python3 main.py play --port 8080
 ```
 
 Then visit <http://127.0.0.1:8080>.
+
+Rule strategies work in a fresh clone. Learned checkpoints are generated
+locally and intentionally excluded from Git; the arena disables unavailable
+models and verifies the hashes of checkpoints that are present.
+
+See [v1.0.0 release notes](docs/releases/v1.0.0.md),
+[changelog](CHANGELOG.md), and the
+[release checklist](docs/release-checklist.md).
 
 ## Products
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from beehive import __version__
 from beehive.controllers import CONTROLLERS
 from beehive.env import EnvConfig
 from beehive.evaluator import evaluate, paired_honey_comparison
@@ -14,6 +15,9 @@ from beehive.server import serve
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="sweetgold")
+    parser.add_argument(
+        "--version", action="version", version=f"sweetgold {__version__}"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     play = sub.add_parser("play", help="start the interactive BeeSim game")
     play.add_argument("--port", type=int, default=8080)
