@@ -119,8 +119,76 @@ class ScoutController(GreedyController):
         return actions
 
 
+class AssignmentController:
+    """Centrally assign distinct flowers to bees using distance and nectar value."""
+
+    name = "assignment"
+
+    def __init__(self) -> None:
+        self.targets: dict[int, tuple[int, int]] = {}
+
+    def reset(self, seed: int) -> None:
+        self.targets = {}
+
+    def act(self, observation: dict) -> dict[int, str]:
+        hive = tuple(observation["hive"])
+        max_cargo = observation["config"]["max_cargo"]
+        flowers = [f for f in observation["flowers"] if f["nectar"] > 0]
+        bees = [b for b in observation["bees"] if b["alive"]]
+        actions: dict[int, str] = {}
+        previous_targets = self.targets
+        self.targets = {}
+
+        available = {(f["row"], f["col"]): f for f in flowers}
+        for bee in sorted(bees, key=lambda b: (b["cargo"], b["energy"]), reverse=True):
+            bee_id = bee["id"]
+            pos = (bee["row"], bee["col"])
+            distance_home = abs(pos[0] - hive[0]) + abs(pos[1] - hive[1])
+            must_return = bee["cargo"] >= max_cargo or bee["energy"] <= distance_home + 4
+
+            if pos == hive and bee["cargo"]:
+                actions[bee_id] = "deposit"
+                continue
+            if pos == hive and bee["energy"] < observation["config"]["max_energy"] // 2:
+                actions[bee_id] = "rest"
+                continue
+            if must_return:
+                self.targets[bee_id] = hive
+                actions[bee_id] = _move_towards(pos, hive)
+                continue
+
+            here = available.get(pos)
+            if here and bee["cargo"] < max_cargo:
+                self.targets[bee_id] = pos
+                actions[bee_id] = "harvest"
+                available.pop(pos, None)
+                continue
+
+            if available:
+                previous = previous_targets.get(bee_id)
+                if previous in available:
+                    target = previous
+                else:
+                    target, _flower = min(
+                        available.items(),
+                        key=lambda item: (
+                            abs(item[0][0] - pos[0]) + abs(item[0][1] - pos[1])
+                            - min(item[1]["nectar"], max_cargo - bee["cargo"]) * 0.35,
+                            -item[1]["nectar"],
+                        ),
+                    )
+                self.targets[bee_id] = target
+                actions[bee_id] = _move_towards(pos, target)
+                available.pop(target)
+            else:
+                self.targets[bee_id] = hive
+                actions[bee_id] = _move_towards(pos, hive)
+        return actions
+
+
 CONTROLLERS = {
     "random": RandomController,
     "greedy": GreedyController,
     "scout": ScoutController,
+    "assignment": AssignmentController,
 }

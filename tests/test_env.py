@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from beehive.controllers import GreedyController, ScoutController
+from beehive.controllers import AssignmentController, GreedyController, ScoutController
 from beehive.env import BeeEnv, EnvConfig
 from beehive.evaluator import evaluate
 
@@ -52,8 +52,29 @@ class EvaluationTests(unittest.TestCase):
             EnvConfig(season_ticks=20, bees=3, flowers=4),
             [1, 2],
         )
-        for key in ("mean_honey", "ci95_honey", "survival_rate", "raw"):
+        for key in ("mean_honey", "ci95_honey", "bee_survival_rate", "raw"):
             self.assertIn(key, result)
+
+    def test_assignment_reserves_distinct_flower_targets(self):
+        env = BeeEnv(EnvConfig(bees=3, flowers=4), seed=7)
+        controller = AssignmentController()
+        controller.reset(7)
+        actions = controller.act(env.observe())
+        flower_targets = [
+            target for target in controller.targets.values() if target != env.hive
+        ]
+        self.assertEqual(len(actions), 3)
+        self.assertEqual(len(flower_targets), len(set(flower_targets)))
+
+    def test_evaluation_exposes_unambiguous_rates(self):
+        result = evaluate(
+            GreedyController(),
+            EnvConfig(season_ticks=5, bees=2, flowers=2),
+            [3],
+        )
+        self.assertIn("colony_survival_rate", result)
+        self.assertIn("bee_survival_rate", result)
+        self.assertIn("mean_invalid_action_rate", result)
 
 
 if __name__ == "__main__":

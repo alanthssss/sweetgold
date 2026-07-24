@@ -60,6 +60,7 @@ Included baselines:
 - `random`
 - `greedy`
 - `scout`
+- `assignment` — centralized, persistent one-flower-per-bee reservations
 
 ## Architecture
 
@@ -84,10 +85,11 @@ observation to tensors without changing the environment or evaluator.
 
 Recommended progression:
 
-1. single-bee DQN against `greedy`;
-2. behavior cloning from `scout`;
-3. centralized PPO with all-bee observations;
-4. centralized training/decentralized execution with local observations.
+1. validate `assignment` against `greedy` on at least 100 matched seeds;
+2. single-bee DQN against `greedy`;
+3. behavior cloning from `assignment`;
+4. centralized PPO with all-bee observations;
+5. centralized training/decentralized execution with local observations.
 
 Do not claim an RL improvement until it beats `behavior-cloning-only` on
 unseen, fixed seeds with confidence intervals.

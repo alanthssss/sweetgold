@@ -73,10 +73,15 @@ function render(s) {
     bees.set(key, [...(bees.get(key) || []), b]);
   });
   const signals = new Set(s.signals.map(x => `${x.row},${x.col}`));
+  const targets = new Set(
+    s.bees.filter(b => b.alive && Array.isArray(b.target)).map(b => `${b.target[0]},${b.target[1]}`)
+  );
   for (let r=0;r<s.config.height;r++) for (let c=0;c<s.config.width;c++) {
     const cell = document.createElement("div");
-    cell.className = "cell" + (r===s.hive[0] && c===s.hive[1] ? " hive-cell" : "");
     const key = `${r},${c}`, flower = flowers.get(key), localBees = bees.get(key) || [];
+    cell.className = "cell"
+      + (r===s.hive[0] && c===s.hive[1] ? " hive-cell" : "")
+      + (targets.has(key) ? " assigned-target" : "");
     if (r===s.hive[0] && c===s.hive[1]) cell.innerHTML += `<span class="entity">🍯</span>`;
     if (flower) cell.innerHTML += `<span class="entity flower-entity ${signals.has(key)?"pulse":""}">🌼<b class="nectar-count">${flower.nectar}</b></span>`;
     if (localBees.length) cell.innerHTML += `<span class="entity ${localBees.every(b=>!b.alive)?"dead":""}">🐝${localBees.length>1?`<b class="nectar-count">×${localBees.length}</b>`:""}</span>`;
