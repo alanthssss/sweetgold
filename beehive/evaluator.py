@@ -23,10 +23,16 @@ def run_episode(controller: Controller, config: EnvConfig, seed: int) -> dict:
         decisions += len(actions)
         env.step(actions)
     metrics = env.metrics()
+    controller_metrics = (
+        controller.episode_metrics()
+        if hasattr(controller, "episode_metrics")
+        else {}
+    )
     total_actions = config.bees * env.tick
     return {
         "seed": seed,
         **metrics,
+        **controller_metrics,
         "colony_survived": int(metrics["alive"] > 0),
         "bee_survival_rate": metrics["alive"] / config.bees,
         "honey_per_bee": metrics["honey"] / config.bees,
@@ -41,7 +47,7 @@ def evaluate(controller: Controller, config: EnvConfig, seeds: list[int]) -> dic
     mean = statistics.fmean(honey)
     std = statistics.stdev(honey) if len(honey) > 1 else 0.0
     ci95 = 1.96 * std / math.sqrt(len(honey)) if honey else 0.0
-    return {
+    result = {
         "controller": controller.name,
         "episodes": len(episodes),
         "mean_honey": mean,
@@ -58,6 +64,21 @@ def evaluate(controller: Controller, config: EnvConfig, seeds: list[int]) -> dic
         "mean_decision_us": statistics.fmean(e["decision_us"] for e in episodes),
         "raw": episodes,
     }
+    for metric in (
+        "harvest_intents",
+        "contested_intents",
+        "reservation_grants",
+        "prevented_conflicts",
+        "unresolved_conflicts",
+        "contention_rate",
+        "reservation_success_rate",
+        "unresolved_contention_rate",
+    ):
+        if all(metric in episode for episode in episodes):
+            result[f"mean_{metric}"] = statistics.fmean(
+                episode[metric] for episode in episodes
+            )
+    return result
 
 
 def paired_honey_comparison(left: dict, right: dict) -> dict:

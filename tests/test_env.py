@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from beehive.controllers import AssignmentController, GreedyController, ScoutController
+from beehive.coordination import local_reservations
 from beehive.env import BeeEnv, EnvConfig
 from beehive.evaluator import evaluate, paired_honey_comparison
 from beehive.ml import (
@@ -112,6 +113,11 @@ class EvaluationTests(unittest.TestCase):
         comparison = paired_honey_comparison(left, right)
         self.assertEqual(comparison["mean_honey_delta"], 0.5)
         self.assertEqual((comparison["wins"], comparison["losses"]), (1, 1))
+
+    def test_local_reservations_rotate_priority_and_respect_supply(self):
+        granted, rejected = local_reservations([0, 1, 2], 1, 1, 3)
+        self.assertEqual(granted, [1])
+        self.assertEqual(rejected, [2, 0])
 
 
 class MlDatasetTests(unittest.TestCase):

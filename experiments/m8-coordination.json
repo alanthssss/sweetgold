@@ -1,0 +1,42 @@
+{
+  "experiment": "m8-coordination-v1",
+  "env": {
+    "season_ticks": 240
+  },
+  "data": {
+    "episodes": 300,
+    "seed": 21000000
+  },
+  "local_bc": {
+    "epochs": 15,
+    "batch_size": 512,
+    "learning_rate": 0.001,
+    "seed": 0
+  },
+  "dagger": {
+    "episodes": 50,
+    "seed": 21010000
+  },
+  "ctde": {
+    "episodes": 100,
+    "seed": 21100000,
+    "validation_episodes": 10,
+    "validation_interval": 20,
+    "rollout_workers": 4,
+    "invalid_penalty": 0.1,
+    "learning_rate": 0.0001,
+    "update_epochs": 4,
+    "batch_size": 512
+  },
+  "test": {
+    "episodes": 100,
+    "seed": 21210009
+  },
+  "promotion": {
+    "minimum_honey_ratio": 1.0,
+    "minimum_bee_survival": 0.85,
+    "maximum_invalid_action_rate": 0.01,
+    "maximum_unresolved_contention_rate": 0.0
+  },
+  "registry_path": "registry/models.json"
+}

@@ -178,3 +178,24 @@ checkpoint, paired-comparison and promotion rules as M6.
 The first formal M7 candidate significantly improves over local behavior
 cloning but is intentionally not registered: its 1.056% invalid-action rate is
 slightly above the predeclared 1% safety threshold.
+
+## Decentralized contention coordination
+
+M8 adds a local intent-and-reservation protocol around the CTDE actor:
+
+```bash
+.venv-ml/bin/python main.py pipeline-m8 \
+  --config experiments/m8-coordination.json
+```
+
+Bees broadcast a harvest intent only to peers on the same flower. A rotating
+priority grants the observed nectar supply; denied bees take their next-best
+valid action. The protocol does not assign global targets and the actor still
+uses only its radius-four observation.
+
+On 100 new final seeds, coordinated CTDE scores 147.57 mean honey versus
+141.38 for local behavior cloning. The paired improvement is +6.19 with a 95%
+confidence interval of [+3.41, +8.97]. It prevents 13.51 oversubscribed
+harvests per episode on average and reduces the uncoordinated CTDE invalid
+action rate from 0.742% to 0%, with no unresolved resource conflicts. The
+candidate passes every predeclared promotion gate and is registered.

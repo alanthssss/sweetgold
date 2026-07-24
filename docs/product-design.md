@@ -111,3 +111,24 @@ is +6.60 with a 95% confidence interval of [+3.28, +9.92]. Survival is 91.0%.
 The candidate is rejected rather than registered because its 1.056% invalid
 action rate narrowly exceeds the predeclared 1% threshold. This identifies
 decentralized contention as the next concrete research problem.
+
+## M8 local coordination
+
+M8 keeps the M7 actor unchanged at execution time except for a local protocol
+between bees that simultaneously intend to harvest the same flower. Each
+flower acts as a resource with capacity equal to its currently observed
+nectar. A seed- and tick-dependent rotating priority grants reservations, and
+denied bees select their next-highest-scoring legal action.
+
+The experiment records harvest intents, contested intents, reservation grants,
+prevented conflicts, unresolved conflicts and their rates. Across 100 fresh
+final seeds, coordinated CTDE produces 147.57 mean honey against local behavior
+cloning's 141.38. The paired delta is +6.19 with a 95% confidence interval of
+[+3.41, +8.97]. It prevents 13.51 conflicts per episode on average, resolves
+all observed oversubscription, and reduces invalid actions from the equivalent
+uncoordinated actor's 0.742% to 0%.
+
+The coordination layer changes honey by only +0.11 ± 2.20 relative to the same
+uncoordinated actor. Its benefit is therefore safety rather than a claimed
+yield improvement. The candidate passes the predeclared yield, survival,
+invalid-action and unresolved-contention gates.

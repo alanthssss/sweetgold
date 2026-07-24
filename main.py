@@ -63,6 +63,10 @@ def main() -> None:
     m7.add_argument("--config", required=True)
     m7.add_argument("--output-root", default="runs")
     m7.add_argument("--force", action="store_true")
+    m8 = sub.add_parser("pipeline-m8", help="run decentralized coordination experiment")
+    m8.add_argument("--config", required=True)
+    m8.add_argument("--output-root", default="runs")
+    m8.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -166,6 +170,12 @@ def main() -> None:
         from beehive.m7_pipeline import run_m7_pipeline
 
         result = run_m7_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
+        return
+    if args.command == "pipeline-m8":
+        from beehive.m8_pipeline import run_m8_pipeline
+
+        result = run_m8_pipeline(args.config, args.output_root, force=args.force)
         print(json.dumps(result, indent=2))
         return
 
