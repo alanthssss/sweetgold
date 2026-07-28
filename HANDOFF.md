@@ -328,3 +328,18 @@ Arena leagues and evaluation artifacts are additive user-facing capabilities.
 After the release-preparation PR merges, run CI and a clean-clone check on
 `main`, then create the `v1.1.0` tag and GitHub Release. Do not publish another
 model catalog until a new model is promoted or the artifact contract changes.
+
+## M15 auditable agent workflow
+
+M15 begins the v1.2 line by turning an Arena result into an explicit strategy
+decision. `arena-agent` runs the existing matched-seed tournament, applies one
+of three declared objectives (balanced, yield or safety), filters candidates
+against minimum survival and maximum invalid-action constraints, and writes
+both machine-readable JSON and human-readable Markdown evidence.
+
+The recommender is deliberately deterministic: an AI agent may choose inputs,
+invoke the workflow and explain its output, but cannot silently invent a
+winner or hide a failed constraint. Each report links back to its immutable
+Arena artifact and warns that a small league is not a formal robustness audit.
+The next M15 slice should expose this operation through the HTTP product UI or
+add multi-scenario decision policies before preparing v1.2.0.
