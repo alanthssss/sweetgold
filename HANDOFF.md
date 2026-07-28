@@ -258,3 +258,21 @@ promotion state, artifact integrity, model cards and later audit failures, with
 a local download action for missing or corrupt checkpoints. Architecture
 research moves to M14 so artifact delivery and policy changes remain
 independently reviewable.
+
+## Arena matched-seed league
+
+The Arena now turns available strategies into an automated round-robin league:
+
+- every entrant runs once on a shared, consecutive seed set;
+- pairwise wins, ties and losses are derived from matched episode results;
+- standings award three points for a match win and one for a tie;
+- mean honey, confidence interval and survival remain visible;
+- rule strategies work in the core environment, while verified learned
+  checkpoints are enabled only when PyTorch is installed;
+- the bilingual interface has been verified with all six available strategies.
+
+The release process is still intentionally manual. Creating a Git tag alone
+does not upload a model: the `models-v1` Release and its two checkpoint assets
+were explicitly created, and `registry/models.json` holds their stable URLs,
+sizes and digests. A release workflow should be added only when repeated model
+promotion makes automation worthwhile.

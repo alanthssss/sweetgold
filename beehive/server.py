@@ -7,11 +7,13 @@ import json
 import mimetypes
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from importlib.util import find_spec
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from .controllers import CONTROLLERS
 from .env import BeeEnv, EnvConfig
+from .evaluator import evaluate, paired_honey_comparison
 from .model_store import ModelStore
 
 
@@ -85,7 +87,8 @@ class StrategyCatalog:
                     else "corrupt"
                 )
             )
-            available = local_status == "verified"
+            runtime_available = find_spec("torch") is not None
+            available = local_status == "verified" and runtime_available
             download = record.get("download", {})
             latest_audit = audits.get(model)
             audit_summary = latest_audit.get("summary", {}) if latest_audit else None
@@ -100,6 +103,7 @@ class StrategyCatalog:
                     "mean_honey": record.get("mean_honey"),
                     "run": record.get("run"),
                     "integrity": local_status,
+                    "runtime": "ready" if runtime_available else "missing-pytorch",
                     "promotion": record.get("promotion", {}).get("status"),
                     "promotion_checks": record.get("promotion", {}).get("checks", {}),
                     "license": download.get("license"),
@@ -288,6 +292,94 @@ class ArenaSession:
         return self.summary()
 
 
+def run_tournament(
+    catalog: StrategyCatalog,
+    strategy_ids: list[str],
+    seed: int = 42,
+    episodes: int = 10,
+    config: dict | None = None,
+) -> dict:
+    """Evaluate strategies on one shared seed set and build a round-robin table."""
+    if len(strategy_ids) < 2:
+        raise ValueError("tournament requires at least two strategies")
+    if len(strategy_ids) != len(set(strategy_ids)):
+        raise ValueError("tournament strategies must be unique")
+    if not 1 <= episodes <= 50:
+        raise ValueError("tournament episodes must be between 1 and 50")
+    available = {
+        row["id"] for row in catalog.entries() if row.get("available")
+    }
+    unknown = [name for name in strategy_ids if name not in available]
+    if unknown:
+        raise ValueError(f"unavailable tournament strategies: {', '.join(unknown)}")
+
+    env_config = EnvConfig(**(config or {}))
+    env_config.validate()
+    seeds = list(range(seed, seed + episodes))
+    evaluations = {
+        name: evaluate(catalog.create(name), env_config, seeds)
+        for name in strategy_ids
+    }
+    records = {
+        name: {"match_wins": 0, "match_ties": 0, "match_losses": 0}
+        for name in strategy_ids
+    }
+    matches = []
+    for index, left in enumerate(strategy_ids):
+        for right in strategy_ids[index + 1 :]:
+            comparison = paired_honey_comparison(
+                evaluations[left], evaluations[right]
+            )
+            delta = comparison["mean_honey_delta"]
+            if delta > 0:
+                winner = left
+                records[left]["match_wins"] += 1
+                records[right]["match_losses"] += 1
+            elif delta < 0:
+                winner = right
+                records[right]["match_wins"] += 1
+                records[left]["match_losses"] += 1
+            else:
+                winner = None
+                records[left]["match_ties"] += 1
+                records[right]["match_ties"] += 1
+            matches.append({**comparison, "winner": winner})
+
+    leaderboard = []
+    for name in strategy_ids:
+        result = evaluations[name]
+        record = records[name]
+        leaderboard.append(
+            {
+                "strategy": name,
+                "mean_honey": result["mean_honey"],
+                "ci95_honey": result["ci95_honey"],
+                "colony_survival_rate": result["colony_survival_rate"],
+                "bee_survival_rate": result["bee_survival_rate"],
+                "mean_invalid_action_rate": result["mean_invalid_action_rate"],
+                **record,
+                "points": record["match_wins"] * 3 + record["match_ties"],
+            }
+        )
+    leaderboard.sort(
+        key=lambda row: (
+            -row["points"],
+            -row["mean_honey"],
+            -row["bee_survival_rate"],
+            row["strategy"],
+        )
+    )
+    for rank, row in enumerate(leaderboard, start=1):
+        row["rank"] = rank
+    return {
+        "seed": seed,
+        "episodes": episodes,
+        "seeds": seeds,
+        "leaderboard": leaderboard,
+        "matches": matches,
+    }
+
+
 def serve(port: int = 8080) -> None:
     web_root = PROJECT_ROOT / "web"
     session = ArenaSession()
@@ -340,11 +432,28 @@ def serve(port: int = 8080) -> None:
                 elif self.path == "/api/models/download":
                     model = str(payload.get("model", ""))
                     state = model_store.download(model)
+                elif self.path == "/api/tournament":
+                    strategy_ids = payload.get("strategies", [])
+                    if not isinstance(strategy_ids, list):
+                        raise ValueError("tournament strategies must be a list")
+                    state = run_tournament(
+                        session.catalog,
+                        [str(name) for name in strategy_ids],
+                        seed=int(payload.get("seed", 42)),
+                        episodes=int(payload.get("episodes", 10)),
+                        config=payload.get("config"),
+                    )
                 else:
                     self._json(404, {"error": "not found"})
                     return
                 self._json(200, state)
-            except (ValueError, TypeError, json.JSONDecodeError, OSError) as exc:
+            except (
+                ValueError,
+                TypeError,
+                RuntimeError,
+                json.JSONDecodeError,
+                OSError,
+            ) as exc:
                 self._json(400, {"error": str(exc)})
 
         def _json(self, status: int, payload: dict) -> None:

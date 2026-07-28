@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add a matched-seed Arena league with automated round-robin comparisons,
+  confidence intervals, survival metrics and a bilingual leaderboard.
+
 All notable SweetGold changes are documented here. The project uses semantic
 versioning from v1.0.0 onward.
 

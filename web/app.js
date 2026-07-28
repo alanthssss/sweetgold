@@ -8,28 +8,38 @@ const words = {
   en: {
     run: "Run", pause: "Pause", live: "Live", replay: "Replay",
     even: "Even", leads: name => `${name} leads`,
-    unavailable: "Model checkpoint unavailable locally",
+    unavailable: "Learned strategy unavailable in this runtime",
     verified: "Verified locally", missing: "Not downloaded", corrupt: "Integrity failed",
+    runtimeMissing: "Verified; PyTorch runtime missing",
     accepted: "Promotion accepted", download: "Download model", downloading: "Downloading…",
     modelCard: "Model card", meanHoney: "Mean honey", license: "License",
     sourceRun: "Source run", laterAudit: "Later robustness audit",
     auditFailed: "failed",
     worstScenario: "Worst yield scenario", minimumSurvival: "Minimum survival",
     noLaterAudit: "No later robustness audit recorded",
+    runLeague: "Run league", runningLeague: "Running matched-seed league…",
+    selectTwo: "Select at least two available strategies",
+    rank: "Rank", strategy: "Strategy", record: "Record", points: "Points",
+    survival: "Colony survival", episodes: "episodes",
     honey: "Honey", alive: "Alive", efficiency: "Efficiency", invalid: "Invalid",
     prevented: "Prevented"
   },
   zh: {
     run: "运行", pause: "暂停", live: "实时", replay: "回放",
     even: "持平", leads: name => `${name} 领先`,
-    unavailable: "模型 checkpoint 在本机不可用",
+    unavailable: "学习策略在当前运行环境中不可用",
     verified: "本机校验通过", missing: "尚未下载", corrupt: "完整性校验失败",
+    runtimeMissing: "制品已校验；缺少 PyTorch 运行环境",
     accepted: "已通过晋级", download: "下载模型", downloading: "正在下载…",
     modelCard: "模型卡", meanHoney: "平均蜂蜜", license: "许可证",
     sourceRun: "来源实验", laterAudit: "后续鲁棒性审计",
     auditFailed: "未通过",
     worstScenario: "最差产量场景", minimumSurvival: "最低生存率",
     noLaterAudit: "暂无后续鲁棒性审计",
+    runLeague: "运行联赛", runningLeague: "正在运行同种子联赛…",
+    selectTwo: "请至少选择两个可用策略",
+    rank: "排名", strategy: "策略", record: "战绩", points: "积分",
+    survival: "蜂群存活率", episodes: "局",
     honey: "蜂蜜", alive: "存活", efficiency: "效率", invalid: "无效",
     prevented: "避免冲突"
   }
@@ -124,7 +134,9 @@ function percent(value) {
 function renderModelCards() {
   const learned = strategies.filter(strategy => strategy.kind === "learned");
   $("modelCards").innerHTML = learned.map(strategy => {
-    const status = strategy.integrity === "verified"
+    const status = strategy.integrity === "verified" && strategy.runtime !== "ready"
+      ? words[language].runtimeMissing
+      : strategy.integrity === "verified"
       ? words[language].verified
       : strategy.integrity === "corrupt"
         ? words[language].corrupt
@@ -139,6 +151,8 @@ function renderModelCards() {
       : `<div class="audit-note quiet">${escapeHtml(words[language].noLaterAudit)}</div>`;
     const action = strategy.available
       ? `<span class="model-ready">✓ ${escapeHtml(words[language].verified)}</span>`
+      : strategy.integrity === "verified"
+        ? `<span class="runtime-missing">${escapeHtml(words[language].runtimeMissing)}</span>`
       : `<button class="download-model" data-model="${escapeHtml(strategy.id)}" type="button">${escapeHtml(words[language].download)}</button>`;
     return `<article class="model-card ${strategy.available ? "is-ready" : "is-missing"}">
       <div class="model-card-head">
@@ -162,6 +176,63 @@ function renderModelCards() {
       </div>
     </article>`;
   }).join("");
+}
+
+function renderTournamentChoices() {
+  const available = strategies.filter(strategy => strategy.available);
+  $("tournamentStrategies").innerHTML = available.map((strategy, index) =>
+    `<label><input type="checkbox" value="${escapeHtml(strategy.id)}" ${index < 4 ? "checked" : ""}>
+      <span>${escapeHtml(strategy.label)}</span></label>`).join("");
+}
+
+function renderLeaderboard(result) {
+  const rows = result.leaderboard.map(row => `<tr>
+    <td><b>#${row.rank}</b></td>
+    <td>${escapeHtml(strategyLabel(row.strategy))}</td>
+    <td>${metricNumber(row.mean_honey, 1)} <small>±${metricNumber(row.ci95_honey, 1)}</small></td>
+    <td>${percent(row.colony_survival_rate)}</td>
+    <td>${row.match_wins}-${row.match_ties}-${row.match_losses}</td>
+    <td><b>${row.points}</b></td>
+  </tr>`).join("");
+  $("leaderboard").hidden = false;
+  $("leaderboard").innerHTML = `<table>
+    <thead><tr>
+      <th>${words[language].rank}</th>
+      <th>${words[language].strategy}</th>
+      <th>${words[language].meanHoney}</th>
+      <th>${words[language].survival}</th>
+      <th>${words[language].record}</th>
+      <th>${words[language].points}</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+  $("tournamentStatus").textContent =
+    `${result.episodes} ${words[language].episodes} · seed ${result.seed}–${result.seeds.at(-1)}`;
+}
+
+async function runTournament() {
+  const selected = [...document.querySelectorAll("#tournamentStrategies input:checked")]
+    .map(input => input.value);
+  if (selected.length < 2) {
+    $("tournamentStatus").textContent = words[language].selectTwo;
+    return;
+  }
+  const button = $("runTournament");
+  button.disabled = true;
+  button.textContent = words[language].runningLeague;
+  $("tournamentStatus").textContent = words[language].runningLeague;
+  try {
+    renderLeaderboard(await api("/api/tournament", {
+      strategies: selected,
+      seed: Number($("seed").value),
+      episodes: Number($("tournamentEpisodes").value)
+    }));
+  } catch (error) {
+    $("tournamentStatus").textContent = error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = words[language].runLeague;
+  }
 }
 
 async function downloadModel(model, button) {
@@ -232,6 +303,7 @@ async function loadStrategies(preserve = false) {
     ? `${words[language].unavailable}: ${missing.map(s => s.label).join(", ")}`
     : "";
   renderModelCards();
+  renderTournamentChoices();
 }
 
 async function reset() {
@@ -285,6 +357,7 @@ $("modelCards").onclick = event => {
   const button = event.target.closest(".download-model");
   if (button) downloadModel(button.dataset.model, button);
 };
+$("runTournament").onclick = runTournament;
 
 translate();
 loadStrategies()
