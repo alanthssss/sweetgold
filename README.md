@@ -41,6 +41,19 @@ Rule strategies work in a fresh clone. Learned checkpoints are generated
 locally and intentionally excluded from Git; the arena disables unavailable
 models and verifies the hashes of checkpoints that are present.
 
+Promoted checkpoints can be listed, downloaded and verified without running
+training:
+
+```bash
+python3 main.py models list
+python3 main.py models download
+python3 main.py models verify
+```
+
+The committed registry supplies the release URL, byte size, SHA-256 digest,
+license and model card. Downloads are installed atomically only after all
+integrity checks pass.
+
 See [v1.0.1 release notes](docs/releases/v1.0.1.md),
 [changelog](CHANGELOG.md), and the
 [release checklist](docs/release-checklist.md).
@@ -305,3 +318,14 @@ promotion. On fresh final seeds, harsh-weather survival rises from 6.5% to
 Assignment and invalid actions remain at 0%. Scarce-nectar yield is still only
 73.65% of Assignment, below the predeclared 75% floor, so the model is audited
 but not registered.
+
+## Model distribution
+
+M13 separates small, durable model metadata from generated checkpoint files.
+`registry/models.json` remains in Git, while accepted weights are published in
+the `models-v1` GitHub Release. Each record links to a model card and declares
+its license, expected byte size and SHA-256 digest.
+
+`models download` repairs missing or corrupt local artifacts without exposing
+partial downloads to the Arena. The Arena continues to load only promoted
+models whose installed checkpoint matches the committed digest.

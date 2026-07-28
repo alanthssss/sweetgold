@@ -2,10 +2,10 @@
 
 ## Current milestone
 
-M12 tests whether balanced interleaving can reduce the catastrophic forgetting
-observed in M11 without using M11's consumed validation or final seeds. It
-substantially improves large-map and harsh-weather survival, but the candidate
-is rejected because scarce-resource yield and minimum survival still fail.
+M13 turns the local-only model registry into a distributable artifact workflow.
+The registry now declares immutable release URLs, sizes, SHA-256 digests,
+licenses and model cards. CLI commands list, download and verify promoted
+checkpoints without requiring users to retrain them.
 
 ## Initial M2 implementation
 
@@ -234,6 +234,26 @@ The formal candidate failed and was not registered:
 - Minimum survival remained below the 75% promotion gate.
 
 The failed result is recorded in `registry/audits.json`. Do not reuse M12
-validation or final seeds. M13 should test a structural change such as
+validation or final seeds. M14 should test a structural change such as
 hierarchical energy-return control or recurrent memory instead of continuing
 to tune the same feed-forward actor on consumed evaluation data.
+
+## M13 model distribution
+
+M13 adds:
+
+- Apache-2.0 model cards for the accepted M6 BC+PPO and M8 coordinated CTDE
+  checkpoints;
+- release URL, exact size, license and model-card metadata in the committed
+  registry;
+- dependency-free `models list`, `models download` and `models verify`
+  commands;
+- safe project-root path resolution, streaming SHA-256 verification, atomic
+  installation and corrupt-artifact repair;
+- tests for successful installation, integrity rejection and path traversal.
+
+The `models-v1` GitHub Release must be created after this milestone merges,
+using the two locally verified checkpoint files. Then verify the public assets
+from a clean temporary model root before considering distribution complete.
+Architecture research moves to M14 so artifact delivery and policy changes
+remain independently reviewable.
