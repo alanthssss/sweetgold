@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from beehive.arena_store import ArenaArtifactStore
 from beehive.server import ArenaSession, StrategyCatalog, run_tournament
 
 
@@ -152,6 +154,40 @@ class ArenaSessionTests(unittest.TestCase):
             run_tournament(StrategyCatalog(), ["assignment"])
         with self.assertRaisesRegex(ValueError, "unavailable"):
             run_tournament(StrategyCatalog(), ["assignment", "unknown"])
+
+
+class ArenaArtifactStoreTests(unittest.TestCase):
+    def test_artifact_round_trip_and_listing(self):
+        with TemporaryDirectory() as directory:
+            store = ArenaArtifactStore(directory)
+            request = {
+                "strategies": ["assignment", "greedy"],
+                "seed": 42,
+                "episodes": 2,
+                "config": {"season_ticks": 10},
+            }
+            result = {
+                "leaderboard": [{"strategy": "assignment", "rank": 1}],
+                "matches": [],
+            }
+            summary = store.save(
+                request,
+                result,
+                created_at=datetime(2026, 7, 28, tzinfo=timezone.utc),
+            )
+            self.assertEqual(summary["winner"], "assignment")
+            self.assertEqual(store.list(), [summary])
+            document = store.get(summary["run_id"])
+            self.assertEqual(document["request"], request)
+            self.assertEqual(document["result"], result)
+
+    def test_artifact_store_rejects_unsafe_ids_and_limits(self):
+        with TemporaryDirectory() as directory:
+            store = ArenaArtifactStore(directory)
+            with self.assertRaisesRegex(ValueError, "invalid"):
+                store.get("../../models")
+            with self.assertRaisesRegex(ValueError, "between 1 and 100"):
+                store.list(0)
 
 
 if __name__ == "__main__":

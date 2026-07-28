@@ -4,6 +4,8 @@
 
 - Add a matched-seed Arena league with automated round-robin comparisons,
   confidence intervals, survival metrics and a bilingual leaderboard.
+- Persist league requests and full results as versioned JSON artifacts exposed
+  through the browser, HTTP API and an automation-friendly CLI.
 
 All notable SweetGold changes are documented here. The project uses semantic
 versioning from v1.0.0 onward.

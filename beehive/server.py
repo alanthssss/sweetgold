@@ -11,6 +11,7 @@ from importlib.util import find_spec
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from .arena_store import ArenaArtifactStore
 from .controllers import CONTROLLERS
 from .env import BeeEnv, EnvConfig
 from .evaluator import evaluate, paired_honey_comparison
@@ -384,6 +385,7 @@ def serve(port: int = 8080) -> None:
     web_root = PROJECT_ROOT / "web"
     session = ArenaSession()
     model_store = ModelStore(session.catalog.registry_path)
+    artifact_store = ArenaArtifactStore(PROJECT_ROOT / "runs" / "arena")
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
@@ -393,6 +395,29 @@ def serve(port: int = 8080) -> None:
                 return
             if parsed.path == "/api/strategies":
                 self._json(200, {"strategies": session.strategies()})
+                return
+            if parsed.path == "/api/tournaments":
+                try:
+                    limit = int(parse_qs(parsed.query).get("limit", ["20"])[0])
+                    self._json(200, {"artifacts": artifact_store.list(limit)})
+                except (TypeError, ValueError, OSError) as exc:
+                    self._json(400, {"error": str(exc)})
+                return
+            if parsed.path.startswith("/api/tournaments/"):
+                try:
+                    run_id = parsed.path.removeprefix("/api/tournaments/")
+                    document = artifact_store.get(run_id)
+                    self._json(
+                        200,
+                        document,
+                        filename=(
+                            f"{run_id}.json"
+                            if parse_qs(parsed.query).get("download") == ["1"]
+                            else None
+                        ),
+                    )
+                except (ValueError, OSError) as exc:
+                    self._json(404, {"error": str(exc)})
                 return
             if parsed.path == "/api/frame":
                 try:
@@ -436,13 +461,20 @@ def serve(port: int = 8080) -> None:
                     strategy_ids = payload.get("strategies", [])
                     if not isinstance(strategy_ids, list):
                         raise ValueError("tournament strategies must be a list")
+                    request = {
+                        "strategies": [str(name) for name in strategy_ids],
+                        "seed": int(payload.get("seed", 42)),
+                        "episodes": int(payload.get("episodes", 10)),
+                        "config": payload.get("config") or {},
+                    }
                     state = run_tournament(
                         session.catalog,
-                        [str(name) for name in strategy_ids],
-                        seed=int(payload.get("seed", 42)),
-                        episodes=int(payload.get("episodes", 10)),
-                        config=payload.get("config"),
+                        request["strategies"],
+                        seed=request["seed"],
+                        episodes=request["episodes"],
+                        config=request["config"],
                     )
+                    state["artifact"] = artifact_store.save(request, state)
                 else:
                     self._json(404, {"error": "not found"})
                     return
@@ -456,10 +488,16 @@ def serve(port: int = 8080) -> None:
             ) as exc:
                 self._json(400, {"error": str(exc)})
 
-        def _json(self, status: int, payload: dict) -> None:
+        def _json(
+            self, status: int, payload: dict, filename: str | None = None
+        ) -> None:
             body = json.dumps(payload).encode()
             self.send_response(status)
             self.send_header("Content-Type", "application/json")
+            if filename:
+                self.send_header(
+                    "Content-Disposition", f'attachment; filename="{filename}"'
+                )
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
