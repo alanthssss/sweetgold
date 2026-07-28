@@ -6,6 +6,8 @@
   confidence intervals, survival metrics and a bilingual leaderboard.
 - Persist league requests and full results as versioned JSON artifacts exposed
   through the browser, HTTP API and an automation-friendly CLI.
+- Add M14 hierarchical return control, validation-only supervisor selection,
+  fresh six-scenario auditing and the first cross-distribution accepted model.
 
 All notable SweetGold changes are documented here. The project uses semantic
 versioning from v1.0.0 onward.

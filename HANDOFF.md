@@ -285,7 +285,32 @@ shared seed set, leaderboard and pairwise comparisons. The same operation is
 available through the browser, HTTP API and `arena-league` CLI, so CI jobs and
 AI agents can consume exactly the same JSON contract as a human operator.
 
-The next model-research milestone remains M14: test a structural policy change
-such as hierarchical return-to-hive control or recurrent memory using fresh
-training, validation and final seeds. Do not spend additional final-test
-budget tuning the failed M11/M12 feed-forward policy.
+The next model-research milestone at this point was M14: test a structural
+policy change using fresh training, validation and final seeds rather than
+spending more final-test budget tuning the failed M11/M12 feed-forward policy.
+
+## M14 hierarchical return control
+
+M14 adds a deterministic high-level supervisor above the accepted M8
+coordinated actor. The supervisor takes control when cargo is full, remaining
+energy approaches the expected trip-home budget or the season is ending. It
+returns the bee to the hive, deposits cargo and recharges before yielding to
+the learned actor again.
+
+Four configurations were selected on 12 fresh seeds across default, large-map,
+scarce-nectar and harsh-weather validation scenarios. The selected parameters
+were safety margin 6 and recharge fraction 0.8. A single final audit used 50
+new seeds in each of six scenarios:
+
+- 100% bee survival and 0% invalid actions in every scenario;
+- median honey ratio 148.47% versus Assignment;
+- worst honey ratio 101.16% under scarce nectar;
+- harsh-weather honey 141.46 versus Assignment's 99.48;
+- large-map honey 223.68 versus 146.56.
+
+All predeclared promotion gates passed, so `hierarchical-return-ctde` is
+registered. Its actor weights are byte-identical to `coordinated-ctde`; the
+new policy identity consists of the shared checkpoint plus versioned
+supervisor code and registry parameters. The next step is to publish the
+updated code and model card, then run the registered strategy through Arena
+evaluation artifacts before considering any new learned architecture.

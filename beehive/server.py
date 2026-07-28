@@ -29,12 +29,14 @@ STRATEGY_DESCRIPTIONS = {
     "coordinated-ctde": "Local CTDE actor with harvest-intent reservations.",
     "curriculum-coordinated-ctde": "Robust CTDE actor trained across environment shifts.",
     "interleaved-coordinated-ctde": "CTDE actor trained on balanced interleaved environments.",
+    "hierarchical-return-ctde": "Coordinated CTDE with a return, deposit and recharge supervisor.",
 }
 STRATEGY_DESCRIPTIONS_ZH = {
     "bc-ppo": "从规则示范进行行为克隆，并通过 PPO 微调的策略。",
     "coordinated-ctde": "带有本地采集意图预约机制的 CTDE 策略。",
     "curriculum-coordinated-ctde": "跨环境变化进行课程训练的鲁棒性 CTDE 策略。",
     "interleaved-coordinated-ctde": "在均衡交错环境中训练的 CTDE 策略。",
+    "hierarchical-return-ctde": "带有返巢、卸载与充能上层控制器的协调 CTDE 策略。",
 }
 
 
@@ -72,6 +74,7 @@ class StrategyCatalog:
                 "coordinated-ctde",
                 "curriculum-coordinated-ctde",
                 "interleaved-coordinated-ctde",
+                "hierarchical-return-ctde",
             ):
                 latest[model] = record
         audits = {}
@@ -169,6 +172,12 @@ class StrategyCatalog:
             from .coordination import CoordinatedCTDEController
 
             return CoordinatedCTDEController(artifact)
+        if strategy_id == "hierarchical-return-ctde":
+            from .hierarchical import HierarchicalReturnCTDEController
+
+            return HierarchicalReturnCTDEController(
+                artifact, **record.get("controller_config", {})
+            )
         raise ValueError(f"unsupported registered strategy: {strategy_id}")
 
     def _registry(self) -> dict:
