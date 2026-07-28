@@ -362,6 +362,24 @@ python main.py arena-league \
 `GET /api/tournaments` lists recent artifacts and
 `GET /api/tournaments/{run_id}` returns a complete machine-readable result.
 
+An auditable agent workflow can apply an explicit objective and safety
+constraints to the same tournament evidence:
+
+```bash
+python main.py arena-agent \
+  --strategies assignment greedy scout \
+  --objective balanced \
+  --min-bee-survival 0.9 \
+  --max-invalid-action-rate 0.01 \
+  --episodes 10 --seed 42
+```
+
+The command preserves the Arena artifact and writes both JSON and Markdown
+decision artifacts under `runs/agent`. The recommendation contains its
+eligible set, rejected strategies and reasons, declared constraints and the
+winning evidence. Small leagues remain workflow demonstrations rather than
+substitutes for formal robustness audits.
+
 ## Hierarchical return control
 
 M14 keeps the accepted coordinated CTDE actor and adds a deterministic

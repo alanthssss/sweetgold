@@ -5,6 +5,12 @@ versioning from v1.0.0 onward.
 
 ## [Unreleased]
 
+### Added
+
+- M15 auditable Arena agent workflow with explicit objectives, safety
+  constraints, deterministic recommendations and paired JSON/Markdown
+  decision artifacts.
+
 ## [1.1.0] - 2026-07-28
 
 ### Added

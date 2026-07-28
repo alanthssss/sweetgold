@@ -111,6 +111,20 @@ def main() -> None:
     league.add_argument("--seed", type=int, default=42)
     league.add_argument("--ticks", type=int, default=240)
     league.add_argument("--output-root", default="runs/arena")
+    agent = sub.add_parser(
+        "arena-agent", help="evaluate strategies and write an auditable recommendation"
+    )
+    agent.add_argument("--strategies", nargs="+", required=True)
+    agent.add_argument(
+        "--objective", choices=("balanced", "yield", "safety"), default="balanced"
+    )
+    agent.add_argument("--min-bee-survival", type=float, default=0.0)
+    agent.add_argument("--max-invalid-action-rate", type=float, default=1.0)
+    agent.add_argument("--episodes", type=int, default=10)
+    agent.add_argument("--seed", type=int, default=42)
+    agent.add_argument("--ticks", type=int, default=240)
+    agent.add_argument("--arena-output-root", default="runs/arena")
+    agent.add_argument("--output-root", default="runs/agent")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -276,6 +290,47 @@ def main() -> None:
         )
         artifact = ArenaArtifactStore(args.output_root).save(request, result)
         print(json.dumps({"artifact": artifact, "result": result}, indent=2))
+        return
+    if args.command == "arena-agent":
+        from beehive.arena_agent import AgentDecisionStore, recommend_strategy
+        from beehive.arena_store import ArenaArtifactStore
+        from beehive.server import StrategyCatalog, run_tournament
+
+        request = {
+            "strategies": args.strategies,
+            "seed": args.seed,
+            "episodes": args.episodes,
+            "config": {"season_ticks": args.ticks},
+        }
+        result = run_tournament(
+            StrategyCatalog(),
+            args.strategies,
+            seed=args.seed,
+            episodes=args.episodes,
+            config=request["config"],
+        )
+        arena_artifact = ArenaArtifactStore(args.arena_output_root).save(
+            request, result
+        )
+        decision = recommend_strategy(
+            result,
+            objective=args.objective,
+            min_bee_survival=args.min_bee_survival,
+            max_invalid_action_rate=args.max_invalid_action_rate,
+        )
+        artifact = AgentDecisionStore(args.output_root).save(
+            arena_artifact, result, decision
+        )
+        print(
+            json.dumps(
+                {
+                    "arena_artifact": arena_artifact,
+                    "decision_artifact": artifact,
+                    "decision": decision,
+                },
+                indent=2,
+            )
+        )
         return
 
     config = EnvConfig(season_ticks=args.ticks)
