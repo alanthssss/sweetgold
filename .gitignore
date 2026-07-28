@@ -5,6 +5,6 @@ report/
 report-bc/
 report-ppo/
 data/
-models/
+/models/
 .venv-ml/
 runs/
