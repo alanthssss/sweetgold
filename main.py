@@ -83,6 +83,20 @@ def main() -> None:
     m12.add_argument("--config", required=True)
     m12.add_argument("--output-root", default="runs")
     m12.add_argument("--force", action="store_true")
+    models = sub.add_parser("models", help="manage registered model artifacts")
+    model_commands = models.add_subparsers(dest="models_command", required=True)
+    for command in ("list", "verify"):
+        model_command = model_commands.add_parser(
+            command, help=f"{command} registered models"
+        )
+        model_command.add_argument("names", nargs="*")
+        model_command.add_argument("--registry", default="registry/models.json")
+    model_download = model_commands.add_parser(
+        "download", help="download and verify registered models"
+    )
+    model_download.add_argument("names", nargs="*")
+    model_download.add_argument("--registry", default="registry/models.json")
+    model_download.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
     if args.command == "play":
@@ -210,6 +224,17 @@ def main() -> None:
         from beehive.m12_pipeline import run_m12_pipeline
 
         result = run_m12_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
+        return
+    if args.command == "models":
+        from beehive.model_store import ModelStore
+
+        store = ModelStore(args.registry)
+        names = args.names or store.names()
+        if args.models_command == "download":
+            result = [store.download(name, force=args.force) for name in names]
+        else:
+            result = [store.verify(name) for name in names]
         print(json.dumps(result, indent=2))
         return
 

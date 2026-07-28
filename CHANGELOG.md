@@ -9,6 +9,8 @@ versioning from v1.0.0 onward.
 
 - M12 balanced interleaved CTDE training with validation-gated cycles,
   pairwise seed-isolation checks and CI smoke coverage.
+- M13 model cards and an integrity-checked `models list`, `models verify` and
+  `models download` workflow for separately published checkpoints.
 
 ### Scientific results
 
