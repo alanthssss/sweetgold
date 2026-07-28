@@ -59,6 +59,52 @@
         },
         "paired_ci95_lower_bound": 3.405473711941493
       }
+    },
+    {
+      "model": "hierarchical-return-ctde",
+      "run": "runs/m14-hierarchical-return-v1",
+      "artifact": "runs/m14-hierarchical-return-v1/checkpoints/hierarchical-return-ctde.pt",
+      "sha256": "86fd605a1f013638ea89e95e1a71b65c0da243c003b7b22cf90e27dfe4397a68",
+      "source_commit": "7ae69404c7a3e0691f57b0c0838d8f6e5ff96525",
+      "source_dirty": true,
+      "registered_at": "2026-07-28T05:22:46.612755+00:00",
+      "mean_honey": 199.71666666666667,
+      "promotion": {
+        "status": "accepted",
+        "candidate": "hierarchical-return-ctde",
+        "baseline": "assignment",
+        "checks": {
+          "minimum_median_honey_ratio": true,
+          "minimum_worst_honey_ratio": true,
+          "minimum_bee_survival": true,
+          "maximum_invalid_action_rate": true
+        },
+        "robustness": {
+          "status": "passed",
+          "checks": {
+            "minimum_median_honey_ratio": true,
+            "minimum_worst_honey_ratio": true,
+            "minimum_bee_survival": true,
+            "maximum_invalid_action_rate": true
+          },
+          "median_honey_ratio": 1.4847232827011134,
+          "worst_honey_ratio": 1.011598587997983,
+          "worst_honey_scenario": "scarce-nectar",
+          "minimum_bee_survival": 1.0,
+          "maximum_invalid_action_rate": 0.0
+        }
+      },
+      "controller_config": {
+        "safety_margin": 6,
+        "recharge_fraction": 0.8
+      },
+      "download": {
+        "release": "models-v1",
+        "url": "https://github.com/alanthssss/sweetgold/releases/download/models-v1/coordinated-ctde.pt",
+        "size_bytes": 68065,
+        "license": "Apache-2.0",
+        "model_card": "docs/models/hierarchical-return-ctde.md"
+      }
     }
   ]
 }

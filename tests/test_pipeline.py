@@ -16,6 +16,7 @@ from beehive.m8_pipeline import validate_m8_config
 from beehive.m10_pipeline import validate_m10_config
 from beehive.m11_pipeline import validate_m11_config
 from beehive.m12_pipeline import validate_m12_config
+from beehive.m14_pipeline import validate_m14_config
 
 
 def valid_config() -> dict:
@@ -224,6 +225,39 @@ class PipelineConfigTests(unittest.TestCase):
         config["training"]["episodes_per_cycle"] = 3
         with self.assertRaisesRegex(ValueError, "must be divisible"):
             validate_m12_config(config)
+
+    def test_m14_config_selects_only_on_disjoint_validation_seeds(self):
+        config = {
+            "experiment": "m14-test",
+            "source_model": "coordinated-ctde",
+            "candidates": [
+                {"safety_margin": 2, "recharge_fraction": 0.6},
+                {"safety_margin": 4, "recharge_fraction": 0.8},
+            ],
+            "validation": {
+                "episodes": 2,
+                "seed": 600009,
+                "scenarios": [{"name": "rain", "env": {"rain_chance": 0.2}}],
+            },
+            "test": {
+                "episodes": 2,
+                "seed": 800009,
+                "scenarios": [{"name": "rain", "env": {"rain_chance": 0.2}}],
+            },
+            "audit": {
+                "minimum_median_honey_ratio": 0.9,
+                "minimum_worst_honey_ratio": 0.75,
+                "minimum_bee_survival": 0.75,
+                "maximum_invalid_action_rate": 0.01,
+            },
+        }
+        seeds = validate_m14_config(config)
+        self.assertFalse(
+            set(seeds["validation"]["rain"]) & set(seeds["test"]["rain"])
+        )
+        config["test"]["seed"] = config["validation"]["seed"]
+        with self.assertRaisesRegex(ValueError, "seed leakage"):
+            validate_m14_config(config)
 
 
 if __name__ == "__main__":

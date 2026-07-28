@@ -73,6 +73,10 @@ def evaluate(controller: Controller, config: EnvConfig, seeds: list[int]) -> dic
         "contention_rate",
         "reservation_success_rate",
         "unresolved_contention_rate",
+        "return_entries",
+        "forced_return_moves",
+        "forced_deposits",
+        "forced_recharges",
     ):
         if all(metric in episode for episode in episodes):
             result[f"mean_{metric}"] = statistics.fmean(

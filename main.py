@@ -83,6 +83,12 @@ def main() -> None:
     m12.add_argument("--config", required=True)
     m12.add_argument("--output-root", default="runs")
     m12.add_argument("--force", action="store_true")
+    m14 = sub.add_parser(
+        "pipeline-m14", help="select and audit hierarchical return control"
+    )
+    m14.add_argument("--config", required=True)
+    m14.add_argument("--output-root", default="runs")
+    m14.add_argument("--force", action="store_true")
     models = sub.add_parser("models", help="manage registered model artifacts")
     model_commands = models.add_subparsers(dest="models_command", required=True)
     for command in ("list", "verify"):
@@ -232,6 +238,12 @@ def main() -> None:
         from beehive.m12_pipeline import run_m12_pipeline
 
         result = run_m12_pipeline(args.config, args.output_root, force=args.force)
+        print(json.dumps(result, indent=2))
+        return
+    if args.command == "pipeline-m14":
+        from beehive.m14_pipeline import run_m14_pipeline
+
+        result = run_m14_pipeline(args.config, args.output_root, force=args.force)
         print(json.dumps(result, indent=2))
         return
     if args.command == "models":

@@ -3,12 +3,14 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from beehive.controllers import AssignmentController, GreedyController, ScoutController
 from beehive import __version__
-from beehive.coordination import local_reservations
+from beehive.coordination import CoordinatedCTDEController, local_reservations
 from beehive.env import BeeEnv, EnvConfig
 from beehive.evaluator import evaluate, paired_honey_comparison
+from beehive.hierarchical import HierarchicalReturnCTDEController
 from beehive.ml import (
     FEATURE_SIZE,
     LOCAL_FEATURE_SIZE,
@@ -124,6 +126,42 @@ class EvaluationTests(unittest.TestCase):
         granted, rejected = local_reservations([0, 1, 2], 1, 1, 3)
         self.assertEqual(granted, [1])
         self.assertEqual(rejected, [2, 0])
+
+    def test_hierarchical_supervisor_returns_deposits_and_recharges(self):
+        controller = HierarchicalReturnCTDEController.__new__(
+            HierarchicalReturnCTDEController
+        )
+        controller.safety_margin = 4
+        controller.recharge_fraction = 0.75
+        controller.reset(1)
+        observation = BeeEnv(
+            EnvConfig(bees=1, flowers=1, max_energy=20), seed=3
+        ).observe()
+        bee = observation["bees"][0]
+        bee.update({"row": 0, "col": 0, "energy": 8, "cargo": 2})
+        with patch.object(
+            CoordinatedCTDEController, "act", return_value={0: "rest"}
+        ):
+            action = controller.act(observation)
+        self.assertIn(action[0], ("down", "right"))
+        self.assertEqual(controller.episode_metrics()["return_entries"], 1)
+
+        bee.update(
+            {
+                "row": observation["hive"][0],
+                "col": observation["hive"][1],
+                "energy": 8,
+            }
+        )
+        with patch.object(
+            CoordinatedCTDEController, "act", return_value={0: "rest"}
+        ):
+            self.assertEqual(controller.act(observation)[0], "deposit")
+        bee["cargo"] = 0
+        with patch.object(
+            CoordinatedCTDEController, "act", return_value={0: "up"}
+        ):
+            self.assertEqual(controller.act(observation)[0], "rest")
 
 
 class MlDatasetTests(unittest.TestCase):

@@ -361,3 +361,22 @@ python main.py arena-league \
 
 `GET /api/tournaments` lists recent artifacts and
 `GET /api/tournaments/{run_id}` returns a complete machine-readable result.
+
+## Hierarchical return control
+
+M14 keeps the accepted coordinated CTDE actor and adds a deterministic
+high-level supervisor with four modes: forage, return, deposit and recharge.
+Four safety-margin/recharge configurations were selected only on fresh
+validation seeds:
+
+```bash
+.venv-ml/bin/python main.py pipeline-m14 \
+  --config experiments/m14-hierarchical-return.json
+```
+
+The selected configuration uses a six-energy safety margin and recharges to
+80%. On 50 untouched final seeds in each of six scenarios it achieved 100% bee
+survival and 0% invalid actions everywhere. Median honey was 148.47% of
+Assignment; the worst case was 101.16% under scarce nectar. Because the learned
+actor is unchanged, the registered controller reuses the byte-identical M8
+weight asset and adds versioned supervisor parameters.

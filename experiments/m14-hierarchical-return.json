@@ -1,0 +1,110 @@
+{
+  "experiment": "m14-hierarchical-return-v1",
+  "source_model": "coordinated-ctde",
+  "candidates": [
+    {
+      "safety_margin": 2,
+      "recharge_fraction": 0.6
+    },
+    {
+      "safety_margin": 4,
+      "recharge_fraction": 0.6
+    },
+    {
+      "safety_margin": 4,
+      "recharge_fraction": 0.8
+    },
+    {
+      "safety_margin": 6,
+      "recharge_fraction": 0.8
+    }
+  ],
+  "validation": {
+    "episodes": 12,
+    "seed": 28500009,
+    "scenarios": [
+      {
+        "name": "default",
+        "env": {}
+      },
+      {
+        "name": "large-map",
+        "env": {
+          "width": 18,
+          "height": 13,
+          "flowers": 20
+        }
+      },
+      {
+        "name": "scarce-nectar",
+        "env": {
+          "flowers": 7,
+          "flower_capacity": 8,
+          "flower_regen_chance": 0.04
+        }
+      },
+      {
+        "name": "harsh-weather",
+        "env": {
+          "rain_chance": 0.25,
+          "max_energy": 24
+        }
+      }
+    ]
+  },
+  "test": {
+    "episodes": 50,
+    "seed": 29200009,
+    "scenarios": [
+      {
+        "name": "in-distribution",
+        "env": {}
+      },
+      {
+        "name": "large-map",
+        "env": {
+          "width": 18,
+          "height": 13,
+          "flowers": 20
+        }
+      },
+      {
+        "name": "scarce-nectar",
+        "env": {
+          "flowers": 7,
+          "flower_capacity": 8,
+          "flower_regen_chance": 0.04
+        }
+      },
+      {
+        "name": "harsh-weather",
+        "env": {
+          "rain_chance": 0.25,
+          "max_energy": 24
+        }
+      },
+      {
+        "name": "large-colony",
+        "env": {
+          "bees": 12,
+          "flowers": 20
+        }
+      },
+      {
+        "name": "short-season",
+        "env": {
+          "season_ticks": 160
+        }
+      }
+    ]
+  },
+  "audit": {
+    "minimum_median_honey_ratio": 0.9,
+    "minimum_worst_honey_ratio": 0.75,
+    "minimum_bee_survival": 0.75,
+    "maximum_invalid_action_rate": 0.01
+  },
+  "registry_path": "registry/models.json",
+  "audit_registry_path": "registry/audits.json",
+  "model_card": "docs/models/hierarchical-return-ctde.md"
+}
