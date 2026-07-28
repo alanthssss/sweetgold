@@ -99,8 +99,8 @@
         "recharge_fraction": 0.8
       },
       "download": {
-        "release": "models-v1",
-        "url": "https://github.com/alanthssss/sweetgold/releases/download/models-v1/coordinated-ctde.pt",
+        "release": "models-v2",
+        "url": "https://github.com/alanthssss/sweetgold/releases/download/models-v2/hierarchical-return-ctde.pt",
         "size_bytes": 68065,
         "license": "Apache-2.0",
         "model_card": "docs/models/hierarchical-return-ctde.md"

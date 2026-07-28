@@ -1,35 +1,37 @@
 # Changelog
 
-## Unreleased
-
-- Add a matched-seed Arena league with automated round-robin comparisons,
-  confidence intervals, survival metrics and a bilingual leaderboard.
-- Persist league requests and full results as versioned JSON artifacts exposed
-  through the browser, HTTP API and an automation-friendly CLI.
-- Add M14 hierarchical return control, validation-only supervisor selection,
-  fresh six-scenario auditing and the first cross-distribution accepted model.
-
 All notable SweetGold changes are documented here. The project uses semantic
 versioning from v1.0.0 onward.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-28
+
 ### Added
 
 - M12 balanced interleaved CTDE training with validation-gated cycles,
   pairwise seed-isolation checks and CI smoke coverage.
-- M13 model cards and an integrity-checked `models list`, `models verify` and
-  `models download` workflow for separately published checkpoints.
-- Strategy Arena model registry cards with promotion provenance, integrity
-  state, later audit failures, model-card links and verified local download.
+- M13 model cards and integrity-checked model listing, download and
+  verification.
+- Model registry cards with promotion provenance, integrity state, model-card
+  links and one-click verified download.
+- Matched-seed Arena leagues with round-robin rankings, confidence intervals
+  and survival metrics.
+- Versioned JSON evaluation artifacts exposed through the browser, HTTP API
+  and automation-friendly CLI.
+- M14 hierarchical return, deposit and recharge control with validation-only
+  parameter selection and a fresh six-scenario audit.
+- The immutable `models-v2` catalog with a machine-readable manifest.
 
 ### Scientific results
 
-- M12 improved harsh-weather survival from M11's 6.5% to 27.75% and large-map
-  survival from 60.25% to 86.25%, while retaining 0% invalid actions.
-- The candidate was rejected because scarce-nectar yield reached only 73.65%
-  of Assignment, below the predeclared 75% floor, and minimum survival
-  remained below the 75% gate.
+- M12 raised harsh-weather survival from 6.5% to 27.75% and large-map survival
+  from 60.25% to 86.25%, but was correctly rejected for failing declared
+  scarce-resource and survival gates.
+- M14 achieved 100% bee survival and 0% invalid actions across all six final
+  scenarios.
+- M14 median honey was 148.47% of Assignment and its worst ratio was 101.16%
+  under scarce nectar, passing every predeclared promotion gate.
 
 ## [1.0.1] - 2026-07-25
 
@@ -64,15 +66,11 @@ versioning from v1.0.0 onward.
 ### Known limitations
 
 - Learned checkpoints and experiment bundles are generated artifacts and are
-  not stored in Git; a fresh clone exposes rule strategies until checkpoints
-  are reproduced locally.
-- The accepted learned policy is validated for its original distribution but
-  is not generally robust to large maps, scarce resources or harsh weather.
+  not stored directly in Git.
 - The local HTTP server is an experimentation interface, not a hardened
   multi-user production service.
-- Repository licensing remains an owner decision; this release does not add or
-  imply a software license.
 
-[Unreleased]: https://github.com/alanthssss/sweetgold/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/alanthssss/sweetgold/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/alanthssss/sweetgold/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/alanthssss/sweetgold/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/alanthssss/sweetgold/releases/tag/v1.0.0

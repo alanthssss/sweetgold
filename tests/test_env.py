@@ -26,7 +26,7 @@ from beehive.ppo import shaped_reward
 class EnvTests(unittest.TestCase):
     def test_release_version(self):
         version_file = Path(__file__).resolve().parent.parent / "VERSION"
-        self.assertEqual(__version__, "1.0.1")
+        self.assertEqual(__version__, "1.1.0")
         self.assertEqual(version_file.read_text(encoding="utf-8").strip(), __version__)
 
     def test_seeded_reset_is_deterministic(self):
