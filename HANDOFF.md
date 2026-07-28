@@ -252,8 +252,9 @@ M13 adds:
   installation and corrupt-artifact repair;
 - tests for successful installation, integrity rejection and path traversal.
 
-The `models-v1` GitHub Release must be created after this milestone merges,
-using the two locally verified checkpoint files. Then verify the public assets
-from a clean temporary model root before considering distribution complete.
-Architecture research moves to M14 so artifact delivery and policy changes
-remain independently reviewable.
+The `models-v1` GitHub Release is public, and a clean clone has downloaded,
+verified and loaded both controllers successfully. Strategy Arena exposes
+promotion state, artifact integrity, model cards and later audit failures, with
+a local download action for missing or corrupt checkpoints. Architecture
+research moves to M14 so artifact delivery and policy changes remain
+independently reviewable.

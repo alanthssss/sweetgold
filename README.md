@@ -329,3 +329,8 @@ its license, expected byte size and SHA-256 digest.
 `models download` repairs missing or corrupt local artifacts without exposing
 partial downloads to the Arena. The Arena continues to load only promoted
 models whose installed checkpoint matches the committed digest.
+
+The Arena model registry panel makes that lifecycle visible in the product. It
+shows promotion status, local integrity, model card, license, source run and
+later robustness audits. A missing or corrupt checkpoint can be downloaded
+from the panel and becomes selectable only after verification succeeds.

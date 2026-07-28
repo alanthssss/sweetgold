@@ -9,6 +9,13 @@ const words = {
     run: "Run", pause: "Pause", live: "Live", replay: "Replay",
     even: "Even", leads: name => `${name} leads`,
     unavailable: "Model checkpoint unavailable locally",
+    verified: "Verified locally", missing: "Not downloaded", corrupt: "Integrity failed",
+    accepted: "Promotion accepted", download: "Download model", downloading: "Downloading…",
+    modelCard: "Model card", meanHoney: "Mean honey", license: "License",
+    sourceRun: "Source run", laterAudit: "Later robustness audit",
+    auditFailed: "failed",
+    worstScenario: "Worst yield scenario", minimumSurvival: "Minimum survival",
+    noLaterAudit: "No later robustness audit recorded",
     honey: "Honey", alive: "Alive", efficiency: "Efficiency", invalid: "Invalid",
     prevented: "Prevented"
   },
@@ -16,6 +23,13 @@ const words = {
     run: "运行", pause: "暂停", live: "实时", replay: "回放",
     even: "持平", leads: name => `${name} 领先`,
     unavailable: "模型 checkpoint 在本机不可用",
+    verified: "本机校验通过", missing: "尚未下载", corrupt: "完整性校验失败",
+    accepted: "已通过晋级", download: "下载模型", downloading: "正在下载…",
+    modelCard: "模型卡", meanHoney: "平均蜂蜜", license: "许可证",
+    sourceRun: "来源实验", laterAudit: "后续鲁棒性审计",
+    auditFailed: "未通过",
+    worstScenario: "最差产量场景", minimumSurvival: "最低生存率",
+    noLaterAudit: "暂无后续鲁棒性审计",
     honey: "蜂蜜", alive: "存活", efficiency: "效率", invalid: "无效",
     prevented: "避免冲突"
   }
@@ -97,6 +111,73 @@ function strategyLabel(id) {
   return strategies.find(item => item.id === id)?.label || id;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[character]);
+}
+
+function percent(value) {
+  return `${metricNumber(Number(value || 0) * 100, 1)}%`;
+}
+
+function renderModelCards() {
+  const learned = strategies.filter(strategy => strategy.kind === "learned");
+  $("modelCards").innerHTML = learned.map(strategy => {
+    const status = strategy.integrity === "verified"
+      ? words[language].verified
+      : strategy.integrity === "corrupt"
+        ? words[language].corrupt
+        : words[language].missing;
+    const audit = strategy.latest_audit;
+    const auditHtml = audit
+      ? `<div class="audit-note">
+          <b>${escapeHtml(words[language].laterAudit)} · ${escapeHtml(audit.status === "failed" ? words[language].auditFailed : audit.status)}</b>
+          <span>${escapeHtml(words[language].worstScenario)}: ${escapeHtml(audit.worst_honey_scenario || "—")} · ${percent(audit.worst_honey_ratio)}</span>
+          <span>${escapeHtml(words[language].minimumSurvival)}: ${percent(audit.minimum_bee_survival)}</span>
+        </div>`
+      : `<div class="audit-note quiet">${escapeHtml(words[language].noLaterAudit)}</div>`;
+    const action = strategy.available
+      ? `<span class="model-ready">✓ ${escapeHtml(words[language].verified)}</span>`
+      : `<button class="download-model" data-model="${escapeHtml(strategy.id)}" type="button">${escapeHtml(words[language].download)}</button>`;
+    return `<article class="model-card ${strategy.available ? "is-ready" : "is-missing"}">
+      <div class="model-card-head">
+        <div>
+          <span class="status-dot"></span>
+          <small>${escapeHtml(status)}</small>
+        </div>
+        <span class="promotion">${escapeHtml(words[language].accepted)}</span>
+      </div>
+      <h3>${escapeHtml(strategy.label)}</h3>
+      <p>${escapeHtml(language === "zh" ? strategy.description_zh : strategy.description)}</p>
+      <dl>
+        <div><dt>${escapeHtml(words[language].meanHoney)}</dt><dd>${metricNumber(strategy.mean_honey, 2)}</dd></div>
+        <div><dt>${escapeHtml(words[language].license)}</dt><dd>${escapeHtml(strategy.license || "—")}</dd></div>
+        <div><dt>${escapeHtml(words[language].sourceRun)}</dt><dd>${escapeHtml(strategy.run || "—")}</dd></div>
+      </dl>
+      ${auditHtml}
+      <div class="model-actions">
+        ${action}
+        ${strategy.model_card_url ? `<a href="${escapeHtml(strategy.model_card_url)}" target="_blank" rel="noreferrer">${escapeHtml(words[language].modelCard)} ↗</a>` : ""}
+      </div>
+    </article>`;
+  }).join("");
+}
+
+async function downloadModel(model, button) {
+  button.disabled = true;
+  button.textContent = words[language].downloading;
+  try {
+    await api("/api/models/download", {model});
+    await loadStrategies(true);
+  } catch (error) {
+    $("notice").hidden = false;
+    $("notice").textContent = error.message;
+    button.disabled = false;
+    button.textContent = words[language].download;
+  }
+}
+
 function render(frame) {
   arena = frame;
   const left = frame.left, right = frame.right;
@@ -127,7 +208,9 @@ function render(frame) {
   if (left.done && right.done) stop();
 }
 
-async function loadStrategies() {
+async function loadStrategies(preserve = false) {
+  const previousLeft = $("leftStrategy").value;
+  const previousRight = $("rightStrategy").value;
   strategies = (await api("/api/strategies")).strategies;
   const options = strategies.map(strategy => {
     const suffix = strategy.available ? "" : ` · ${words[language].unavailable}`;
@@ -135,14 +218,20 @@ async function loadStrategies() {
   }).join("");
   $("leftStrategy").innerHTML = options;
   $("rightStrategy").innerHTML = options;
-  $("leftStrategy").value = strategies.some(s => s.id === "coordinated-ctde" && s.available)
-    ? "coordinated-ctde" : "assignment";
-  $("rightStrategy").value = "assignment";
+  $("leftStrategy").value = preserve && strategies.some(
+    strategy => strategy.id === previousLeft && strategy.available
+  ) ? previousLeft : strategies.some(
+    strategy => strategy.id === "coordinated-ctde" && strategy.available
+  ) ? "coordinated-ctde" : "assignment";
+  $("rightStrategy").value = preserve && strategies.some(
+    strategy => strategy.id === previousRight && strategy.available
+  ) ? previousRight : "assignment";
   const missing = strategies.filter(s => s.kind === "learned" && !s.available);
   $("notice").hidden = missing.length === 0;
   $("notice").textContent = missing.length
     ? `${words[language].unavailable}: ${missing.map(s => s.label).join(", ")}`
     : "";
+  renderModelCards();
 }
 
 async function reset() {
@@ -190,6 +279,11 @@ $("language").onclick = async () => {
   language = language === "en" ? "zh" : "en";
   localStorage.setItem("sweetgold-language", language);
   translate();
+  renderModelCards();
+};
+$("modelCards").onclick = event => {
+  const button = event.target.closest(".download-model");
+  if (button) downloadModel(button.dataset.model, button);
 };
 
 translate();

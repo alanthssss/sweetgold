@@ -11,6 +11,8 @@ versioning from v1.0.0 onward.
   pairwise seed-isolation checks and CI smoke coverage.
 - M13 model cards and an integrity-checked `models list`, `models verify` and
   `models download` workflow for separately published checkpoints.
+- Strategy Arena model registry cards with promotion provenance, integrity
+  state, later audit failures, model-card links and verified local download.
 
 ### Scientific results
 
