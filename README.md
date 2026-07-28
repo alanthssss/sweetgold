@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Version 1.0.1 — reproducible multi-agent AI experimentation platform**
+**Version 1.1.0 — reproducible multi-agent AI experimentation platform**
 
 SweetGold connects a deterministic simulation, strategy baselines, imitation
 and reinforcement learning, model promotion, robustness audits and an
@@ -14,8 +14,8 @@ interactive comparison product.
 - **ML pipelines** cover BC, DAgger, PPO, CTDE, model registration and audits.
 
 SweetGold promotes models only when their predeclared quality and safety gates
-pass. Failed M10–M12 robustness experiments are preserved as first-class
-results rather than hidden or retroactively retuned.
+pass. Failed M10–M12 experiments remain preserved, while M14 is the first
+policy to pass the complete cross-distribution robustness audit.
 
 ## Quick start
 
@@ -37,9 +37,9 @@ python3 main.py play --port 8080
 
 Then visit <http://127.0.0.1:8080>.
 
-Rule strategies work in a fresh clone. Learned checkpoints are generated
-locally and intentionally excluded from Git; the arena disables unavailable
-models and verifies the hashes of checkpoints that are present.
+Rule strategies work in a fresh clone. Learned checkpoints are distributed
+separately through immutable model releases; the Arena can download them and
+disables any model whose local artifact or runtime is unavailable.
 
 Promoted checkpoints can be listed, downloaded and verified without running
 training:
@@ -54,7 +54,7 @@ The committed registry supplies the release URL, byte size, SHA-256 digest,
 license and model card. Downloads are installed atomically only after all
 integrity checks pass.
 
-See [v1.0.1 release notes](docs/releases/v1.0.1.md),
+See [v1.1.0 release notes](docs/releases/v1.1.0.md),
 [changelog](CHANGELOG.md), and the
 [release checklist](docs/release-checklist.md).
 
@@ -380,3 +380,7 @@ survival and 0% invalid actions everywhere. Median honey was 148.47% of
 Assignment; the worst case was 101.16% under scarce nectar. Because the learned
 actor is unchanged, the registered controller reuses the byte-identical M8
 weight asset and adds versioned supervisor parameters.
+
+The complete promoted catalog is published as
+[`models-v2`](https://github.com/alanthssss/sweetgold/releases/tag/models-v2).
+It includes three model names, Apache-2.0 terms and a machine-readable manifest.

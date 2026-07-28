@@ -314,3 +314,17 @@ new policy identity consists of the shared checkpoint plus versioned
 supervisor code and registry parameters. The next step is to publish the
 updated code and model card, then run the registered strategy through Arena
 evaluation artifacts before considering any new learned architecture.
+
+## models-v2 and v1.1.0 preparation
+
+`models-v2` is public and anchored to the merged M14 commit. It contains
+`bc-ppo.pt`, `coordinated-ctde.pt`, the explicit
+`hierarchical-return-ctde.pt` alias, Apache-2.0 terms and a machine-readable
+manifest. Server-side asset digests match the committed registry, and a clean
+temporary download of the M14 alias passed.
+
+The source version is prepared as v1.1.0 because M12–M14, model distribution,
+Arena leagues and evaluation artifacts are additive user-facing capabilities.
+After the release-preparation PR merges, run CI and a clean-clone check on
+`main`, then create the `v1.1.0` tag and GitHub Release. Do not publish another
+model catalog until a new model is promoted or the artifact contract changes.

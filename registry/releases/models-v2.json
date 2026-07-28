@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "release": "models-v2",
+  "source_commit": "7101dfa4dc6a721e7cefb11a1fad9f57c93111d1",
+  "license": "Apache-2.0",
+  "models": [
+    {
+      "model": "bc-ppo",
+      "asset": "bc-ppo.pt",
+      "size_bytes": 78025,
+      "sha256": "441e1770146962dd963df6f1b699c57b186a03c043e6d691a358f51911158f1d",
+      "model_card": "docs/models/bc-ppo.md"
+    },
+    {
+      "model": "coordinated-ctde",
+      "asset": "coordinated-ctde.pt",
+      "size_bytes": 68065,
+      "sha256": "86fd605a1f013638ea89e95e1a71b65c0da243c003b7b22cf90e27dfe4397a68",
+      "model_card": "docs/models/coordinated-ctde.md"
+    },
+    {
+      "model": "hierarchical-return-ctde",
+      "asset": "hierarchical-return-ctde.pt",
+      "size_bytes": 68065,
+      "sha256": "86fd605a1f013638ea89e95e1a71b65c0da243c003b7b22cf90e27dfe4397a68",
+      "model_card": "docs/models/hierarchical-return-ctde.md",
+      "controller_config": {
+        "safety_margin": 6,
+        "recharge_fraction": 0.8
+      },
+      "shares_weights_with": "coordinated-ctde"
+    }
+  ]
+}
