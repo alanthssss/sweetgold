@@ -326,6 +326,13 @@ M13 separates small, durable model metadata from generated checkpoint files.
 the `models-v1` GitHub Release. Each record links to a model card and declares
 its license, expected byte size and SHA-256 digest.
 
+The repository does not automatically publish weights on every Git tag.
+`models-v1` is a dedicated, manually created model Release whose assets were
+uploaded after training and promotion. Its stable asset URLs are:
+
+- `https://github.com/alanthssss/sweetgold/releases/download/models-v1/bc-ppo.pt`
+- `https://github.com/alanthssss/sweetgold/releases/download/models-v1/coordinated-ctde.pt`
+
 `models download` repairs missing or corrupt local artifacts without exposing
 partial downloads to the Arena. The Arena continues to load only promoted
 models whose installed checkpoint matches the committed digest.
@@ -334,3 +341,9 @@ The Arena model registry panel makes that lifecycle visible in the product. It
 shows promotion status, local integrity, model card, license, source run and
 later robustness audits. A missing or corrupt checkpoint can be downloaded
 from the panel and becomes selectable only after verification succeeds.
+
+The matched-seed league extends the Arena from one visual comparison to a
+repeatable round-robin tournament. Available rule and learned strategies run
+on one shared seed set, receive three table points per head-to-head win and one
+per tie, and are ranked with mean honey and survival as transparent
+tie-breakers.

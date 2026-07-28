@@ -5,8 +5,9 @@ import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
-from beehive.server import ArenaSession, StrategyCatalog
+from beehive.server import ArenaSession, StrategyCatalog, run_tournament
 
 
 class StrategyCatalogTests(unittest.TestCase):
@@ -53,11 +54,12 @@ class StrategyCatalogTests(unittest.TestCase):
                 encoding="utf-8",
             )
             catalog = StrategyCatalog(registry)
-            entry = next(
-                row
-                for row in catalog.entries()
-                if row["id"] == "coordinated-ctde"
-            )
+            with patch("beehive.server.find_spec", return_value=object()):
+                entry = next(
+                    row
+                    for row in catalog.entries()
+                    if row["id"] == "coordinated-ctde"
+                )
             self.assertTrue(entry["available"])
             self.assertEqual(entry["integrity"], "verified")
             self.assertIn("CTDE", entry["description_zh"])
@@ -65,13 +67,44 @@ class StrategyCatalogTests(unittest.TestCase):
                 entry["latest_audit"]["worst_honey_scenario"], "scarce-nectar"
             )
             artifact.write_bytes(b"tampered")
-            entry = next(
-                row
-                for row in catalog.entries()
-                if row["id"] == "coordinated-ctde"
-            )
+            with patch("beehive.server.find_spec", return_value=object()):
+                entry = next(
+                    row
+                    for row in catalog.entries()
+                    if row["id"] == "coordinated-ctde"
+                )
             self.assertFalse(entry["available"])
             self.assertEqual(entry["integrity"], "corrupt")
+
+    def test_registry_requires_ml_runtime_for_learned_strategy(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = root / "model.pt"
+            artifact.write_bytes(b"checkpoint")
+            registry = root / "models.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "models": [
+                            {
+                                "model": "bc-ppo",
+                                "artifact": str(artifact),
+                                "sha256": hashlib.sha256(b"checkpoint").hexdigest(),
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with patch("beehive.server.find_spec", return_value=None):
+                entry = next(
+                    row
+                    for row in StrategyCatalog(registry).entries()
+                    if row["id"] == "bc-ppo"
+                )
+            self.assertEqual(entry["integrity"], "verified")
+            self.assertEqual(entry["runtime"], "missing-pytorch")
+            self.assertFalse(entry["available"])
 
 
 class ArenaSessionTests(unittest.TestCase):
@@ -92,6 +125,33 @@ class ArenaSessionTests(unittest.TestCase):
         arena = ArenaSession()
         with self.assertRaisesRegex(ValueError, "unknown strategy"):
             arena.reset(left="not-a-strategy")
+
+    def test_tournament_ranks_shared_seed_results(self):
+        result = run_tournament(
+            StrategyCatalog(),
+            ["assignment", "greedy", "random"],
+            seed=91,
+            episodes=3,
+            config={"season_ticks": 20},
+        )
+        self.assertEqual(result["seeds"], [91, 92, 93])
+        self.assertEqual(len(result["leaderboard"]), 3)
+        self.assertEqual(len(result["matches"]), 3)
+        self.assertEqual(
+            [row["rank"] for row in result["leaderboard"]], [1, 2, 3]
+        )
+        self.assertTrue(
+            all(
+                row["match_wins"] + row["match_ties"] + row["match_losses"] == 2
+                for row in result["leaderboard"]
+            )
+        )
+
+    def test_tournament_rejects_invalid_entries(self):
+        with self.assertRaisesRegex(ValueError, "at least two"):
+            run_tournament(StrategyCatalog(), ["assignment"])
+        with self.assertRaisesRegex(ValueError, "unavailable"):
+            run_tournament(StrategyCatalog(), ["assignment", "unknown"])
 
 
 if __name__ == "__main__":

@@ -38,6 +38,27 @@
 
     <section id="notice" class="notice" hidden></section>
 
+    <section class="tournament">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow" data-en="MATCHED-SEED LEAGUE" data-zh="同种子联赛">同种子联赛</span>
+          <h2 data-en="Turn comparisons into a leaderboard." data-zh="把策略比较变成排行榜。">把策略比较变成排行榜。</h2>
+        </div>
+        <p data-en="Select available strategies. Every entrant faces the same worlds, then receives three points per match win and one per tie."
+           data-zh="选择可用策略。所有参赛者面对完全相同的世界；每场获胜得 3 分，平局得 1 分。">选择可用策略。所有参赛者面对完全相同的世界；每场获胜得 3 分，平局得 1 分。</p>
+      </div>
+      <div class="tournament-controls">
+        <div id="tournamentStrategies" class="strategy-checks"></div>
+        <label>
+          <span data-en="EPISODES" data-zh="对局数">对局数</span>
+          <input id="tournamentEpisodes" type="number" min="1" max="50" value="10">
+        </label>
+        <button id="runTournament" class="primary" type="button" data-en="Run league" data-zh="运行联赛">运行联赛</button>
+      </div>
+      <div id="tournamentStatus" class="tournament-status"></div>
+      <div id="leaderboard" class="leaderboard" hidden></div>
+    </section>
+
     <section class="model-library">
       <div class="section-heading">
         <div>
