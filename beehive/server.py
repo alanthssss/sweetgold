@@ -12,9 +12,11 @@ from urllib.parse import parse_qs, urlparse
 
 from .controllers import CONTROLLERS
 from .env import BeeEnv, EnvConfig
+from .model_store import ModelStore
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+REPOSITORY_BLOB_URL = "https://github.com/alanthssss/sweetgold/blob/main"
 STRATEGY_DESCRIPTIONS = {
     "random": "Uncoordinated random-action control.",
     "greedy": "Each bee pursues its nearest visible flower.",
@@ -25,6 +27,12 @@ STRATEGY_DESCRIPTIONS = {
     "curriculum-coordinated-ctde": "Robust CTDE actor trained across environment shifts.",
     "interleaved-coordinated-ctde": "CTDE actor trained on balanced interleaved environments.",
 }
+STRATEGY_DESCRIPTIONS_ZH = {
+    "bc-ppo": "从规则示范进行行为克隆，并通过 PPO 微调的策略。",
+    "coordinated-ctde": "带有本地采集意图预约机制的 CTDE 策略。",
+    "curriculum-coordinated-ctde": "跨环境变化进行课程训练的鲁棒性 CTDE 策略。",
+    "interleaved-coordinated-ctde": "在均衡交错环境中训练的 CTDE 策略。",
+}
 
 
 class StrategyCatalog:
@@ -33,8 +41,14 @@ class StrategyCatalog:
     def __init__(
         self,
         registry_path: str | Path = PROJECT_ROOT / "registry" / "models.json",
+        audit_path: str | Path | None = None,
     ) -> None:
         self.registry_path = Path(registry_path)
+        self.audit_path = (
+            Path(audit_path)
+            if audit_path is not None
+            else self.registry_path.with_name("audits.json")
+        )
 
     def entries(self) -> list[dict]:
         entries = [
@@ -57,11 +71,24 @@ class StrategyCatalog:
                 "interleaved-coordinated-ctde",
             ):
                 latest[model] = record
+        audits = {}
+        for audit in self._audits().get("audits", []):
+            audits[audit.get("candidate")] = audit
         for model, record in latest.items():
             artifact = self._artifact(record)
-            available = artifact.is_file() and self._sha_matches(
-                artifact, record.get("sha256")
+            local_status = (
+                "missing"
+                if not artifact.is_file()
+                else (
+                    "verified"
+                    if self._sha_matches(artifact, record.get("sha256"))
+                    else "corrupt"
+                )
             )
+            available = local_status == "verified"
+            download = record.get("download", {})
+            latest_audit = audits.get(model)
+            audit_summary = latest_audit.get("summary", {}) if latest_audit else None
             entries.append(
                 {
                     "id": model,
@@ -69,9 +96,38 @@ class StrategyCatalog:
                     "kind": "learned",
                     "available": available,
                     "description": STRATEGY_DESCRIPTIONS[model],
+                    "description_zh": STRATEGY_DESCRIPTIONS_ZH[model],
                     "mean_honey": record.get("mean_honey"),
                     "run": record.get("run"),
-                    "integrity": "verified" if available else "unavailable",
+                    "integrity": local_status,
+                    "promotion": record.get("promotion", {}).get("status"),
+                    "promotion_checks": record.get("promotion", {}).get("checks", {}),
+                    "license": download.get("license"),
+                    "download_url": download.get("url"),
+                    "size_bytes": download.get("size_bytes"),
+                    "model_card": download.get("model_card"),
+                    "model_card_url": (
+                        f"{REPOSITORY_BLOB_URL}/{download['model_card']}"
+                        if download.get("model_card")
+                        else None
+                    ),
+                    "latest_audit": (
+                        {
+                            "status": latest_audit.get("status"),
+                            "run": latest_audit.get("run"),
+                            "worst_honey_scenario": audit_summary.get(
+                                "worst_honey_scenario"
+                            ),
+                            "worst_honey_ratio": audit_summary.get(
+                                "worst_honey_ratio"
+                            ),
+                            "minimum_bee_survival": audit_summary.get(
+                                "minimum_bee_survival"
+                            ),
+                        }
+                        if latest_audit
+                        else None
+                    ),
                 }
             )
         return entries
@@ -114,6 +170,11 @@ class StrategyCatalog:
         if not self.registry_path.is_file():
             return {"models": []}
         return json.loads(self.registry_path.read_text(encoding="utf-8"))
+
+    def _audits(self) -> dict:
+        if not self.audit_path.is_file():
+            return {"audits": []}
+        return json.loads(self.audit_path.read_text(encoding="utf-8"))
 
     @staticmethod
     def _artifact(record: dict) -> Path:
@@ -230,6 +291,7 @@ class ArenaSession:
 def serve(port: int = 8080) -> None:
     web_root = PROJECT_ROOT / "web"
     session = ArenaSession()
+    model_store = ModelStore(session.catalog.registry_path)
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
@@ -275,11 +337,14 @@ def serve(port: int = 8080) -> None:
                     )
                 elif self.path == "/api/step":
                     state = session.step()
+                elif self.path == "/api/models/download":
+                    model = str(payload.get("model", ""))
+                    state = model_store.download(model)
                 else:
                     self._json(404, {"error": "not found"})
                     return
                 self._json(200, state)
-            except (ValueError, TypeError, json.JSONDecodeError) as exc:
+            except (ValueError, TypeError, json.JSONDecodeError, OSError) as exc:
                 self._json(400, {"error": str(exc)})
 
         def _json(self, status: int, payload: dict) -> None:

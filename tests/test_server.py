@@ -16,6 +16,7 @@ class StrategyCatalogTests(unittest.TestCase):
             artifact = root / "model.pt"
             artifact.write_bytes(b"checkpoint")
             registry = root / "models.json"
+            audits = root / "audits.json"
             registry.write_text(
                 json.dumps(
                     {
@@ -32,6 +33,25 @@ class StrategyCatalogTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            audits.write_text(
+                json.dumps(
+                    {
+                        "audits": [
+                            {
+                                "candidate": "coordinated-ctde",
+                                "status": "failed",
+                                "run": "runs/audit",
+                                "summary": {
+                                    "worst_honey_scenario": "scarce-nectar",
+                                    "worst_honey_ratio": 0.74,
+                                    "minimum_bee_survival": 0.28,
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
             catalog = StrategyCatalog(registry)
             entry = next(
                 row
@@ -39,6 +59,11 @@ class StrategyCatalogTests(unittest.TestCase):
                 if row["id"] == "coordinated-ctde"
             )
             self.assertTrue(entry["available"])
+            self.assertEqual(entry["integrity"], "verified")
+            self.assertIn("CTDE", entry["description_zh"])
+            self.assertEqual(
+                entry["latest_audit"]["worst_honey_scenario"], "scarce-nectar"
+            )
             artifact.write_bytes(b"tampered")
             entry = next(
                 row
@@ -46,6 +71,7 @@ class StrategyCatalogTests(unittest.TestCase):
                 if row["id"] == "coordinated-ctde"
             )
             self.assertFalse(entry["available"])
+            self.assertEqual(entry["integrity"], "corrupt")
 
 
 class ArenaSessionTests(unittest.TestCase):
