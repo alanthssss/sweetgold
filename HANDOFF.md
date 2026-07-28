@@ -276,3 +276,16 @@ does not upload a model: the `models-v1` Release and its two checkpoint assets
 were explicitly created, and `registry/models.json` holds their stable URLs,
 sizes and digests. A release workflow should be added only when repeated model
 promotion makes automation worthwhile.
+
+## Arena evaluation artifacts
+
+League results no longer disappear with the browser response. Each run is
+atomically saved under `runs/arena` with a schema version, timestamp, request,
+shared seed set, leaderboard and pairwise comparisons. The same operation is
+available through the browser, HTTP API and `arena-league` CLI, so CI jobs and
+AI agents can consume exactly the same JSON contract as a human operator.
+
+The next model-research milestone remains M14: test a structural policy change
+such as hierarchical return-to-hive control or recurrent memory using fresh
+training, validation and final seeds. Do not spend additional final-test
+budget tuning the failed M11/M12 feed-forward policy.

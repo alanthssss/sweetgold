@@ -19,6 +19,7 @@ const words = {
     noLaterAudit: "No later robustness audit recorded",
     runLeague: "Run league", runningLeague: "Running matched-seed league…",
     selectTwo: "Select at least two available strategies",
+    savedArtifact: "Saved evaluation artifact", downloadJson: "Download JSON",
     rank: "Rank", strategy: "Strategy", record: "Record", points: "Points",
     survival: "Colony survival", episodes: "episodes",
     honey: "Honey", alive: "Alive", efficiency: "Efficiency", invalid: "Invalid",
@@ -38,6 +39,7 @@ const words = {
     noLaterAudit: "暂无后续鲁棒性审计",
     runLeague: "运行联赛", runningLeague: "正在运行同种子联赛…",
     selectTwo: "请至少选择两个可用策略",
+    savedArtifact: "评测制品已保存", downloadJson: "下载 JSON",
     rank: "排名", strategy: "策略", record: "战绩", points: "积分",
     survival: "蜂群存活率", episodes: "局",
     honey: "蜂蜜", alive: "存活", efficiency: "效率", invalid: "无效",
@@ -208,6 +210,12 @@ function renderLeaderboard(result) {
   </table>`;
   $("tournamentStatus").textContent =
     `${result.episodes} ${words[language].episodes} · seed ${result.seed}–${result.seeds.at(-1)}`;
+  if (result.artifact) {
+    const runId = escapeHtml(result.artifact.run_id);
+    $("tournamentStatus").innerHTML +=
+      ` · ${escapeHtml(words[language].savedArtifact)} <code>${runId}</code>
+       · <a href="/api/tournaments/${runId}?download=1">${escapeHtml(words[language].downloadJson)}</a>`;
+  }
 }
 
 async function runTournament() {

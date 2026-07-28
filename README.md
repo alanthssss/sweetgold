@@ -347,3 +347,17 @@ repeatable round-robin tournament. Available rule and learned strategies run
 on one shared seed set, receive three table points per head-to-head win and one
 per tie, and are ranked with mean honey and survival as transparent
 tie-breakers.
+
+Every league run is also written atomically to `runs/arena` as a versioned JSON
+evaluation artifact containing the full request, shared seeds, leaderboard and
+pairwise results. The browser exposes a JSON download, while automation can run
+the same workflow without a UI:
+
+```bash
+python main.py arena-league \
+  --strategies assignment greedy scout \
+  --episodes 10 --seed 42
+```
+
+`GET /api/tournaments` lists recent artifacts and
+`GET /api/tournaments/{run_id}` returns a complete machine-readable result.
