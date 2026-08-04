@@ -23,7 +23,28 @@ training with decentralized execution. It keeps training, validation and test
 seeds isolated, promotes models only through declared gates, and preserves
 failed experiments instead of moving the goalposts.
 
-| Proven on untouched final seeds | M14 result |
+## Latest completed outcome: M15
+
+M15 is the current project stage. It turns Arena evidence into an explicit,
+auditable strategy decision rather than training another policy.
+
+| M15 workflow capability | Delivered result |
+| --- | --- |
+| Decision objectives | `balanced`, `yield`, and `safety` |
+| Safety constraints | Minimum bee survival and maximum invalid-action rate |
+| Decision behavior | Deterministic recommendation or an explicit “no eligible strategy” result |
+| Evidence | Linked Arena artifact plus machine-readable JSON and human-readable Markdown |
+
+The first M15 slice is complete and on `main`; new feature development is now
+paused in favor of maintenance, documentation, and release work.
+
+## Latest promoted policy: M14
+
+M15 selects among existing strategies; it does not change their bee behavior.
+The newest strategy with formal cross-distribution performance results remains
+the M14 `hierarchical-return-ctde` policy.
+
+| M14 result on untouched final seeds | Result |
 | --- | ---: |
 | Minimum bee survival across six scenarios | **100%** |
 | Maximum invalid-action rate | **0%** |
@@ -33,16 +54,6 @@ failed experiments instead of moving the goalposts.
 > M14 used 50 unseen seeds in each of six environment distributions. See the
 > [model card](docs/models/hierarchical-return-ctde.md) and
 > [release notes](docs/releases/v1.1.0.md) for scope and methodology.
-
-## Current project stage: M15
-
-**M14 is the latest promoted policy; M15 is the latest completed product
-workflow.** M15 adds `arena-agent`, a deterministic decision layer that runs a
-matched-seed league, applies an explicit `balanced`, `yield`, or `safety`
-objective, rejects strategies that violate declared constraints, and writes
-auditable JSON and Markdown evidence. The first M15 slice is complete and on
-`main`; new feature development is now paused in favor of maintenance,
-documentation, and release work.
 
 New to the terminology? Use the bilingual [glossary](docs/glossary.md).
 
