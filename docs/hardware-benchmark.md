@@ -42,6 +42,54 @@ network and batches do not amortize accelerator dispatch overhead; CPU was
 about 6.4× faster in this smoke run. Small numerical differences across
 backends are expected and did not prevent the MPS pipelines from completing.
 
+## Why CPU wins this workload
+
+SweetGold's current actor is small: tens of input features, two 96-unit hidden
+layers, and eight actions. Environment stepping, feature encoding, and action
+handling also remain Python-heavy. For each small batch, MPS must still accept
+a command from the CPU, schedule GPU kernels, and synchronize before the
+environment continues. The useful matrix work is currently smaller than this
+dispatch overhead.
+
+The result therefore means “this workload is too small and fragmented for the
+GPU,” not “the GPU is intrinsically slower.” CPU handles short, branching work
+with low launch overhead; GPU becomes valuable when enough similar arithmetic
+can run concurrently.
+
+## What the M1 hardware contributes
+
+Apple Silicon combines CPU and GPU around unified memory. This avoids the
+separate PCIe-connected memory model of a discrete NVIDIA card, improves energy
+efficiency, and makes accelerator development available locally. Unified memory
+does not remove framework dispatch or synchronization costs, so it cannot make
+every small PyTorch operation faster.
+
+MPS support remains valuable even when CPU wins the first benchmark:
+
+- it proves checkpoints and training paths are not CPU-bound by design;
+- it exposed and fixed CTDE worker threads that did not inherit device state;
+- it provides a local accelerator target before paying for CUDA infrastructure;
+- it preserves a path for larger networks, batches, and parallel environments.
+
+The M1 Pro is therefore the development and correctness platform for both CPU
+and MPS. It is not obsolete for SweetGold's current workload.
+
+## Find the accelerator crossover point
+
+A later benchmark should vary one dimension at a time while keeping data,
+model, seed, precision, and update count fixed:
+
+| Dimension | Suggested values | Question |
+| --- | --- | --- |
+| Batch size | 64, 512, 4,096, 16,384 | When does parallel arithmetic amortize dispatch? |
+| Network width | 96, 256, 512, 1,024 | When does model compute dominate Python overhead? |
+| Parallel environments | 1, 8, 32, 128 | Can batched observations keep the accelerator occupied? |
+
+Each point should include warm-up runs, at least five measured repeats, median
+and dispersion, synchronized device timing, memory use, and the same acceptance
+metrics. The crossover is the smallest workload where an accelerator improves
+time-to-result without changing the declared policy gates.
+
 ## Cloud decision gate
 
 AWS CUDA work is deferred until profiling demonstrates a suitable workload.
