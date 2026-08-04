@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import random
+import time
 from pathlib import Path
 
 from .controllers import AssignmentController
@@ -304,6 +305,9 @@ def _torch():
         raise RuntimeError(
             "PyTorch is required for ML commands; install requirements-ml.txt"
         ) from exc
+    from .hardware import configure_torch
+
+    configure_torch(torch)
     return torch
 
 
@@ -330,6 +334,9 @@ def train_model(
     seed: int = 0,
 ) -> dict:
     torch = _torch()
+    from .hardware import hardware_snapshot, peak_memory_bytes, resolve_device, synchronize
+
+    selected_device = resolve_device(torch)
     torch.manual_seed(seed)
     rows = [
         json.loads(line)
@@ -359,6 +366,8 @@ def train_model(
     )
     generator = random.Random(seed)
 
+    synchronize(torch, selected_device)
+    training_started = time.perf_counter()
     for _epoch in range(epochs):
         model.train()
         generator.shuffle(grouped["train"])
@@ -370,6 +379,8 @@ def train_model(
             loss = loss_fn(model(features), labels)
             loss.backward()
             optimizer.step()
+    synchronize(torch, selected_device)
+    training_seconds = time.perf_counter() - training_started
 
     def classification_metrics(split: str) -> tuple[float, dict[str, float]]:
         model.eval()
@@ -404,6 +415,14 @@ def train_model(
         "test_accuracy": test_accuracy,
         "validation_recall": validation_recall,
         "test_recall": test_recall,
+        "training_seconds": training_seconds,
+        "training_examples_per_second": (
+            len(grouped["train"]) * epochs / training_seconds
+            if training_seconds
+            else None
+        ),
+        "peak_device_memory_bytes": peak_memory_bytes(torch, selected_device),
+        "hardware": hardware_snapshot(selected_device),
     }
     output = Path(model_path)
     output.parent.mkdir(parents=True, exist_ok=True)

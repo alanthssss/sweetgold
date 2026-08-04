@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .controllers import CONTROLLERS
 from .env import EnvConfig
+from .hardware import hardware_snapshot
 from .evaluator import evaluate, paired_honey_comparison
 from .hierarchical import HierarchicalReturnCTDEController
 from .m10_pipeline import _audit, _update_audit_registry, _write_report
@@ -157,6 +158,7 @@ def run_m14_pipeline(
         "git_dirty": _git_dirty(),
         "python": sys.version,
         "platform": platform.platform(),
+        "hardware": hardware_snapshot(),
         "seed_sets": seeds["occupied"],
     }
     (run_dir / "metadata.json").write_text(

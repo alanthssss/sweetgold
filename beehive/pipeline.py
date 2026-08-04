@@ -14,6 +14,7 @@ from pathlib import Path
 
 from .controllers import CONTROLLERS
 from .env import EnvConfig
+from .hardware import hardware_snapshot
 from .evaluator import evaluate, paired_honey_comparison
 from .ml import (
     BehaviorCloningController,
@@ -246,6 +247,7 @@ def run_pipeline(
         "git_dirty": _git_dirty(),
         "python": sys.version,
         "platform": platform.platform(),
+        "hardware": hardware_snapshot(),
         "seed_sets": {key: sorted(value) for key, value in seed_sets.items()},
     }
     (run_dir / "metadata.json").write_text(

@@ -12,6 +12,10 @@ versioning from v1.0.0 onward.
 - M15 auditable Arena agent workflow with explicit objectives, safety
   constraints, deterministic recommendations and paired JSON/Markdown
   decision artifacts.
+- M16 phase 1 hardware portability with explicit `auto`, `cpu`, `mps`, and
+  `cuda` device selection across ML commands.
+- Hardware-aware run manifests, synchronized BC timing and throughput metrics,
+  accelerator inspection, and CPU/MPS PPO and CTDE smoke coverage.
 
 ## [1.1.0] - 2026-07-28
 

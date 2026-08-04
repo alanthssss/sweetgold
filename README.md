@@ -20,8 +20,20 @@ benchmark, and an interactive Strategy Arena. It supports behavior cloning,
 PPO, and centralized training with decentralized execution (CTDE), while
 keeping training, validation, and final-test seeds isolated.
 
+<!-- section:current-project-stage -->
+## Current project stage: M16
+
+M16 phase 1 adds hardware-portable ML execution and evidence. All ML commands
+now support explicit CPU, Apple MPS, and NVIDIA CUDA selection; run manifests
+record the hardware backend, and unavailable accelerators never silently fall
+back. M6 BC+PPO and M7 CTDE smoke workflows complete on an Apple M1 Pro GPU.
+
+The first local benchmark found the small BC workload about 6.4× faster on the
+M1 Pro CPU than MPS, so AWS CUDA work is deferred until profiling justifies it.
+See the [hardware benchmark](docs/hardware-benchmark.md).
+
 <!-- section:latest-completed-outcome -->
-## Latest completed outcome: M15
+## Latest completed product workflow: M15
 
 M15 is the current project stage. It turns Arena evidence into an explicit,
 auditable strategy decision; it does not train or replace the underlying policy.
@@ -183,7 +195,8 @@ weights, and run directories stay outside Git. See the
 
 | Topic | Document |
 | --- | --- |
-| Product architecture and M2–M15 research record | [Product and research design](docs/product-design.md) |
+| Product architecture and M2–M16 research record | [Product and research design](docs/product-design.md) |
+| CPU, MPS, CUDA, and cloud decision evidence | [Hardware portability and benchmark](docs/hardware-benchmark.md) |
 | Setup, commands, artifacts, and gates | [Handoff guide](HANDOFF.md) |
 | Promoted checkpoints and evidence | [Model catalog](docs/models/README.md) |
 | Published results and methodology | [Release notes](docs/releases/v1.1.0.md) |

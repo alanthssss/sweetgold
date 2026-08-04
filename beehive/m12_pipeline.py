@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .ctde import train_ctde
 from .env import EnvConfig
+from .hardware import hardware_snapshot
 from .m10_pipeline import _audit, _update_audit_registry, _write_report
 from .m11_pipeline import (
     _evaluate_scenarios,
@@ -152,6 +153,7 @@ def run_m12_pipeline(
         "git_dirty": _git_dirty(),
         "python": sys.version,
         "platform": platform.platform(),
+        "hardware": hardware_snapshot(),
         "seed_sets": seeds["occupied"],
     }
     (run_dir / "metadata.json").write_text(
