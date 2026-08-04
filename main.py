@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 
 from beehive import __version__
 from beehive.controllers import CONTROLLERS
@@ -19,6 +20,20 @@ def main() -> None:
         "--version", action="version", version=f"sweetgold {__version__}"
     )
     sub = parser.add_subparsers(dest="command", required=True)
+    device_choices = ("auto", "cpu", "mps", "cuda")
+
+    def add_device_argument(command_parser) -> None:
+        command_parser.add_argument(
+            "--device",
+            choices=device_choices,
+            default="auto",
+            help="PyTorch backend; auto prefers CUDA, then MPS, then CPU",
+        )
+
+    hardware = sub.add_parser(
+        "hardware", help="inspect ML hardware availability and selected backend"
+    )
+    add_device_argument(hardware)
     play = sub.add_parser("play", help="start the interactive BeeSim game")
     play.add_argument("--port", type=int, default=8080)
     bench = sub.add_parser("benchmark", help="run matched-seed BeeBench evaluation")
@@ -35,23 +50,27 @@ def main() -> None:
     train.add_argument("--data", default="data/assignment.jsonl")
     train.add_argument("--model", default="models/behavior-cloning.pt")
     train.add_argument("--epochs", type=int, default=15)
+    add_device_argument(train)
     dagger = sub.add_parser("collect-dagger", help="label learner-visited states")
     dagger.add_argument("--data", default="data/assignment.jsonl")
     dagger.add_argument("--model", default="models/behavior-cloning.pt")
     dagger.add_argument("--episodes", type=int, default=50)
     dagger.add_argument("--seed", type=int, default=20271000)
+    add_device_argument(dagger)
     bc_bench = sub.add_parser("benchmark-bc", help="benchmark a trained behavior clone")
     bc_bench.add_argument("--model", default="models/behavior-cloning.pt")
     bc_bench.add_argument("--episodes", type=int, default=30)
     bc_bench.add_argument("--seed", type=int, default=20280009)
     bc_bench.add_argument("--report", default="report-bc")
     bc_bench.add_argument("--ticks", type=int, default=240)
+    add_device_argument(bc_bench)
     ppo = sub.add_parser("train-ppo", help="fine-tune behavior cloning with PPO")
     ppo.add_argument("--bc-model", default="models/behavior-cloning.pt")
     ppo.add_argument("--model", default="models/bc-ppo.pt")
     ppo.add_argument("--episodes", type=int, default=100)
     ppo.add_argument("--seed", type=int, default=20290000)
     ppo.add_argument("--random-init", action="store_true")
+    add_device_argument(ppo)
     ppo_bench = sub.add_parser("benchmark-ppo", help="benchmark BC and PPO checkpoints")
     ppo_bench.add_argument("--bc-model", default="models/behavior-cloning.pt")
     ppo_bench.add_argument("--ppo-model", default="models/bc-ppo.pt")
@@ -59,36 +78,44 @@ def main() -> None:
     ppo_bench.add_argument("--episodes", type=int, default=100)
     ppo_bench.add_argument("--seed", type=int, default=20300009)
     ppo_bench.add_argument("--report", default="report-ppo")
+    add_device_argument(ppo_bench)
     pipeline = sub.add_parser("pipeline", help="run a configured end-to-end ML experiment")
     pipeline.add_argument("--config", required=True)
     pipeline.add_argument("--output-root", default="runs")
     pipeline.add_argument("--force", action="store_true")
+    add_device_argument(pipeline)
     m7 = sub.add_parser("pipeline-m7", help="run local-observation CTDE experiment")
     m7.add_argument("--config", required=True)
     m7.add_argument("--output-root", default="runs")
     m7.add_argument("--force", action="store_true")
+    add_device_argument(m7)
     m8 = sub.add_parser("pipeline-m8", help="run decentralized coordination experiment")
     m8.add_argument("--config", required=True)
     m8.add_argument("--output-root", default="runs")
     m8.add_argument("--force", action="store_true")
+    add_device_argument(m8)
     m10 = sub.add_parser("pipeline-m10", help="run generalization and robustness audit")
     m10.add_argument("--config", required=True)
     m10.add_argument("--output-root", default="runs")
     m10.add_argument("--force", action="store_true")
+    add_device_argument(m10)
     m11 = sub.add_parser("pipeline-m11", help="run curriculum robustness training")
     m11.add_argument("--config", required=True)
     m11.add_argument("--output-root", default="runs")
     m11.add_argument("--force", action="store_true")
+    add_device_argument(m11)
     m12 = sub.add_parser("pipeline-m12", help="run interleaved robustness training")
     m12.add_argument("--config", required=True)
     m12.add_argument("--output-root", default="runs")
     m12.add_argument("--force", action="store_true")
+    add_device_argument(m12)
     m14 = sub.add_parser(
         "pipeline-m14", help="select and audit hierarchical return control"
     )
     m14.add_argument("--config", required=True)
     m14.add_argument("--output-root", default="runs")
     m14.add_argument("--force", action="store_true")
+    add_device_argument(m14)
     models = sub.add_parser("models", help="manage registered model artifacts")
     model_commands = models.add_subparsers(dest="models_command", required=True)
     for command in ("list", "verify"):
@@ -126,6 +153,15 @@ def main() -> None:
     agent.add_argument("--arena-output-root", default="runs/arena")
     agent.add_argument("--output-root", default="runs/agent")
     args = parser.parse_args()
+
+    if hasattr(args, "device"):
+        os.environ["SWEETGOLD_DEVICE"] = args.device
+
+    if args.command == "hardware":
+        from beehive.hardware import hardware_snapshot
+
+        print(json.dumps(hardware_snapshot(args.device), indent=2))
+        return
 
     if args.command == "play":
         serve(args.port)

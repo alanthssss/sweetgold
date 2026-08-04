@@ -39,8 +39,15 @@ def _rollout(
     death_penalty,
     energy_penalty,
 ) -> tuple[list[dict], dict]:
+    from .hardware import configure_torch
+
+    selected_device = configure_torch(torch)
     env = BeeEnv(config, seed=seed)
-    torch_generator = torch.Generator().manual_seed(seed + 300_000)
+    torch_generator = None
+    if selected_device != "mps":
+        torch_generator = torch.Generator(device=selected_device).manual_seed(
+            seed + 300_000
+        )
     per_bee: dict[int, list[dict]] = {}
     while not env.done:
         observation = env.observe()

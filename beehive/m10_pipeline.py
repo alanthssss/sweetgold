@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .env import EnvConfig
+from .hardware import hardware_snapshot
 from .evaluator import evaluate, paired_honey_comparison
 from .ml import seed_split
 from .pipeline import _git_commit, _git_dirty, _summarize, prepare_run_dir
@@ -193,6 +194,7 @@ def run_m10_pipeline(
         "git_dirty": _git_dirty(),
         "python": sys.version,
         "platform": platform.platform(),
+        "hardware": hardware_snapshot(),
         "seed_sets": seed_sets,
     }
     (run_dir / "metadata.json").write_text(

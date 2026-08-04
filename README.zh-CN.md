@@ -20,8 +20,18 @@ SweetGold 同时包含确定性蜂群模拟器（deterministic bee-colony simula
 它支持行为克隆（Behavior Cloning）、PPO 和集中训练分散执行（CTDE），并严格隔离
 训练、验证和最终测试种子。
 
+<!-- section:current-project-stage -->
+## 当前项目阶段：M16
+
+M16 第一阶段增加硬件可移植的 ML 执行与证据。所有 ML 命令现在都能明确选择 CPU、
+Apple MPS 和 NVIDIA CUDA；运行清单记录硬件后端，不可用加速器不会静默回退。
+M6 BC+PPO 和 M7 CTDE 冒烟工作流均可在 Apple M1 Pro GPU 上完成。
+
+第一轮本地基准显示，小型 BC 工作负载在 M1 Pro CPU 上约比 MPS 快 6.4 倍，因此在
+profiling 证明有必要前暂缓 AWS CUDA。详见[硬件基准](docs/hardware-benchmark.zh-CN.md)。
+
 <!-- section:latest-completed-outcome -->
-## 最新完成成果：M15
+## 最新完成产品工作流：M15
 
 M15 是当前项目阶段。它把 Arena 证据转化成明确、可审计的策略决策；它不会训练或替换底层策略。
 
@@ -172,7 +182,8 @@ SweetGold 把可复现性和模型交付当作产品能力，而不是实验结�
 
 | 主题 | 文档 |
 | --- | --- |
-| 产品架构与 M2–M15 研究记录 | [产品与研究设计](docs/product-design.zh-CN.md) |
+| 产品架构与 M2–M16 研究记录 | [产品与研究设计](docs/product-design.zh-CN.md) |
+| CPU、MPS、CUDA 与云资源决策证据 | [硬件可移植性与基准](docs/hardware-benchmark.zh-CN.md) |
 | 环境、命令、产物与门槛 | [交接指南](HANDOFF.zh-CN.md) |
 | 已晋级检查点与证据 | [模型目录](docs/models/README.zh-CN.md) |
 | 已发布结果与方法 | [发布说明](docs/releases/v1.1.0.zh-CN.md) |

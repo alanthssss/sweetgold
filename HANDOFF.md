@@ -4,10 +4,11 @@
 
 ## Current status
 
-M14 is the latest promoted policy; M15 is the latest completed product
-workflow. The first M15 slice is on `main`, not pending work. New feature
-development is paused while the project focuses on maintenance, bilingual
-documentation, promotion, and release presentation.
+M16 is the current engineering milestone; phase 1 provides CPU/MPS/CUDA device
+selection, hardware-aware manifests, and local CPU/MPS evidence. M14 remains
+the latest promoted policy and M15 the latest completed product workflow. AWS
+CUDA is deferred pending a workload-based need. After M16 documentation and
+portability work, new feature development returns to maintenance mode.
 
 ## Milestones and formal decisions
 
@@ -27,6 +28,7 @@ documentation, promotion, and release presentation.
 | M13 | Immutable model URLs, sizes, SHA-256, licenses, and model cards | `models list/download/verify` distributes promoted checkpoints without retraining. |
 | M14 | Return, deposit, and recharge supervisor above the M8 actor | Six scenarios × 50 fresh seeds: 100% survival, 0% invalid actions, median honey 148.47%, worst 101.16%; all gates passed. |
 | M15 | Arena league + declared objective + safety constraints + deterministic recommendation | JSON and Markdown decision evidence includes eligibility, rejection reasons, constraints, and source Arena artifact; first slice complete. |
+| M16 | Explicit CPU/MPS/CUDA selection, hardware manifests, synchronized timing, and accelerator smoke coverage | M6 and M7 complete on MPS; small BC training was about 6.4× faster on M1 Pro CPU than MPS, so AWS is deferred. |
 
 The detailed product rationale, experimental design, and failure sequence are in
 [Product and research design](docs/product-design.md). Promoted evidence is in
@@ -92,6 +94,8 @@ the outcome.
   new identity defined by supervisor code and parameters.
 - M15 belongs to the v1.2 development line, but UI and multi-scenario decision
   expansion are paused.
+- M16 phase 1 is complete locally; a budget-capped CUDA run remains optional,
+  not a prerequisite for returning to maintenance mode.
 
 ## Maintenance-mode next steps
 

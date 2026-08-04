@@ -65,13 +65,14 @@ These failures showed that more training on the same feed-forward actor was not
 enough. Their seed ranges are consumed, their gates remain unchanged, and the
 audit registry keeps the negative results visible.
 
-## M13–M15 — distribution, structural safety, and decisions
+## M13–M16 — distribution, structural safety, decisions, and hardware
 
 | Milestone | Design change | Evidence and decision |
 | --- | --- | --- |
 | M13 | Immutable release URLs, sizes, SHA-256 digests, licenses, model cards, and atomic installation. | A clean clone can list, download, verify, and load promoted checkpoints without retraining. |
 | M14 | Deterministic return/deposit/recharge supervisor above the accepted M8 actor. | Six scenarios × 50 new seeds: 100% survival, 0% invalid actions, median honey 148.47%, worst 101.16%; promoted. |
 | M15 | Deterministic objective-and-constraint decision layer above Arena league evidence. | Produces JSON and Markdown evidence or an explicit “no eligible strategy” result; first slice complete. |
+| M16 | Hardware-portable ML backend selection and hardware-aware evidence. | CPU/MPS pipelines pass locally; the small BC workload favors M1 Pro CPU, so CUDA cloud work is gated on profiling. |
 
 M14 did not silently retrain the actor: it shares M8 neural weights. Its policy
 identity adds versioned supervisor code and registered parameters. M15 likewise
@@ -80,8 +81,9 @@ decision back to the source Arena artifact.
 
 ## Current boundary
 
-M15 is the latest completed workflow and M14 is the latest promoted policy.
-New feature work is paused. Maintenance may improve defects, security,
+M16 is the current engineering milestone, M15 the latest completed product
+workflow, and M14 the latest promoted policy. After M16 phase 1, new feature
+work returns to a paused state. Maintenance may improve defects, security,
 compatibility, reproducibility, documentation, and releases, but must not turn a
 small Arena league into a robustness claim or spend old final-test evidence as
 new research data.

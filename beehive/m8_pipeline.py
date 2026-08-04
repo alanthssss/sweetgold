@@ -13,6 +13,7 @@ from .controllers import CONTROLLERS
 from .coordination import CoordinatedCTDEController
 from .ctde import CTDEController, train_ctde
 from .env import EnvConfig
+from .hardware import hardware_snapshot
 from .evaluator import evaluate, paired_honey_comparison
 from .m7_pipeline import validate_m7_config
 from .ml import (
@@ -74,6 +75,7 @@ def run_m8_pipeline(
         "git_dirty": _git_dirty(),
         "python": sys.version,
         "platform": platform.platform(),
+        "hardware": hardware_snapshot(),
         "seed_sets": {name: sorted(seeds) for name, seeds in seed_sets.items()},
     }
     (run_dir / "metadata.json").write_text(
