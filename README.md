@@ -123,6 +123,25 @@ Arena discovers registered rule and learned strategies, verifies model SHA-256
 before loading, runs strategies in the same world, and preserves every frame.
 M15 converts league evidence into a constrained, traceable recommendation.
 
+<!-- section:engineering-guarantees -->
+## Engineering guarantees
+
+SweetGold treats reproducibility and model delivery as product capabilities,
+not post-hoc research hygiene.
+
+| Practice | Enforced behavior |
+| --- | --- |
+| Deterministic execution | Seeded environments and matched episodes make strategy comparisons repeatable. |
+| Data isolation | Training, internal validation, model selection, and final-test seed sets are expanded and checked for leakage before execution. |
+| Policy-as-code promotion | Confidence, yield, survival, invalid-action, and scenario gates are declared in versioned experiment configs. |
+| Auditable evidence | Run bundles preserve configuration, commit, runtime, seed manifest, metrics, decisions, and source-artifact links in machine-readable formats. |
+| Verified model supply chain | Immutable release URLs, exact sizes, SHA-256 digests, licenses, model cards, and atomic installation protect distributed checkpoints. |
+| Automated regression protection | Dependency-free tests and end-to-end ML smoke pipelines run in CI; failed candidates remain in the audit registry. |
+
+These are enterprise-style engineering practices, not a claim that the local
+HTTP server is a hardened multi-user production service. See the
+[handoff guide](HANDOFF.md) for sources of truth and operational boundaries.
+
 <!-- section:research-journey -->
 ## Research journey
 

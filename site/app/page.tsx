@@ -19,6 +19,7 @@ export default function Home() {
         <div className="nav-links">
           <a href="#evidence">Evidence</a>
           <a href="#arena">Arena</a>
+          <a href="#engineering">Engineering</a>
           <a href="#start">Quick start</a>
           <a className="language-switch" href="/zh" lang="zh-CN">中文</a>
           <a className="nav-cta" href={github}>GitHub ↗</a>
@@ -39,7 +40,7 @@ export default function Home() {
             <a className="button secondary" href={github}>View source <span>↗</span></a>
           </div>
           <div className="proof-strip" aria-label="Project facts">
-            <div><strong>45</strong><span>tests passing</span></div>
+            <div><strong>49</strong><span>tests passing</span></div>
             <div><strong>6</strong><span>audit scenarios</span></div>
             <div><strong>Apache 2.0</strong><span>open source</span></div>
           </div>
@@ -112,6 +113,22 @@ export default function Home() {
             <div className="match-result"><span>Δ HONEY</span><strong>+72</strong><span>ALL BEES ALIVE</span></div>
           </div>
         </div>
+      </section>
+
+      <section className="engineering shell" id="engineering">
+        <div className="section-heading">
+          <p className="eyebrow"><span /> ENGINEERING GUARANTEES</p>
+          <h2>Research rigor,<br />built into the system.</h2>
+        </div>
+        <div className="engineering-grid">
+          <article><b>01</b><h3>Deterministic execution</h3><p>Seeded environments and matched episodes make every comparison repeatable.</p></article>
+          <article><b>02</b><h3>Isolated evaluation data</h3><p>Preflight checks block leakage across training, validation, selection and final tests.</p></article>
+          <article><b>03</b><h3>Policy-as-code gates</h3><p>Confidence, yield and safety thresholds live in versioned experiment configs.</p></article>
+          <article><b>04</b><h3>Verified model supply chain</h3><p>Immutable releases, exact sizes, SHA-256, licenses and atomic installs protect checkpoints.</p></article>
+          <article><b>05</b><h3>Traceable artifacts</h3><p>JSON run bundles retain commits, runtimes, seed manifests, metrics and decision links.</p></article>
+          <article><b>06</b><h3>Automated regression defense</h3><p>Core tests and end-to-end ML smoke pipelines run in CI; failed audits stay visible.</p></article>
+        </div>
+        <p className="engineering-boundary">Enterprise-style engineering practices with an explicit boundary: the built-in server is a local experimentation interface, not a hardened multi-user production service.</p>
       </section>
 
       <section className="journey shell">
