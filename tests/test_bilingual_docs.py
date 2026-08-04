@@ -1,4 +1,5 @@
 import pathlib
+import re
 import unittest
 
 
@@ -6,6 +7,18 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class BilingualDocumentationTests(unittest.TestCase):
+    def test_readmes_have_the_same_section_structure(self):
+        marker_pattern = re.compile(r"<!-- section:([a-z0-9-]+) -->")
+        english = (ROOT / "README.md").read_text(encoding="utf-8")
+        chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+
+        english_sections = marker_pattern.findall(english)
+        chinese_sections = marker_pattern.findall(chinese)
+
+        self.assertGreater(len(english_sections), 0)
+        self.assertEqual(english_sections, chinese_sections)
+        self.assertEqual(english.count("```"), chinese.count("```"))
+
     def test_every_primary_markdown_document_has_a_chinese_peer(self):
         primary_documents = sorted(
             path
