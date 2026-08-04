@@ -1,41 +1,65 @@
 # SweetGold
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+<p align="center">
+  <img src="docs/assets/sweetgold-social.png" alt="SweetGold — teach a colony to survive the unknown" width="100%">
+</p>
 
-**Version 1.1.0 — reproducible multi-agent AI experimentation platform**
+<p align="center">
+  <strong>A reproducible multi-agent AI lab where policies earn their promotion.</strong>
+</p>
 
-SweetGold connects a deterministic simulation, strategy baselines, imitation
-and reinforcement learning, model promotion, robustness audits and an
-interactive comparison product.
+<p align="center">
+  <a href="https://github.com/alanthssss/sweetgold/actions"><img src="https://github.com/alanthssss/sweetgold/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-f4b942.svg" alt="Apache 2.0 license"></a>
+  <a href="https://github.com/alanthssss/sweetgold/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/release-v1.1.0-0d110f.svg" alt="v1.1.0"></a>
+  <img src="https://img.shields.io/badge/python-3.10%2B-83d7aa.svg" alt="Python 3.10+">
+</p>
 
-- **Strategy Arena** runs two policies from the same seed with live metrics and
-  replay.
-- **BeeBench** provides matched-seed evaluation and confidence intervals.
-- **ML pipelines** cover BC, DAgger, PPO, CTDE, model registration and audits.
+SweetGold is a deterministic bee-colony simulation, matched-seed benchmark and
+interactive Strategy Arena for imitation learning, PPO and centralized
+training with decentralized execution. It keeps training, validation and test
+seeds isolated, promotes models only through declared gates, and preserves
+failed experiments instead of moving the goalposts.
 
-SweetGold promotes models only when their predeclared quality and safety gates
-pass. Failed M10–M12 experiments remain preserved, while M14 is the first
-policy to pass the complete cross-distribution robustness audit.
+| Proven on untouched final seeds | M14 result |
+| --- | ---: |
+| Minimum bee survival across six scenarios | **100%** |
+| Maximum invalid-action rate | **0%** |
+| Median honey versus Assignment | **148.47%** |
+| Worst-case honey versus Assignment | **101.16%** |
+
+> M14 used 50 unseen seeds in each of six environment distributions. See the
+> [model card](docs/models/hierarchical-return-ctde.md) and
+> [release notes](docs/releases/v1.1.0.md) for scope and methodology.
+
+## Why SweetGold?
+
+- **Same world, different minds.** Arena policies start from identical worlds
+  and stochastic seeds, with live metrics and frame-by-frame replay.
+- **Failures are evidence.** M10–M12 missed their predeclared robustness gates;
+  the audits remain committed and shaped M14's structural change.
+- **Reproducible by construction.** Seed manifests, leakage checks, immutable
+  run artifacts, confidence intervals and SHA-256-verified checkpoints are
+  built into the workflow.
+- **Useful without an ML stack.** The simulator, rule strategies, benchmarks
+  and web Arena run on Python 3.10+ with no third-party packages.
 
 ## Quick start
 
 Requires Python 3.10+ and no third-party packages.
 
 ```bash
-# Run tests
-python3 -m unittest discover -s tests -v
-
-# Print the release version
-python3 main.py --version
-
-# Run a benchmark and write report/index.html
-python3 main.py benchmark --episodes 30 --report report
-
-# Open the interactive game
+# Clone, enter the repository, and open the Arena
+git clone https://github.com/alanthssss/sweetgold.git
+cd sweetgold
 python3 main.py play --port 8080
 ```
 
-Then visit <http://127.0.0.1:8080>.
+Then visit <http://127.0.0.1:8080>. To produce a matched-seed report instead:
+
+```bash
+python3 main.py benchmark --episodes 30 --report report
+```
 
 Rule strategies work in a fresh clone. Learned checkpoints are distributed
 separately through immutable model releases; the Arena can download them and
@@ -54,9 +78,16 @@ The committed registry supplies the release URL, byte size, SHA-256 digest,
 license and model card. Downloads are installed atomically only after all
 integrity checks pass.
 
-See [v1.1.0 release notes](docs/releases/v1.1.0.md),
-[changelog](CHANGELOG.md), and the
-[release checklist](docs/release-checklist.md).
+## Explore
+
+| If you want to… | Start here |
+| --- | --- |
+| Compare two strategies visually | `python3 main.py play --port 8080` |
+| Run a repeatable strategy league | `python3 main.py arena-league --strategies assignment greedy scout --episodes 10 --seed 42` |
+| Produce an auditable recommendation | `python3 main.py arena-agent --strategies assignment greedy scout --objective balanced --episodes 10 --seed 42` |
+| Inspect the promoted model | [M14 model card](docs/models/hierarchical-return-ctde.md) |
+| Understand the research arc | [Release notes](docs/releases/v1.1.0.md) · [Changelog](CHANGELOG.md) |
+| Contribute or report a bug | [Contributing guide](CONTRIBUTING.md) · [Issues](https://github.com/alanthssss/sweetgold/issues) |
 
 ## License
 
