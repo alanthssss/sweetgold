@@ -1,5 +1,7 @@
 # SweetGold promoted models v2
 
+[English](models-v2.md) | [简体中文](models-v2.zh-CN.md)
+
 `models-v2` is the second immutable SweetGold model catalog. It adds the first
 cross-distribution accepted policy, `hierarchical-return-ctde`, while retaining
 the two v1 checkpoints for complete, clean installations.

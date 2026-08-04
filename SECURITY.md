@@ -1,5 +1,7 @@
 # Security policy
 
+[English](SECURITY.md) | [简体中文](SECURITY.zh-CN.md)
+
 ## Supported version
 
 Security fixes are applied to the latest release and the `main` branch.

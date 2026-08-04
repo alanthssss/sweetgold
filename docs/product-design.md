@@ -1,5 +1,7 @@
 # Product design
 
+[English](product-design.md) | [简体中文](product-design.zh-CN.md)
+
 ## Product 1 — BeeSim
 
 BeeSim has two synchronized representations:

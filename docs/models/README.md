@@ -1,5 +1,7 @@
 # SweetGold model artifacts
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Promoted SweetGold checkpoints are distributed separately from the Git
 repository so a fresh clone stays small. The committed model registry records
 the release URL, exact byte size, SHA-256 digest, model card and license for

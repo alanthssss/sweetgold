@@ -5,6 +5,7 @@ const milestones = [
   ["M7", "Decentralize", "Local actors, global critic"],
   ["M10–12", "Fail honestly", "Robustness gaps preserved"],
   ["M14", "Pass the gates", "Hierarchical return control"],
+  ["M15", "Decide with evidence", "Auditable agent workflow"],
 ];
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
           <a href="#evidence">Evidence</a>
           <a href="#arena">Arena</a>
           <a href="#start">Quick start</a>
+          <a className="language-switch" href="/zh" lang="zh-CN">中文</a>
           <a className="nav-cta" href={github}>GitHub ↗</a>
         </div>
       </nav>
@@ -99,11 +101,12 @@ export default function Home() {
       </section>
 
       <section className="journey shell">
-        <div className="section-heading compact"><p className="eyebrow"><span /> 14 MILESTONES, ONE AUDIT TRAIL</p><h2>The failures built the policy.</h2></div>
+          <div className="section-heading compact"><p className="eyebrow"><span /> 15 MILESTONES, ONE AUDIT TRAIL</p><h2>The failures built the policy.</h2></div>
         <div className="milestones">
           {milestones.map(([id,title,text]) => <article key={id}><span>{id}</span><h3>{title}</h3><p>{text}</p></article>)}
         </div>
         <p className="failure-note">M10–M12 failed their declared gates. SweetGold records why instead of moving the goalposts.</p>
+        <p className="failure-note"><strong>M14</strong> is the latest promoted policy. <strong>M15</strong> is the latest completed workflow: it turns Arena evidence into a constrained, auditable recommendation.</p>
       </section>
 
       <section className="start shell" id="start">
