@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/alanthssss/sweetgold/actions"><img src="https://github.com/alanthssss/sweetgold/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-f4b942.svg" alt="Apache 2.0 许可证"></a>
-  <a href="https://github.com/alanthssss/sweetgold/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/release-v1.1.0-0d110f.svg" alt="v1.1.0"></a>
+  <a href="https://github.com/alanthssss/sweetgold/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/release-v1.2.0-0d110f.svg" alt="v1.2.0"></a>
   <img src="https://img.shields.io/badge/python-3.10%2B-83d7aa.svg" alt="Python 3.10+">
 </p>
 
@@ -186,7 +186,7 @@ SweetGold 把可复现性和模型交付当作产品能力，而不是实验结�
 | CPU、MPS、CUDA 与云资源决策证据 | [硬件可移植性与基准](docs/hardware-benchmark.zh-CN.md) |
 | 环境、命令、产物与门槛 | [交接指南](HANDOFF.zh-CN.md) |
 | 已晋级检查点与证据 | [模型目录](docs/models/README.zh-CN.md) |
-| 已发布结果与方法 | [发布说明](docs/releases/v1.1.0.zh-CN.md) |
+| 已发布结果与方法 | [发布说明](docs/releases/v1.2.0.zh-CN.md) |
 | 新技术术语 | [中英术语表](docs/glossary.md) |
 | 贡献与项目运行 | [贡献指南](CONTRIBUTING.zh-CN.md) · [维护模式](MAINTENANCE.zh-CN.md) · [安全策略](SECURITY.zh-CN.md) |
 

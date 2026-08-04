@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/alanthssss/sweetgold/actions"><img src="https://github.com/alanthssss/sweetgold/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-f4b942.svg" alt="Apache 2.0 license"></a>
-  <a href="https://github.com/alanthssss/sweetgold/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/release-v1.1.0-0d110f.svg" alt="v1.1.0"></a>
+  <a href="https://github.com/alanthssss/sweetgold/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/release-v1.2.0-0d110f.svg" alt="v1.2.0"></a>
   <img src="https://img.shields.io/badge/python-3.10%2B-83d7aa.svg" alt="Python 3.10+">
 </p>
 
@@ -199,7 +199,7 @@ weights, and run directories stay outside Git. See the
 | CPU, MPS, CUDA, and cloud decision evidence | [Hardware portability and benchmark](docs/hardware-benchmark.md) |
 | Setup, commands, artifacts, and gates | [Handoff guide](HANDOFF.md) |
 | Promoted checkpoints and evidence | [Model catalog](docs/models/README.md) |
-| Published results and methodology | [Release notes](docs/releases/v1.1.0.md) |
+| Published results and methodology | [Release notes](docs/releases/v1.2.0.md) |
 | New technical terms | [Bilingual glossary](docs/glossary.md) |
 | Contributions and project operation | [Contributing](CONTRIBUTING.md) · [Maintenance](MAINTENANCE.md) · [Security](SECURITY.md) |
 

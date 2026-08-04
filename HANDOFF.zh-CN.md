@@ -29,7 +29,7 @@ CPU/MPS 证据。M14 仍是最新晋级策略，M15 仍是最新完成产品工�
 | M16 | 明确选择 CPU/MPS/CUDA、硬件清单、同步计时和加速器冒烟覆盖 | M6、M7 已在 MPS 完成；小型 BC 在 M1 Pro CPU 上约比 MPS 快 6.4 倍，因此暂缓 AWS。 |
 
 完整的产品理由、实验设计和失败过程见[产品与研究设计](docs/product-design.zh-CN.md)。
-晋级证据见[模型目录](docs/models/README.zh-CN.md)和[发布说明](docs/releases/v1.1.0.zh-CN.md)。
+晋级证据见[模型目录](docs/models/README.zh-CN.md)和[发布说明](docs/releases/v1.2.0.zh-CN.md)。
 
 ## 复现维护中的工作流
 
@@ -81,9 +81,10 @@ M7、M8、M10、M11、M12、M14 的正式最终种子均已消费。未来研究
 - v1.0.0：完整多智能体实验与 Arena 产品。
 - v1.0.1：明确 Apache-2.0 许可证。
 - v1.1.0：M12–M14、模型分发、联赛和评测产物。
+- v1.2.0：M15 可审计决策、M16 硬件可移植性、双语项目展示和 GitHub Pages 自动发布。
 - `models-v1`：`bc-ppo`、`coordinated-ctde`。
 - `models-v2`：增加 `hierarchical-return-ctde`；它与 M8 共享权重，新身份由监督器代码和参数定义。
-- M15 属于 v1.2 开发线，但 UI 和多场景决策扩展目前暂停。
+- M15 已随 v1.2.0 发布；UI 和多场景决策扩展仍然暂停。
 - M16 第一阶段已在本地完成；预算受限的 CUDA 运行是可选项，不是返回维护模式的前置条件。
 
 ## 维护模式下的下一步
