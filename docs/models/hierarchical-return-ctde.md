@@ -1,5 +1,7 @@
 # Hierarchical return CTDE model card
 
+[English](hierarchical-return-ctde.md) | [简体中文](hierarchical-return-ctde.zh-CN.md)
+
 ## Identity
 
 - Registry ID: `hierarchical-return-ctde`

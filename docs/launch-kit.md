@@ -1,5 +1,7 @@
 # SweetGold launch kit
 
+[English](launch-kit.md) | [简体中文](launch-kit.zh-CN.md)
+
 ## One-line description
 
 SweetGold is a reproducible multi-agent AI lab where bee-colony policies

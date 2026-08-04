@@ -1,5 +1,7 @@
 # Maintenance mode
 
+[English](MAINTENANCE.md) | [简体中文](MAINTENANCE.zh-CN.md)
+
 SweetGold paused new feature development after the first M15 auditable-agent
 workflow reached `main`. The current scope is a complete, reproducible
 multi-agent experimentation platform with a promoted cross-distribution policy.

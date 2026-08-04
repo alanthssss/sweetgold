@@ -1,5 +1,7 @@
 # SweetGold promoted models v1
 
+[English](models-v1.md) | [简体中文](models-v1.zh-CN.md)
+
 This release distributes the first two SweetGold checkpoints that passed their
 predeclared promotion gates. The weights are copyright 2026 alanthssss and
 licensed under the Apache License 2.0.

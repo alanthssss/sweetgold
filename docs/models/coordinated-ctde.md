@@ -1,5 +1,7 @@
 # Coordinated CTDE model card
 
+[English](coordinated-ctde.md) | [简体中文](coordinated-ctde.zh-CN.md)
+
 ## Identity
 
 - Registry ID: `coordinated-ctde`

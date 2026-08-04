@@ -1,5 +1,7 @@
 # Contributing to SweetGold
 
+[English](CONTRIBUTING.md) | [简体中文](CONTRIBUTING.zh-CN.md)
+
 SweetGold is currently in maintenance mode. Focused bug fixes, documentation
 improvements, reproducibility fixes and small test additions are welcome. New
 training architectures or product features should begin with an issue and a

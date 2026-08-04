@@ -1,5 +1,7 @@
 # SweetGold handoff
 
+[English](HANDOFF.md) | [简体中文](HANDOFF.zh-CN.md)
+
 ## Current milestone
 
 M13 turns the local-only model registry into a distributable artifact workflow.

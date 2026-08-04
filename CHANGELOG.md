@@ -1,5 +1,7 @@
 # Changelog
 
+[English](CHANGELOG.md) | [简体中文](CHANGELOG.zh-CN.md)
+
 All notable SweetGold changes are documented here. The project uses semantic
 versioning from v1.0.0 onward.
 

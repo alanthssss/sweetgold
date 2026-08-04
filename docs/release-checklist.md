@@ -1,5 +1,7 @@
 # v1.1.0 release checklist
 
+[English](release-checklist.md) | [简体中文](release-checklist.zh-CN.md)
+
 ## Source readiness
 
 - [x] Version is `1.1.0` in `VERSION` and `beehive.__version__`.

@@ -1,5 +1,7 @@
 # SweetGold
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 <p align="center">
   <img src="docs/assets/sweetgold-social.png" alt="SweetGold — teach a colony to survive the unknown" width="100%">
 </p>
@@ -31,6 +33,18 @@ failed experiments instead of moving the goalposts.
 > M14 used 50 unseen seeds in each of six environment distributions. See the
 > [model card](docs/models/hierarchical-return-ctde.md) and
 > [release notes](docs/releases/v1.1.0.md) for scope and methodology.
+
+## Current project stage: M15
+
+**M14 is the latest promoted policy; M15 is the latest completed product
+workflow.** M15 adds `arena-agent`, a deterministic decision layer that runs a
+matched-seed league, applies an explicit `balanced`, `yield`, or `safety`
+objective, rejects strategies that violate declared constraints, and writes
+auditable JSON and Markdown evidence. The first M15 slice is complete and on
+`main`; new feature development is now paused in favor of maintenance,
+documentation, and release work.
+
+New to the terminology? Use the bilingual [glossary](docs/glossary.md).
 
 ## Why SweetGold?
 

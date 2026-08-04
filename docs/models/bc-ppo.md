@@ -1,5 +1,7 @@
 # BC+PPO model card
 
+[English](bc-ppo.md) | [简体中文](bc-ppo.zh-CN.md)
+
 ## Identity
 
 - Registry ID: `bc-ppo`
