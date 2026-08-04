@@ -22,7 +22,10 @@
 
 - [ ] 确认 `main` 的必需 GitHub Actions 通过。
 - [ ] 对合并提交执行干净克隆测试。
-- [ ] 从合并提交创建 `v1.1.0` 标签和 GitHub Release。
+- [ ] 从合并发布提交创建 `v1.1.0` 标签。
+- [ ] 使用 `docs/releases/v1.1.0.zh-CN.md` 创建 GitHub Release。
 - [ ] 确认标签、源码归档和模型链接公开可用。
+
+## 所有权说明
 
 SweetGold 及晋级模型使用 Apache-2.0；Copyright 2026 alanthssss。
