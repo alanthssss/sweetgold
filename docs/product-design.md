@@ -90,4 +90,4 @@ new research data.
 
 Operational commands and artifact locations are in the [handoff guide](../HANDOFF.md).
 Formal policy evidence is in the [model catalog](models/README.md), and published
-claims are in the [release notes](releases/v1.1.0.md).
+claims are in the [release notes](releases/v1.2.0.md).

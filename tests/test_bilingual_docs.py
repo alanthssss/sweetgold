@@ -18,6 +18,7 @@ class BilingualDocumentationTests(unittest.TestCase):
         "docs/releases/v1.0.0.md",
         "docs/releases/v1.0.1.md",
         "docs/releases/v1.1.0.md",
+        "docs/releases/v1.2.0.md",
     )
 
     def test_readmes_have_the_same_section_structure(self):

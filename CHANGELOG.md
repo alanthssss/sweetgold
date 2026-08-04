@@ -7,6 +7,8 @@ versioning from v1.0.0 onward.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-04
+
 ### Added
 
 - M15 auditable Arena agent workflow with explicit objectives, safety
@@ -82,7 +84,8 @@ versioning from v1.0.0 onward.
 - The local HTTP server is an experimentation interface, not a hardened
   multi-user production service.
 
-[Unreleased]: https://github.com/alanthssss/sweetgold/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/alanthssss/sweetgold/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/alanthssss/sweetgold/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/alanthssss/sweetgold/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/alanthssss/sweetgold/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/alanthssss/sweetgold/releases/tag/v1.0.0

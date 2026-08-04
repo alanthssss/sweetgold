@@ -32,7 +32,7 @@ portability work, new feature development returns to maintenance mode.
 
 The detailed product rationale, experimental design, and failure sequence are in
 [Product and research design](docs/product-design.md). Promoted evidence is in
-the [model catalog](docs/models/README.md) and [release notes](docs/releases/v1.1.0.md).
+the [model catalog](docs/models/README.md) and [release notes](docs/releases/v1.2.0.md).
 
 ## Reproduce the maintained workflows
 
@@ -89,11 +89,12 @@ the outcome.
 - v1.0.0: complete multi-agent experiment and Arena product.
 - v1.0.1: explicit Apache-2.0 licensing.
 - v1.1.0: M12–M14, model distribution, leagues, and evaluation artifacts.
+- v1.2.0: M15 auditable decisions, M16 hardware portability, bilingual project
+  presentation, and automated GitHub Pages publication.
 - `models-v1`: `bc-ppo` and `coordinated-ctde`.
 - `models-v2`: adds `hierarchical-return-ctde`; it shares M8 weights, with a
   new identity defined by supervisor code and parameters.
-- M15 belongs to the v1.2 development line, but UI and multi-scenario decision
-  expansion are paused.
+- M15 is released in v1.2.0; UI and multi-scenario decision expansion remain paused.
 - M16 phase 1 is complete locally; a budget-capped CUDA run remains optional,
   not a prerequisite for returning to maintenance mode.
 

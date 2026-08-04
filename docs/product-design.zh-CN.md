@@ -79,4 +79,4 @@ M16 是当前工程里程碑，M15 是最新完成产品工作流，M14 是最�
 旧的最终测试证据当作新的研究数据使用。
 
 操作命令和产物位置见[交接指南](../HANDOFF.zh-CN.md)，正式策略证据见
-[模型目录](models/README.zh-CN.md)，已发布声明见[发布说明](releases/v1.1.0.zh-CN.md)。
+[模型目录](models/README.zh-CN.md)，已发布声明见[发布说明](releases/v1.2.0.zh-CN.md)。

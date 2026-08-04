@@ -6,6 +6,8 @@
 
 ## [尚未发布]
 
+## [1.2.0] - 2026-08-04
+
 ### 新增
 
 - M15 可审计 Arena 智能体工作流：明确目标、安全约束、确定性建议，以及成对的 JSON/Markdown 决策产物。
@@ -65,7 +67,8 @@
 - 学习检查点和实验运行包是生成产物，不直接存入 Git。
 - 本地 HTTP 服务器是实验接口，不是经过加固的多用户生产服务。
 
-[尚未发布]: https://github.com/alanthssss/sweetgold/compare/v1.1.0...HEAD
+[尚未发布]: https://github.com/alanthssss/sweetgold/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/alanthssss/sweetgold/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/alanthssss/sweetgold/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/alanthssss/sweetgold/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/alanthssss/sweetgold/releases/tag/v1.0.0
