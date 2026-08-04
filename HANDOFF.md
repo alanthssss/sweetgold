@@ -2,346 +2,100 @@
 
 [English](HANDOFF.md) | [简体中文](HANDOFF.zh-CN.md)
 
-## Current milestone
+## Current status
 
-M13 turns the local-only model registry into a distributable artifact workflow.
-The registry now declares immutable release URLs, sizes, SHA-256 digests,
-licenses and model cards. CLI commands list, download and verify promoted
-checkpoints without requiring users to retrain them.
+M14 is the latest promoted policy; M15 is the latest completed product
+workflow. The first M15 slice is on `main`, not pending work. New feature
+development is paused while the project focuses on maintenance, bilingual
+documentation, promotion, and release presentation.
 
-## Initial M2 implementation
+## Milestones and formal decisions
 
-- `AssignmentController` with persistent, distinct flower reservations.
-- Unambiguous colony and individual-bee survival metrics.
-- Honey-per-bee and invalid-action-rate metrics.
-- Matched-seed Assignment-versus-Greedy summary in the HTML report.
-- Assigned-target highlighting in BeeSim.
-- Controller and metric regression tests.
+| Milestone | Delivered work | Decision and evidence |
+| --- | --- | --- |
+| M2 | Centralized Assignment reservations, survival and invalid-action metrics, 100-seed report | 161.23 honey, 94.25% bee survival, 0% invalid actions; deterministic baseline established. |
+| M3 | Two-bee early-season reserve and full late-season fleet | About 10% better efficiency for about 2.9% less honey; accepted as the best tested balance. |
+| M4 | BC, class weighting, seed isolation, and one DAgger iteration | 136.10 honey on 30 test seeds, 97.0% of teacher; a second DAgger iteration was rejected after online regression. |
+| M5 | BC-initialized PPO, GAE, clipped updates, critic, validation selection | +8.19 honey over BC on 100 test seeds, 95% CI [+3.69, +12.69]; random initialization produced zero honey. |
+| M6 | One-command pipeline, leakage checks, run bundles, gated promotion, CI | Final tests never select checkpoints; registry writes require confidence, quality, and safety gates. |
+| M7 | Radius-four local observation, global training critic, four-worker CTDE | +6.60 honey over local BC, but 1.056% invalid actions exceeded the 1% gate; rejected. |
+| M8 | Local harvest-intent broadcasts and rotating-priority reservations | +6.19 honey, 13.51 conflicts prevented, zero invalid and unresolved actions; passed and registered. |
+| M9 | Two-strategy Arena, identical worlds, live metrics, server-side replay | Learned dependencies remain optional; digest failures disable models without breaking rule strategies. |
+| M10 | Six-scenario cross-distribution audit | Scarce-nectar yield 74.68%, large-map survival 50.25%, harsh-weather survival 7.75%; failed. |
+| M11 | Five-stage sequential curriculum and multi-scenario selection | Final harsh-weather survival 6.5%, worst yield 69.85%; failed and recorded. |
+| M12 | Balanced interleaved training and five gated cycles | Large-map survival 86.25%, harsh-weather 27.75%, scarce-nectar yield 73.65%; still failed. |
+| M13 | Immutable model URLs, sizes, SHA-256, licenses, and model cards | `models list/download/verify` distributes promoted checkpoints without retraining. |
+| M14 | Return, deposit, and recharge supervisor above the M8 actor | Six scenarios × 50 fresh seeds: 100% survival, 0% invalid actions, median honey 148.47%, worst 101.16%; all gates passed. |
+| M15 | Arena league + declared objective + safety constraints + deterministic recommendation | JSON and Markdown decision evidence includes eligibility, rejection reasons, constraints, and source Arena artifact; first slice complete. |
 
-## Initial M2 verification
+The detailed product rationale, experimental design, and failure sequence are in
+[Product and research design](docs/product-design.md). Promoted evidence is in
+the [model catalog](docs/models/README.md) and [release notes](docs/releases/v1.1.0.md).
 
-The 100-seed matched experiment (starting at seed 20260724) passed:
+## Reproduce the maintained workflows
 
-- Assignment: 161.23 mean honey, 94.25% bee survival, 0% invalid actions.
-- Greedy: 155.91 mean honey, 67.25% bee survival, 3.36% invalid actions.
-- Paired honey delta: Assignment +5.32; 53 wins, 2 ties, 45 losses.
-- All 8 automated tests pass.
-
-Reproduce with:
+Core simulation, benchmark, Arena, and M15 decision workflow require Python
+3.10+ and no third-party packages:
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 main.py benchmark --episodes 100 --controllers greedy assignment --report report
+python3 main.py benchmark --episodes 30 --controllers greedy assignment --report report
 python3 main.py play --port 8080
+python3 main.py arena-agent --strategies assignment greedy scout --objective balanced --episodes 10 --seed 42
 ```
 
-## Initial M2 decision
-
-Use the 100-seed result to decide whether to refine Assignment's energy
-efficiency or begin behavior cloning from it. Do not begin reinforcement
-learning until the deterministic baseline and evaluation protocol are stable.
-
-## M3 energy-aware fleet sizing
-
-M3 keeps two bees in reserve for the first half of the season and activates the
-full surviving colony in the second half. On the same 100 seeds:
-
-- Assignment: 156.61 mean honey, 0.114 efficiency, 95.25% bee survival,
-  0% invalid actions.
-- Greedy: 155.91 mean honey, 0.122 efficiency, 67.25% bee survival,
-  3.36% invalid actions.
-
-Compared with M2 Assignment, energy efficiency improves by about 10% while
-mean honey decreases by about 2.9%. The strict aspirational thresholds of 160
-honey and 0.115 efficiency were not simultaneously attainable with a static
-fleet size; this dynamic schedule is the best tested balance.
-
-## M4 behavior cloning
-
-The optional PyTorch pipeline now supports:
-
-- episode-level train/validation/test seed isolation;
-- Assignment trajectory collection;
-- class-weighted behavior-cloning training;
-- DAgger collection on learner-visited training states;
-- action masking and matched-seed BC benchmarking.
-
-The accepted checkpoint uses 100 teacher episodes plus one 50-episode DAgger
-iteration. On 30 unseen test seeds:
-
-- Assignment: 140.30 mean honey, 92.5% bee survival.
-- Behavior cloning: 136.10 mean honey (97.0% of teacher), 95.0% bee survival,
-  0.77% invalid actions.
-- Greedy: 139.07 mean honey, 62.5% bee survival, 2.97% invalid actions.
-
-Generated datasets, checkpoints, virtual environments and BC reports are
-ignored by Git. A second DAgger iteration was tested and rejected because
-online performance regressed; checkpoint selection must use separate online
-validation seeds rather than assuming more aggregation always helps.
-
-## M5 BC-initialized PPO
-
-The optional PPO pipeline includes masked stochastic rollouts, GAE, clipped PPO
-updates, a learned critic, shaped team rewards and validation-only checkpoint
-selection. On 100 unseen test seeds:
-
-- Assignment: 155.78 mean honey, 96.25% bee survival.
-- Behavior cloning: 145.79 mean honey, 90.88% bee survival.
-- BC+PPO: 153.98 mean honey, 99.0% bee survival, 0.96% invalid actions.
-- Random-init PPO: 0 mean honey after the same 100-episode training budget.
-
-BC+PPO improves over BC by +8.19 honey per matched seed; the paired 95%
-confidence interval is [+3.69, +12.69], with 65 wins, 3 ties and 32 losses.
-The selected checkpoint is episode 50 with validation honey 146.10. Generated
-PPO checkpoints, training histories and reports remain ignored by Git.
-
-## M6 experiment pipeline
-
-`python main.py pipeline --config experiments/m6-bc-ppo.json` now orchestrates
-Assignment data collection, behavior cloning, DAgger, PPO, checkpoint
-selection, final matched-seed evaluation, HTML reporting and model promotion.
-
-Pipeline guarantees:
-
-- actual episode seed sets are expanded and checked for leakage before work;
-- every run records config, Git commit, runtime and complete seed manifest;
-- final test seeds are never used for training or checkpoint selection;
-- promotion requires a paired 95% CI above zero plus configured thresholds;
-- accepted candidates are appended to `registry/models.json`;
-- generated datasets, checkpoints and run bundles remain outside Git;
-- CI runs both dependency-free tests and an end-to-end PyTorch smoke pipeline.
-
-## M7 local observation and CTDE
-
-M7 adds:
-
-- radius-four local actor observations;
-- a global critic used only during training;
-- deterministic four-worker rollout collection;
-- a one-command `pipeline-m7` experiment;
-- local dataset manifests, seed isolation and CI smoke coverage.
-
-On 100 final unseen seeds:
-
-- Assignment: 157.41 mean honey.
-- Local behavior cloning: 153.11 mean honey, 93.13% survival.
-- CTDE PPO: 159.71 mean honey, 91.0% survival.
-- Paired CTDE delta: +6.60, 95% CI [+3.28, +9.92].
-
-The candidate was correctly rejected because its 1.056% invalid-action rate
-exceeded the predeclared 1% threshold. Do not retroactively relax that gate or
-reuse the final seeds for tuning. The next experiment should address local
-resource contention using training/validation seeds and reserve a fresh final
-test range.
-
-## M8 decentralized contention coordination
-
-M8 adds same-flower harvest-intent broadcasts and rotating-priority local
-reservations. Denied bees take their next-best valid action; no global target
-assignment is introduced. The M8 pipeline tracks raw contention, reservation
-success, prevented conflicts and unresolved contention, and uses fresh,
-disjoint seed ranges.
-
-On 100 untouched final seeds:
-
-- Local behavior cloning: 141.38 mean honey, 93.88% survival, 0.497% invalid.
-- Uncoordinated CTDE: 147.46 mean honey, 94.25% survival, 0.742% invalid.
-- Coordinated CTDE: 147.57 mean honey, 94.0% survival, 0% invalid.
-- Coordinated versus local BC: +6.19 honey, 95% CI [+3.41, +8.97].
-- Coordination prevented 13.51 conflicts per episode with zero unresolved
-  conflicts; versus the same actor it changed honey by +0.11 ± 2.20.
-
-The coordinated candidate passes every predeclared gate and is registered.
-M9 should load registered strategies into BeeSim for side-by-side execution,
-metric comparison and replay. Do not reuse M8 final seeds for M9 tuning.
-
-## M9 strategy arena
-
-BeeSim is now a matched-seed comparison product rather than a single-policy
-viewer. The server discovers rule policies and registered learned models,
-verifies model SHA-256 hashes, and reports unavailable generated artifacts
-without breaking rule-based use.
-
-The UI runs two strategies from identical worlds, presents live honey deltas
-and operational metrics, and stores every frame server-side for timeline
-replay. Learned policies remain optional PyTorch features. M10 should evaluate
-generalization and robustness across environment distributions; it should use
-new seed ranges and keep the M8 final set untouched.
-
-## M10 generalization and robustness
-
-`pipeline-m10` audits a registered strategy against a matched baseline across
-configuration-defined distributions. Scenario names, environment configs,
-disjoint test seed sets, runtime metadata, complete metrics, paired confidence
-intervals and an HTML report are recorded in the run bundle. CI exercises the
-pipeline with dependency-free rule controllers.
-
-The six-scenario, 50-seed-per-scenario coordinated-CTDE audit failed:
-
-- Median honey ratio versus Assignment: 99.56% (90% gate passed).
-- Worst honey ratio: 74.68% under scarce nectar (75% gate failed).
-- Large-map bee survival: 50.25%.
-- Harsh-weather bee survival: 7.75% (75% gate failed).
-- Maximum invalid-action rate: 0% (1% gate passed).
-- Large-colony and short-season performance remained near Assignment.
-
-Do not tune on or reuse the M10 scenario seeds. M11 should introduce a
-training/validation curriculum over map distance, nectar scarcity, rain and
-energy budgets, then reserve entirely new final ranges for the robustness
-decision.
-
-## M11 curriculum robustness
-
-M11 adds sequential CTDE curriculum training, survival-aware stage checkpoint
-selection, multi-scenario validation, fully isolated final evaluation, CI
-smoke coverage and support for a future curriculum model in the Strategy
-Arena. Training, validation and final seed sets are checked pairwise before
-work begins.
-
-The five-stage formal candidate failed and was not registered:
-
-- Validation weather training raised minimum survival from 4.17% to 17.71%,
-  but failed the scarce-resource yield gate.
-- The selector retained default-refresh because it passed three of four gates.
-- Final median honey ratio: 99.51%.
-- Final worst honey ratio: 69.85% under harsh weather.
-- Large-map survival improved from M10's 50.25% to 60.25%.
-- Harsh-weather survival remained only 6.5%.
-- Invalid-action rate remained 0% in every scenario.
-
-The failed result is recorded in `registry/audits.json`. Do not reuse M11
-validation or final seeds. SweetGold can now ship as an honestly scoped
-multi-agent experiment platform v1.0; the current learned policy must not be
-described as generally robust.
-
-## M12 interleaved robustness
-
-M12 adds:
-
-- balanced round-robin sampling across default, large-map, scarce-nectar and
-  harsh-weather environments;
-- five independently seeded training cycles with equal per-scenario budgets;
-- multi-scenario validation gates after every cycle;
-- pairwise leakage checks across training, internal validation, model
-  selection and final evaluation seeds;
-- audit recording, optional promotion, Arena discovery and CI smoke coverage.
-
-The formal candidate failed and was not registered:
-
-- Every cycle used exactly 20 episodes from each of four training scenarios.
-- Final median honey ratio was 99.23%, and invalid actions remained 0%.
-- Large-map survival improved from M11's 60.25% to 86.25%.
-- Harsh-weather survival improved from 6.5% to 27.75%.
-- Scarce-nectar yield was 73.65% of Assignment, below the 75% floor.
-- Minimum survival remained below the 75% promotion gate.
-
-The failed result is recorded in `registry/audits.json`. Do not reuse M12
-validation or final seeds. M14 should test a structural change such as
-hierarchical energy-return control or recurrent memory instead of continuing
-to tune the same feed-forward actor on consumed evaluation data.
-
-## M13 model distribution
-
-M13 adds:
-
-- Apache-2.0 model cards for the accepted M6 BC+PPO and M8 coordinated CTDE
-  checkpoints;
-- release URL, exact size, license and model-card metadata in the committed
-  registry;
-- dependency-free `models list`, `models download` and `models verify`
-  commands;
-- safe project-root path resolution, streaming SHA-256 verification, atomic
-  installation and corrupt-artifact repair;
-- tests for successful installation, integrity rejection and path traversal.
-
-The `models-v1` GitHub Release is public, and a clean clone has downloaded,
-verified and loaded both controllers successfully. Strategy Arena exposes
-promotion state, artifact integrity, model cards and later audit failures, with
-a local download action for missing or corrupt checkpoints. Architecture
-research moves to M14 so artifact delivery and policy changes remain
-independently reviewable.
-
-## Arena matched-seed league
-
-The Arena now turns available strategies into an automated round-robin league:
-
-- every entrant runs once on a shared, consecutive seed set;
-- pairwise wins, ties and losses are derived from matched episode results;
-- standings award three points for a match win and one for a tie;
-- mean honey, confidence interval and survival remain visible;
-- rule strategies work in the core environment, while verified learned
-  checkpoints are enabled only when PyTorch is installed;
-- the bilingual interface has been verified with all six available strategies.
-
-The release process is still intentionally manual. Creating a Git tag alone
-does not upload a model: the `models-v1` Release and its two checkpoint assets
-were explicitly created, and `registry/models.json` holds their stable URLs,
-sizes and digests. A release workflow should be added only when repeated model
-promotion makes automation worthwhile.
-
-## Arena evaluation artifacts
-
-League results no longer disappear with the browser response. Each run is
-atomically saved under `runs/arena` with a schema version, timestamp, request,
-shared seed set, leaderboard and pairwise comparisons. The same operation is
-available through the browser, HTTP API and `arena-league` CLI, so CI jobs and
-AI agents can consume exactly the same JSON contract as a human operator.
-
-The next model-research milestone at this point was M14: test a structural
-policy change using fresh training, validation and final seeds rather than
-spending more final-test budget tuning the failed M11/M12 feed-forward policy.
-
-## M14 hierarchical return control
-
-M14 adds a deterministic high-level supervisor above the accepted M8
-coordinated actor. The supervisor takes control when cargo is full, remaining
-energy approaches the expected trip-home budget or the season is ending. It
-returns the bee to the hive, deposits cargo and recharges before yielding to
-the learned actor again.
-
-Four configurations were selected on 12 fresh seeds across default, large-map,
-scarce-nectar and harsh-weather validation scenarios. The selected parameters
-were safety margin 6 and recharge fraction 0.8. A single final audit used 50
-new seeds in each of six scenarios:
-
-- 100% bee survival and 0% invalid actions in every scenario;
-- median honey ratio 148.47% versus Assignment;
-- worst honey ratio 101.16% under scarce nectar;
-- harsh-weather honey 141.46 versus Assignment's 99.48;
-- large-map honey 223.68 versus 146.56.
-
-All predeclared promotion gates passed, so `hierarchical-return-ctde` is
-registered. Its actor weights are byte-identical to `coordinated-ctde`; the
-new policy identity consists of the shared checkpoint plus versioned
-supervisor code and registry parameters. The next step is to publish the
-updated code and model card, then run the registered strategy through Arena
-evaluation artifacts before considering any new learned architecture.
-
-## models-v2 and v1.1.0 preparation
-
-`models-v2` is public and anchored to the merged M14 commit. It contains
-`bc-ppo.pt`, `coordinated-ctde.pt`, the explicit
-`hierarchical-return-ctde.pt` alias, Apache-2.0 terms and a machine-readable
-manifest. Server-side asset digests match the committed registry, and a clean
-temporary download of the M14 alias passed.
-
-The source version is prepared as v1.1.0 because M12–M14, model distribution,
-Arena leagues and evaluation artifacts are additive user-facing capabilities.
-After the release-preparation PR merges, run CI and a clean-clone check on
-`main`, then create the `v1.1.0` tag and GitHub Release. Do not publish another
-model catalog until a new model is promoted or the artifact contract changes.
-
-## M15 auditable agent workflow
-
-M15 begins the v1.2 line by turning an Arena result into an explicit strategy
-decision. `arena-agent` runs the existing matched-seed tournament, applies one
-of three declared objectives (balanced, yield or safety), filters candidates
-against minimum survival and maximum invalid-action constraints, and writes
-both machine-readable JSON and human-readable Markdown evidence.
-
-The recommender is deliberately deterministic: an AI agent may choose inputs,
-invoke the workflow and explain its output, but cannot silently invent a
-winner or hide a failed constraint. Each report links back to its immutable
-Arena artifact and warns that a small league is not a formal robustness audit.
-The next M15 slice should expose this operation through the HTTP product UI or
-add multi-scenario decision policies before preparing v1.2.0.
+Promoted model artifacts can be managed separately from training:
+
+```bash
+python3 main.py models list
+python3 main.py models download
+python3 main.py models verify
+```
+
+Optional learning workflows require `requirements-ml.txt`. Representative
+formal pipelines are:
+
+```bash
+.venv-ml/bin/python main.py pipeline --config experiments/m6-bc-ppo.json
+.venv-ml/bin/python main.py pipeline-m8 --config experiments/m8-coordination.json
+.venv-ml/bin/python main.py pipeline-m14 --config experiments/m14-hierarchical-return.json
+```
+
+## Artifacts and sources of truth
+
+| Evidence | Location |
+| --- | --- |
+| Promoted model identity, local path, digest, and parameters | `registry/models.json` |
+| Failed and passed formal audits | `registry/audits.json` |
+| Experiment definitions and seed ranges | `experiments/*.json` |
+| Arena league and M15 decision artifacts | `runs/arena/` and configured run directories |
+| Human-readable policy evidence | `docs/models/` and `docs/releases/` |
+
+Generated datasets, weights, virtual environments, and run bundles stay out of
+Git. Registry metadata and committed reports are the durable record; local
+generated files are not automatically authoritative.
+
+## Consumed evaluation data
+
+Formal final seeds from M7, M8, M10, M11, M12, and M14 have been consumed.
+Future research must allocate fresh validation and final ranges. Never tune on
+these results, reuse final seeds for selection, or relax a gate after observing
+the outcome.
+
+## Models and releases
+
+- v1.0.0: complete multi-agent experiment and Arena product.
+- v1.0.1: explicit Apache-2.0 licensing.
+- v1.1.0: M12–M14, model distribution, leagues, and evaluation artifacts.
+- `models-v1`: `bc-ppo` and `coordinated-ctde`.
+- `models-v2`: adds `hierarchical-return-ctde`; it shares M8 weights, with a
+  new identity defined by supervisor code and parameters.
+- M15 belongs to the v1.2 development line, but UI and multi-scenario decision
+  expansion are paused.
+
+## Maintenance-mode next steps
+
+Accept critical defects, security, compatibility, reproducibility,
+documentation, and release work. Resuming feature development requires a
+specific research question, predeclared gates, and a budget of untouched final
+seeds. A small Arena league must never be presented as a formal robustness audit.

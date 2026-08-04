@@ -20,4 +20,9 @@ M14 没有重训或静默修改神经网络；新策略身份是共享权重加�
 ## 文件与校验
 
 发布包含三个模型名称、Apache-2.0、`models-v2-manifest.json`，清单声明字节数、摘要、
-模型卡和控制参数。使用 `python main.py models download` 和 `models verify` 安装并校验。
+模型卡和控制参数。使用 SweetGold 安装并校验注册产物：
+
+```bash
+python main.py models download
+python main.py models verify
+```
