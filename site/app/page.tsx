@@ -63,10 +63,24 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="evidence shell" id="evidence">
+      <section className="current-outcome shell" id="evidence">
         <div className="section-heading">
-          <p className="eyebrow"><span /> THE RESULT THAT MATTERS</p>
-          <h2>Robustness is a gate.<br />Not a marketing adjective.</h2>
+          <p className="eyebrow"><span /> LATEST COMPLETED OUTCOME · M15</p>
+          <h2>Evidence in.<br />Auditable decision out.</h2>
+        </div>
+        <div className="outcome-grid">
+          <article><span>OBJECTIVES</span><strong>3</strong><p>balanced · yield · safety</p></article>
+          <article><span>SAFETY CONSTRAINTS</span><strong>2</strong><p>survival · invalid actions</p></article>
+          <article><span>EVIDENCE FORMATS</span><strong>2</strong><p>JSON · Markdown</p></article>
+          <article><span>DECISION</span><strong>Deterministic</strong><p>recommend or reject explicitly</p></article>
+        </div>
+        <p className="method-note">M15 is the current project stage. It selects among existing strategies; it does not train a new policy.</p>
+      </section>
+
+      <section className="evidence shell">
+        <div className="section-heading">
+          <p className="eyebrow"><span /> LATEST PROMOTED POLICY · M14</p>
+          <h2>Formal performance<br />of the newest policy.</h2>
         </div>
         <div className="scorecard">
           <div className="score-main"><strong>148.47%</strong><span>median honey vs. Assignment</span></div>
@@ -74,7 +88,7 @@ export default function Home() {
           <div className="score"><strong>100%</strong><span>minimum survival</span><small>every scenario</small></div>
           <div className="score"><strong>0%</strong><span>invalid actions</span><small>every scenario</small></div>
         </div>
-        <p className="method-note">M14 · 50 untouched seeds in each of 6 scenarios · selected only on disjoint validation seeds</p>
+        <p className="method-note">M14 · 50 untouched seeds in each of 6 scenarios · selected only on disjoint validation seeds · M15 does not change these results</p>
       </section>
 
       <section className="arena shell" id="arena">

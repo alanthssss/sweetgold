@@ -33,7 +33,9 @@ test("renders an equal Chinese route with bilingual terminology", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /可复现的多智能体 AI 实验室/);
-  assert.match(html, /鲁棒性 Robustness/);
+  assert.match(html, /最新完成成果 · M15/);
+  assert.match(html, /最新晋级策略 · M14/);
+  assert.match(html, /安全约束 CONSTRAINTS/);
   assert.match(html, /M14/);
   assert.match(html, /M15/);
   assert.match(html, /href="\/"/);
