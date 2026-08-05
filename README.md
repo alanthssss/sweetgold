@@ -208,6 +208,7 @@ weights, and run directories stay outside Git. See the
 | Topic | Document |
 | --- | --- |
 | Zero-background project introduction and reader routes | [Start here](docs/getting-started.md) |
+| Practical impact, customer hypotheses, SWOT, and commercialization gates | [Impact and roadmap](docs/impact-and-roadmap.md) |
 | Product architecture and M2–M16 research record | [Product and research design](docs/product-design.md) |
 | CPU, MPS, CUDA, and cloud decision evidence | [Hardware portability and benchmark](docs/hardware-benchmark.md) |
 | Setup, commands, artifacts, and gates | [Handoff guide](HANDOFF.md) |

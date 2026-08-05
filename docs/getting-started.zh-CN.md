@@ -75,9 +75,9 @@ SweetGold 从一个小游戏开始。蜂巢里有几只虚拟蜜蜂，花朵里�
 - **我是 DevOps 或 MLOps 从业者：**阅读[交接指南](../HANDOFF.zh-CN.md)、
   [硬件基准](hardware-benchmark.zh-CN.md)和 CI 配置。
 - **我遇到了陌生术语：**使用[中英术语表](glossary.zh-CN.md)。
+- **我想了解实际意义或商业潜力：**阅读[实际意义、商业潜力与未来路线](impact-and-roadmap.zh-CN.md)。
 
 ## 当前边界
 
 v1.2.0 完成了当前特性开发周期。SweetGold 现在处于维护期：严重缺陷、安全、兼容性、
 可复现性、文档和发布可靠性仍在范围内；没有明确问题目标的新特性开发暂时停止。
-

@@ -18,6 +18,7 @@ export default function Home() {
         </a>
         <div className="nav-links">
           <a href="#start-here">Start here</a>
+          <a href="#impact">Impact</a>
           <a href="#evidence">Evidence</a>
           <a href="#arena">Arena</a>
           <a href="#engineering">Engineering</a>
@@ -82,6 +83,26 @@ export default function Home() {
           <div><span>I WORK IN DEVOPS / MLOPS</span><strong>Trace delivery and controls</strong><a href={`${github}/blob/main/HANDOFF.md`}>Read the engineering handoff →</a></div>
         </div>
         <p className="concept-line"><strong>The whole journey:</strong> bee simulator → rule baselines → learned policies → fair exams → evidence-backed release.</p>
+      </section>
+
+      <section className="impact shell" id="impact">
+        <div className="section-heading">
+          <p className="eyebrow"><span /> WHY IT MATTERS BEYOND BEES</p>
+          <h2>A small world for<br />high-stakes habits.</h2>
+        </div>
+        <p className="impact-lede">SweetGold does not sell a bee policy. It makes coordination, fair evaluation, promotion, and audit evidence understandable in one end-to-end system. The workflow may transfer; each industry claim still needs domain validation.</p>
+        <div className="impact-grid">
+          <article><span>PRACTICAL VALUE TODAY</span><h3>Inspect the complete AI lifecycle</h3><p>From simulator and baselines to learned policies, isolated final tests, verified models, and auditable decisions.</p></article>
+          <article><span>TRANSFER SCENARIOS</span><h3>Shared-resource coordination</h3><p>Warehouse and robot fleets, drone inspection, mobility research, games, AI evaluation, and technical education.</p></article>
+          <article><span>CUSTOMER HYPOTHESES</span><h3>Teams that teach, test, or govern AI</h3><p>Universities, corporate academies, ML platforms, governance teams, simulation R&amp;D, and technical consultancies.</p></article>
+        </div>
+        <div className="truth-grid">
+          <div><span>ADVANTAGE</span><strong>Evidence is the product</strong><p>Deterministic comparisons, predeclared gates, retained failures, model integrity, and bilingual explanation form one coherent workflow.</p></div>
+          <div><span>LIMITATION</span><strong>The domain is still a proxy</strong><p>No customer discovery, paid pilot, real fleet integration, multi-user hardening, or measured business outcome exists yet.</p></div>
+        </div>
+        <div className="commercial-path"><div><span>01</span><strong>Interview</strong><p>Validate one repeated, urgent buyer problem.</p></div><div><span>02</span><strong>Transfer</strong><p>Connect one external or customer simulator.</p></div><div><span>03</span><strong>Pilot</strong><p>Measure time, defect, or audit reduction.</p></div><div><span>04</span><strong>Productize</strong><p>Standardize only what repeats.</p></div></div>
+        <p className="impact-boundary">Most credible first paths: education and enablement, then an adapter-based evaluation and promotion toolkit. Direct industrial control remains a hypothesis until domain-specific evidence exists.</p>
+        <a className="impact-link" href={`${github}/blob/main/docs/impact-and-roadmap.md`}>Read the full customer, SWOT, commercialization, and roadmap analysis →</a>
       </section>
 
       <section className="current-outcome shell" id="evidence">

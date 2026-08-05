@@ -95,6 +95,8 @@ web server itself is not presented as a hardened multi-user production service.
 - **I work in DevOps or MLOps:** read the [handoff guide](../HANDOFF.md),
   [hardware benchmark](hardware-benchmark.md), and CI configuration.
 - **I met an unfamiliar term:** use the [bilingual glossary](glossary.md).
+- **I want to understand real-world or commercial potential:** read
+  [impact, commercial potential, and roadmap](impact-and-roadmap.md).
 
 ## Current boundary
 
@@ -102,4 +104,3 @@ Version 1.2.0 completes the current feature-development cycle. SweetGold is in
 a maintenance phase: critical defects, security, compatibility,
 reproducibility, documentation, and release reliability remain in scope, while
 unfocused new feature development is paused.
-
