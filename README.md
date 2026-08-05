@@ -20,6 +20,18 @@ benchmark, and an interactive Strategy Arena. It supports behavior cloning,
 PPO, and centralized training with decentralized execution (CTDE), while
 keeping training, validation, and final-test seeds isolated.
 
+<!-- section:start-here -->
+## New to the project? Start here
+
+SweetGold begins as a small game: virtual bees move, collect nectar, return
+honey, and recharge before a season ends. The research question is how several
+independent agents can act locally while cooperating as a reliable colony.
+
+If terms such as PPO, CTDE, promotion gates, or matched seeds are unfamiliar,
+read **[Start here: understand SweetGold from zero](docs/getting-started.md)**.
+It explains the project without assuming an AI background and provides separate
+routes for curious visitors, ML practitioners, and DevOps/MLOps readers.
+
 <!-- section:current-project-stage -->
 ## Current project stage: M16
 
@@ -195,6 +207,7 @@ weights, and run directories stay outside Git. See the
 
 | Topic | Document |
 | --- | --- |
+| Zero-background project introduction and reader routes | [Start here](docs/getting-started.md) |
 | Product architecture and M2–M16 research record | [Product and research design](docs/product-design.md) |
 | CPU, MPS, CUDA, and cloud decision evidence | [Hardware portability and benchmark](docs/hardware-benchmark.md) |
 | Setup, commands, artifacts, and gates | [Handoff guide](HANDOFF.md) |

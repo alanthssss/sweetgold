@@ -17,6 +17,7 @@ export default function Home() {
           <span>SweetGold</span>
         </a>
         <div className="nav-links">
+          <a href="#start-here">Start here</a>
           <a href="#evidence">Evidence</a>
           <a href="#arena">Arena</a>
           <a href="#engineering">Engineering</a>
@@ -40,7 +41,7 @@ export default function Home() {
             <a className="button secondary" href={github}>View source <span>↗</span></a>
           </div>
           <div className="proof-strip" aria-label="Project facts">
-            <div><strong>49</strong><span>tests passing</span></div>
+            <div><strong>53</strong><span>tests passing</span></div>
             <div><strong>6</strong><span>audit scenarios</span></div>
             <div><strong>Apache 2.0</strong><span>open source</span></div>
           </div>
@@ -64,9 +65,28 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="orientation shell" id="start-here">
+        <div className="section-heading orientation-heading">
+          <p className="eyebrow"><span /> NEW HERE? BEGIN BEFORE THE JARGON</p>
+          <h2>A small bee game.<br />A serious cooperation problem.</h2>
+        </div>
+        <div className="plain-story">
+          <article><b>01</b><h3>Build the world</h3><p>A hive, flowers, energy, weather, and several virtual bees. The season ends; we count honey, survival, and invalid actions.</p></article>
+          <article><b>02</b><h3>Try different minds</h3><p>Handwritten rules and learned policies solve the same problem: act independently without wasting the colony&apos;s shared resources.</p></article>
+          <article><b>03</b><h3>Give them the same exam</h3><p>The same random seed recreates the same world, so a strategy cannot win merely by receiving an easier map.</p></article>
+          <article><b>04</b><h3>Publish the evidence</h3><p>Declared gates, isolated final tests, model hashes, and retained failures make each promoted result traceable.</p></article>
+        </div>
+        <div className="reader-routes" aria-label="Choose a reading route">
+          <div><span>I AM NEW TO AI</span><strong>Understand the game and question</strong><a href={`${github}/blob/main/docs/getting-started.md`}>Start with the plain-language guide →</a></div>
+          <div><span>I WORK IN ML</span><strong>Inspect training and evidence</strong><a href={`${github}/blob/main/docs/models/README.md`}>Open the model catalog →</a></div>
+          <div><span>I WORK IN DEVOPS / MLOPS</span><strong>Trace delivery and controls</strong><a href={`${github}/blob/main/HANDOFF.md`}>Read the engineering handoff →</a></div>
+        </div>
+        <p className="concept-line"><strong>The whole journey:</strong> bee simulator → rule baselines → learned policies → fair exams → evidence-backed release.</p>
+      </section>
+
       <section className="current-outcome shell" id="evidence">
         <div className="section-heading">
-          <p className="eyebrow"><span /> LATEST COMPLETED OUTCOME · M15</p>
+          <p className="eyebrow"><span /> PRODUCT WORKFLOW · M15</p>
           <h2>Evidence in.<br />Auditable decision out.</h2>
         </div>
         <div className="outcome-grid">
@@ -75,7 +95,7 @@ export default function Home() {
           <article><span>EVIDENCE FORMATS</span><strong>2</strong><p>JSON · Markdown</p></article>
           <article><span>DECISION</span><strong>Deterministic</strong><p>recommend or reject explicitly</p></article>
         </div>
-        <p className="method-note">M15 is the current project stage. It selects among existing strategies; it does not train a new policy.</p>
+        <p className="method-note">M15 selects among existing strategies; it does not train a new policy. M16 is the latest engineering milestone.</p>
       </section>
 
       <section className="evidence shell">
@@ -129,6 +149,7 @@ export default function Home() {
           <article><b>06</b><h3>Automated regression defense</h3><p>Core tests and end-to-end ML smoke pipelines run in CI; failed audits stay visible.</p></article>
         </div>
         <p className="engineering-boundary">Enterprise-style engineering practices with an explicit boundary: the built-in server is a local experimentation interface, not a hardened multi-user production service.</p>
+        <div className="hardware-note"><span>LATEST ENGINEERING MILESTONE · M16</span><strong>CPU, Apple MPS, and NVIDIA CUDA are explicit execution targets.</strong><p>On the measured small behavior-cloning workload, the M1 Pro CPU was about 6.4× faster than MPS because accelerator overhead outweighed useful parallel work. Hardware evidence—not “GPU is always faster”—drives the decision.</p><a href={`${github}/blob/main/docs/hardware-benchmark.md`}>Read the hardware benchmark →</a></div>
       </section>
 
       <section className="journey shell">

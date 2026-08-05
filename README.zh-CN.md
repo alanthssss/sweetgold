@@ -20,6 +20,16 @@ SweetGold 同时包含确定性蜂群模拟器（deterministic bee-colony simula
 它支持行为克隆（Behavior Cloning）、PPO 和集中训练分散执行（CTDE），并严格隔离
 训练、验证和最终测试种子。
 
+<!-- section:start-here -->
+## 第一次接触？从这里开始
+
+SweetGold 最初是一个小游戏：虚拟蜜蜂移动、采集花蜜、返巢存蜜，并在季节结束前充能。
+真正研究的问题是，多个独立智能体怎样在各自行动的同时形成可靠的蜂群协作。
+
+如果 PPO、CTDE、晋级门槛或配对种子这些词对你还很陌生，请先读
+**[从这里开始：零基础理解 SweetGold](docs/getting-started.zh-CN.md)**。它不预设 AI
+背景，并为普通访客、ML 从业者以及 DevOps/MLOps 读者提供不同的阅读路线。
+
 <!-- section:current-project-stage -->
 ## 当前项目阶段：M16
 
@@ -182,6 +192,7 @@ SweetGold 把可复现性和模型交付当作产品能力，而不是实验结�
 
 | 主题 | 文档 |
 | --- | --- |
+| 零背景项目介绍与分类阅读路线 | [从这里开始](docs/getting-started.zh-CN.md) |
 | 产品架构与 M2–M16 研究记录 | [产品与研究设计](docs/product-design.zh-CN.md) |
 | CPU、MPS、CUDA 与云资源决策证据 | [硬件可移植性与基准](docs/hardware-benchmark.zh-CN.md) |
 | 环境、命令、产物与门槛 | [交接指南](HANDOFF.zh-CN.md) |

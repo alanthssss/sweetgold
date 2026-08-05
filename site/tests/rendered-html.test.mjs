@@ -20,11 +20,14 @@ test("server-renders the SweetGold launch page and social metadata", async () =>
   const html = await response.text();
   assert.match(html, /<title>SweetGold — A Reproducible Multi-Agent AI Lab<\/title>/i);
   assert.match(html, /Teach a colony/);
+  assert.match(html, /A small bee game/);
+  assert.match(html, /I AM NEW TO AI/);
   assert.match(html, /148\.47%/);
   assert.match(html, /Strategy Arena/i);
   assert.match(html, /ENGINEERING GUARANTEES/i);
   assert.match(html, /Verified model supply chain/i);
   assert.match(html, /M15/);
+  assert.match(html, /M16/);
   assert.match(html, /href="\/zh"/);
   assert.match(html, /https:\/\/sweetgold\.example\/og\.png/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
@@ -35,13 +38,16 @@ test("renders an equal Chinese route with bilingual terminology", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /可复现的多智能体 AI 实验室/);
-  assert.match(html, /最新完成成果 · M15/);
+  assert.match(html, /一个蜜蜂小游戏/);
+  assert.match(html, /我不熟悉 AI/);
+  assert.match(html, /产品工作流 · M15/);
   assert.match(html, /最新晋级策略 · M14/);
   assert.match(html, /安全约束 CONSTRAINTS/);
   assert.match(html, /工程保障 \/ ENGINEERING GUARANTEES/);
   assert.match(html, /经验证的模型供应链/);
   assert.match(html, /M14/);
   assert.match(html, /M15/);
+  assert.match(html, /M16/);
   assert.match(html, /href="\/"/);
 });
 
