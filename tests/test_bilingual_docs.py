@@ -12,6 +12,8 @@ class BilingualDocumentationTests(unittest.TestCase):
         "HANDOFF.md",
         "CHANGELOG.md",
         "docs/product-design.md",
+        "docs/getting-started.md",
+        "docs/impact-and-roadmap.md",
         "docs/release-checklist.md",
         "docs/releases/models-v1.md",
         "docs/releases/models-v2.md",
