@@ -25,6 +25,8 @@ test("server-renders the SweetGold launch page and social metadata", async () =>
   assert.match(html, /WHY IT MATTERS BEYOND BEES/);
   assert.match(html, /CUSTOMER HYPOTHESES/);
   assert.match(html, /The domain is still a proxy/);
+  assert.match(html, /OPEN-SOURCE REALITY/);
+  assert.match(html, /Prove transfer first/);
   assert.match(html, /148\.47%/);
   assert.match(html, /Strategy Arena/i);
   assert.match(html, /ENGINEERING GUARANTEES/i);
@@ -46,6 +48,8 @@ test("renders an equal Chinese route with bilingual terminology", async () => {
   assert.match(html, /蜜蜂之外，为什么有意义/);
   assert.match(html, /客户假设/);
   assert.match(html, /当前领域仍是代理场景/);
+  assert.match(html, /开源现实/);
+  assert.match(html, /先证明可迁移/);
   assert.match(html, /产品工作流 · M15/);
   assert.match(html, /最新晋级策略 · M14/);
   assert.match(html, /安全约束 CONSTRAINTS/);
