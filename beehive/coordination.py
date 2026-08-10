@@ -52,6 +52,7 @@ class CoordinatedCTDEController(CTDEController):
         features = self.torch.tensor(
             [encode_local_bee(observation, bee["id"]) for bee in living],
             dtype=self.torch.float32,
+            device=self.device,
         )
         with self.torch.no_grad():
             scores = self.model(features).tolist()

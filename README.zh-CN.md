@@ -93,6 +93,9 @@ python3 main.py play --port 8080
 
 浏览器打开 <http://127.0.0.1:8080>。生成 30 回合配对种子报告：
 
+学习策略的推理输入会自动跟随 `SWEETGOLD_DEVICE` 选定的检查点模型设备；
+`auto` 模式依次选择 `cuda`、`mps`、`cpu`。实时 Arena 单步失败会显示在页面提示区。
+
 ```bash
 python3 main.py benchmark --episodes 30 --report report
 ```

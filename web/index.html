@@ -17,6 +17,15 @@
   </header>
 
   <main>
+    <section class="overview" aria-labelledby="overviewTitle">
+      <div><span class="eyebrow" data-en="HOW TO USE THE ARENA" data-zh="如何使用竞技场">如何使用竞技场</span><h2 id="overviewTitle" data-en="Configure, observe, then compare." data-zh="先配置，再观察，最后比较。">先配置，再观察，最后比较。</h2></div>
+      <ol class="workflow">
+        <li><b>01</b><span data-en="Choose two strategies" data-zh="选择两个策略">选择两个策略</span></li>
+        <li><b>02</b><span data-en="Run or step through one world" data-zh="运行或单步观察同一世界">运行或单步观察同一世界</span></li>
+        <li><b>03</b><span data-en="Run a league for evidence" data-zh="运行竞赛，生成排名证据">运行竞赛，生成排名证据</span></li>
+      </ol>
+    </section>
+    <div class="section-kicker"><span class="eyebrow" data-en="LIVE MATCH" data-zh="实时对局">实时对局</span><p data-en="Both lanes share the same seed and environment." data-zh="两侧策略使用同一个随机种子和完全相同的环境。">两侧策略使用同一个随机种子和完全相同的环境。</p></div>
     <section class="control-deck">
       <label>
         <span data-en="LEFT STRATEGY" data-zh="左侧策略">左侧策略</span>
@@ -53,10 +62,10 @@
           <span data-en="EPISODES" data-zh="对局数">对局数</span>
           <input id="tournamentEpisodes" type="number" min="1" max="50" value="10">
         </label>
-        <button id="runTournament" class="primary" type="button" data-en="Run league" data-zh="运行联赛">运行联赛</button>
+        <button id="runTournament" class="primary" type="button" data-en="Run competition" data-zh="运行竞赛">运行竞赛</button>
       </div>
-      <div id="tournamentStatus" class="tournament-status"></div>
-      <div id="leaderboard" class="leaderboard" hidden></div>
+      <div id="tournamentStatus" class="tournament-status" role="status" aria-live="polite"></div>
+      <div id="leaderboard" class="leaderboard" tabindex="-1" hidden></div>
     </section>
 
     <section class="model-library">

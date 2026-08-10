@@ -448,6 +448,7 @@ class BehaviorCloningController:
         )
         self.model.load_state_dict(checkpoint["state_dict"])
         self.model.eval()
+        self.device = next(self.model.parameters()).device
 
     def reset(self, seed: int) -> None:
         pass
@@ -459,6 +460,7 @@ class BehaviorCloningController:
         features = self.torch.tensor(
             [encode_bee(observation, bee["id"]) for bee in living],
             dtype=self.torch.float32,
+            device=self.device,
         )
         with self.torch.no_grad():
             logits = self.model(features)
@@ -484,6 +486,7 @@ class LocalBehaviorCloningController(BehaviorCloningController):
         features = self.torch.tensor(
             [encode_local_bee(observation, bee["id"]) for bee in living],
             dtype=self.torch.float32,
+            device=self.device,
         )
         with self.torch.no_grad():
             logits = self.model(features)
