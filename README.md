@@ -100,6 +100,10 @@ python3 main.py play --port 8080
 
 Open <http://127.0.0.1:8080>. To create a 30-episode matched-seed report:
 
+Learned-policy inference inputs automatically follow the checkpoint model
+device selected by `SWEETGOLD_DEVICE` (`cuda`, then `mps`, then `cpu` in
+`auto` mode). Live Arena step failures are displayed in the page notice.
+
 ```bash
 python3 main.py benchmark --episodes 30 --report report
 ```

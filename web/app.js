@@ -17,7 +17,8 @@ const words = {
     auditFailed: "failed",
     worstScenario: "Worst yield scenario", minimumSurvival: "Minimum survival",
     noLaterAudit: "No later robustness audit recorded",
-    runLeague: "Run league", runningLeague: "Running matched-seed league…",
+    runLeague: "Run competition", runningLeague: "Running matched-seed competition…",
+    preparingLeague: "Preparing shared worlds…", leagueComplete: "Competition complete",
     selectTwo: "Select at least two available strategies",
     savedArtifact: "Saved evaluation artifact", downloadJson: "Download JSON",
     rank: "Rank", strategy: "Strategy", record: "Record", points: "Points",
@@ -37,7 +38,8 @@ const words = {
     auditFailed: "未通过",
     worstScenario: "最差产量场景", minimumSurvival: "最低生存率",
     noLaterAudit: "暂无后续鲁棒性审计",
-    runLeague: "运行联赛", runningLeague: "正在运行同种子联赛…",
+    runLeague: "运行竞赛", runningLeague: "正在运行同种子竞赛…",
+    preparingLeague: "正在准备相同种子的世界…", leagueComplete: "竞赛完成",
     selectTwo: "请至少选择两个可用策略",
     savedArtifact: "评测制品已保存", downloadJson: "下载 JSON",
     rank: "排名", strategy: "策略", record: "战绩", points: "积分",
@@ -209,7 +211,7 @@ function renderLeaderboard(result) {
     <tbody>${rows}</tbody>
   </table>`;
   $("tournamentStatus").textContent =
-    `${result.episodes} ${words[language].episodes} · seed ${result.seed}–${result.seeds.at(-1)}`;
+    `✓ ${words[language].leagueComplete} · ${result.episodes} ${words[language].episodes} · seed ${result.seed}–${result.seeds[result.seeds.length - 1]}`;
   if (result.artifact) {
     const runId = escapeHtml(result.artifact.run_id);
     $("tournamentStatus").innerHTML +=
@@ -227,18 +229,26 @@ async function runTournament() {
   }
   const button = $("runTournament");
   button.disabled = true;
+  button.setAttribute("aria-busy", "true");
   button.textContent = words[language].runningLeague;
-  $("tournamentStatus").textContent = words[language].runningLeague;
+  $("leaderboard").hidden = true;
+  $("tournamentStatus").classList.add("is-running");
+  $("tournamentStatus").textContent = words[language].preparingLeague;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   try {
-    renderLeaderboard(await api("/api/tournament", {
+    const result = await api("/api/tournament", {
       strategies: selected,
       seed: Number($("seed").value),
       episodes: Number($("tournamentEpisodes").value)
-    }));
+    });
+    renderLeaderboard(result);
+    $("leaderboard").focus({preventScroll: true});
   } catch (error) {
     $("tournamentStatus").textContent = error.message;
   } finally {
+    $("tournamentStatus").classList.remove("is-running");
     button.disabled = false;
+    button.removeAttribute("aria-busy");
     button.textContent = words[language].runLeague;
   }
 }
@@ -337,15 +347,25 @@ async function step() {
 }
 
 function stop() {
-  clearInterval(timer);
+  clearTimeout(timer);
   timer = null;
   $("toggle").textContent = words[language].run;
 }
 
 function toggle() {
   if (timer) return stop();
-  timer = setInterval(() => step().catch(stop), 110);
   $("toggle").textContent = words[language].pause;
+  const advance = async () => {
+    try {
+      await step();
+      if (timer) timer = setTimeout(advance, 110);
+    } catch (error) {
+      stop();
+      $("notice").hidden = false;
+      $("notice").textContent = error.message;
+    }
+  };
+  timer = setTimeout(advance, 0);
 }
 
 $("reset").onclick = reset;
@@ -360,12 +380,19 @@ $("language").onclick = async () => {
   localStorage.setItem("sweetgold-language", language);
   translate();
   renderModelCards();
+  const missing = strategies.filter(strategy => strategy.kind === "learned" && !strategy.available);
+  $("notice").textContent = missing.length
+    ? `${words[language].unavailable}: ${missing.map(strategy => strategy.label).join(", ")}`
+    : "";
 };
 $("modelCards").onclick = event => {
   const button = event.target.closest(".download-model");
   if (button) downloadModel(button.dataset.model, button);
 };
-$("runTournament").onclick = runTournament;
+$("runTournament").addEventListener("click", event => {
+  event.preventDefault();
+  runTournament();
+});
 
 translate();
 loadStrategies()

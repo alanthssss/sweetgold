@@ -7,6 +7,22 @@ versioning from v1.0.0 onward.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the Strategy Arena live `Run` control for learned policies on Apple
+  MPS by creating inference inputs on the model parameter device. The same
+  device-following path also covers CPU and CUDA execution.
+- Replaced overlapping live-match interval requests with a sequential loop and
+  surfaced step failures in the Arena notice instead of silently returning to
+  the stopped state at tick zero.
+
+### Changed
+
+- Reorganized the port 8080 Arena around a three-step configure, observe, and
+  compare workflow, with clearer live-match and tournament hierarchy.
+- Added immediate tournament busy feedback, accessible completion status,
+  result focus, responsive guidance, and consistent English/Chinese labels.
+
 ## [1.2.0] - 2026-08-04
 
 ### Added
