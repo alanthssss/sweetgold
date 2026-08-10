@@ -33,6 +33,8 @@ test("server-renders the SweetGold launch page and social metadata", async () =>
   assert.match(html, /Verified model supply chain/i);
   assert.match(html, /M15/);
   assert.match(html, /M16/);
+  assert.match(html, /QUESTIONS BEFORE CLAIMS/);
+  assert.match(html, /href="\/faq"/);
   assert.match(html, /href="\/zh"/);
   assert.match(html, /https:\/\/sweetgold\.example\/og\.png/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
@@ -58,7 +60,29 @@ test("renders an equal Chinese route with bilingual terminology", async () => {
   assert.match(html, /M14/);
   assert.match(html, /M15/);
   assert.match(html, /M16/);
+  assert.match(html, /先问清问题，再理解结论/);
+  assert.match(html, /href="\/zh\/faq"/);
   assert.match(html, /href="\/"/);
+});
+
+test("renders bilingual FAQ routes with representative and full-reference paths", async () => {
+  const englishResponse = await render("/faq");
+  assert.equal(englishResponse.status, 200);
+  const english = await englishResponse.text();
+  assert.match(english, /Know what is proven/);
+  assert.match(english, /16 essential answers/);
+  assert.match(english, /Does one Arena match prove robustness/);
+  assert.match(english, /docs\/faq\.md/);
+  assert.match(english, /href="\/zh\/faq"/);
+
+  const chineseResponse = await render("/zh/faq");
+  assert.equal(chineseResponse.status, 200);
+  const chinese = await chineseResponse.text();
+  assert.match(chinese, /知道什么已经证实/);
+  assert.match(chinese, /16 个关键问答/);
+  assert.match(chinese, /一场 Arena 比赛能证明鲁棒性吗/);
+  assert.match(chinese, /docs\/faq\.zh-CN\.md/);
+  assert.match(chinese, /href="\/faq"/);
 });
 
 test("removes disposable starter UI and ships the social card", async () => {

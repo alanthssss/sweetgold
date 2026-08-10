@@ -43,6 +43,8 @@ async function render(route, destination, language) {
 await rm(outputRoot, { recursive: true, force: true });
 await cp(resolve(siteRoot, "dist/client"), outputRoot, { recursive: true });
 await render("/", "index.html", "en");
+await render("/faq", "faq/index.html", "en");
 await render("/zh", "zh/index.html", "zh-CN");
+await render("/zh/faq", "zh/faq/index.html", "zh-CN");
 await writeFile(resolve(outputRoot, ".nojekyll"), "");
 console.log(`Exported GitHub Pages site to ${outputRoot}`);

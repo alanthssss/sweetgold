@@ -22,6 +22,7 @@ export default function Home() {
           <a href="#evidence">Evidence</a>
           <a href="#arena">Arena</a>
           <a href="#engineering">Engineering</a>
+          <a href="/faq">FAQ</a>
           <a href="#start">Quick start</a>
           <a className="language-switch" href="/zh" lang="zh-CN">中文</a>
           <a className="nav-cta" href={github}>GitHub ↗</a>
@@ -120,6 +121,16 @@ export default function Home() {
         <p className="method-note">M15 selects among existing strategies; it does not train a new policy. M16 is the latest engineering milestone.</p>
       </section>
 
+      <section className="faq-preview shell" id="faq">
+        <div className="section-heading"><p className="eyebrow"><span /> QUESTIONS BEFORE CLAIMS</p><h2>Start with the<br />important distinctions.</h2></div>
+        <div className="faq-preview-grid">
+          <article><span>01 · POSITION</span><h3>Is SweetGold just a bee game?</h3><p>No. The bee world is a reference environment for multi-agent coordination. The durable product is the reproducible evaluation and evidence workflow.</p></article>
+          <article><span>02 · EVIDENCE</span><h3>Does one Arena win prove robustness?</h3><p>No. A small league is a demonstration. Formal claims require predeclared gates, isolated final seeds, and cross-scenario evidence.</p></article>
+          <article><span>03 · BOUNDARY</span><h3>Can it control real robots today?</h3><p>No. The workflow may transfer, but every physical domain still needs its own simulator, integration, safety, and regulatory validation.</p></article>
+        </div>
+        <div className="faq-preview-action"><p>Answers for visitors, learners, researchers, engineers, contributors, partners, and governance teams.</p><a className="button primary" href="/faq">Explore the FAQ <span>→</span></a></div>
+      </section>
+
       <section className="evidence shell">
         <div className="section-heading">
           <p className="eyebrow"><span /> LATEST PROMOTED POLICY · M14</p>
@@ -193,7 +204,7 @@ export default function Home() {
 
       <footer className="shell">
         <div className="footer-brand"><span className="brand-mark">SG</span><div><strong>SweetGold</strong><p>Build policies that earn their promotion.</p></div></div>
-        <div className="footer-links"><a href={github}>GitHub</a><a href={`${github}/releases`}>Releases</a><a href={`${github}/blob/main/docs/models/hierarchical-return-ctde.md`}>Model card</a></div>
+        <div className="footer-links"><a href="/faq">FAQ</a><a href={github}>GitHub</a><a href={`${github}/releases`}>Releases</a><a href={`${github}/blob/main/docs/models/hierarchical-return-ctde.md`}>Model card</a></div>
         <p className="copyright">Apache-2.0 · Built in the open</p>
       </footer>
     </main>

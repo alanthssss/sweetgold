@@ -195,6 +195,7 @@ SweetGold 把可复现性和模型交付当作产品能力，而不是实验结�
 
 | 主题 | 文档 |
 | --- | --- |
+| 按角色与阶段整理的常见问题 | [常见问题 FAQ](docs/faq.zh-CN.md) |
 | 零背景项目介绍与分类阅读路线 | [从这里开始](docs/getting-started.zh-CN.md) |
 | 实际意义、客户假设、优劣势与商业化门槛 | [实际意义与路线](docs/impact-and-roadmap.zh-CN.md) |
 | 产品架构与 M2–M16 研究记录 | [产品与研究设计](docs/product-design.zh-CN.md) |
